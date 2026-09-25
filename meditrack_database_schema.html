@@ -1,0 +1,103 @@
+<style>
+#erd svg.erDiagram .divider path { stroke-opacity: 0.5; }
+#erd svg.erDiagram .row-rect-odd path,
+#erd svg.erDiagram .row-rect-odd rect,
+#erd svg.erDiagram .row-rect-even path,
+#erd svg.erDiagram .row-rect-even rect { stroke: none !important; }
+</style>
+<h2 class="sr-only">Entity relationship diagram of the MediTrack database schema</h2>
+<div id="erd"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const themeMode = document.documentElement.dataset.mode;
+const dark = themeMode ? themeMode === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"anthropic-sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"anthropic-sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+  },
+});
+const { svg } = await mermaid.render('erd-svg', `erDiagram
+  DEPARTMENTS ||--o{ USERS : employs
+  DEPARTMENTS ||--o{ EQUIPMENT : houses
+  USERS ||--o{ REQUESTS : creates
+  EQUIPMENT ||--o{ REQUESTS : "requested via"
+  EQUIPMENT ||--o{ BOOKINGS : "reserved as"
+  EQUIPMENT ||--o{ AUDITLOG : "logged in"
+  EQUIPMENT ||--o{ MAINTENANCE : "scheduled for"
+  DEPARTMENTS {
+    int id PK
+    string name
+    string location
+  }
+  USERS {
+    int id PK
+    string name
+    string role
+    int department_id FK
+  }
+  EQUIPMENT {
+    int id PK
+    string qr_code_id
+    string name
+    string status
+    int department_id FK
+  }
+  REQUESTS {
+    int id PK
+    int equipment_id FK
+    int requested_by FK
+    string priority
+    string status
+  }
+  BOOKINGS {
+    int id PK
+    int equipment_id FK
+    datetime start_time
+    datetime end_time
+  }
+  AUDITLOG {
+    int id PK
+    int equipment_id FK
+    string action
+    datetime timestamp
+  }
+  MAINTENANCE {
+    int id PK
+    int equipment_id FK
+    date scheduled_date
+    string status
+  }`);
+document.getElementById('erd').innerHTML = svg;
+
+document.querySelectorAll('#erd svg.erDiagram .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  firstPath.replaceWith(rect);
+});
+
+document.querySelectorAll('#erd svg.erDiagram .row-rect-odd path, #erd svg.erDiagram .row-rect-even path').forEach(p => {
+  p.setAttribute('stroke', 'none');
+});
+</script>

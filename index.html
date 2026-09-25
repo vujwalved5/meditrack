@@ -1,0 +1,3351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediTrack &mdash; Hospital Equipment Tracking</title>
+  <meta name="description" content="Real-time hospital equipment visibility with role-based access control." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- QR Code Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- QR Scanner -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <!-- bcryptjs for client-side password hashing -->
+  <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --primary-light: #e8f0fe;
+      --available: #1b9e52;
+      --available-bg: #e6f4ec;
+      --available-border: #a8d5b9;
+      --inuse: #d93025;
+      --inuse-bg: #fce8e6;
+      --inuse-border: #f5c6c3;
+      --urgent: #e37400;
+      --urgent-bg: #fef3e2;
+      --manager-color: #7c3aed;
+      --manager-bg: #f3eeff;
+      --manager-border: #c4b0f0;
+      --doctor-color: #0891b2;
+      --doctor-bg: #e0f7fa;
+      --doctor-border: #a0d8e8;
+      --staff-color: #15803d;
+      --staff-bg: #dcfce7;
+      --staff-border: #86efac;
+      --bg: #f0f4f8;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: #dde3ea;
+      --text: #1a2332;
+      --text-secondary: #5f6b7a;
+      --text-muted: #8d99a6;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 2px 8px rgba(0, 0, 0, .08), 0 1px 3px rgba(0, 0, 0, .05);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+      --transition: 200ms ease;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ===== LOGIN SCREEN ===== */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f2a5c 0%, #1557b0 40%, #1a73e8 75%, #0ea5e9 100%);
+      padding: 20px;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .25), 0 4px 16px rgba(0, 0, 0, .12);
+      animation: modal-in 350ms ease both;
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .login-logo-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #1557b0, #1a73e8);
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 16px rgba(26, 115, 232, .35);
+    }
+
+    .login-app-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.4px;
+    }
+
+    .login-app-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .login-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .login-error {
+      background: var(--inuse-bg);
+      border: 1.5px solid var(--inuse-border);
+      color: var(--inuse);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .login-error.show {
+      display: block;
+      animation: card-in 200ms ease;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #1557b0, #1a73e8);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+      box-shadow: 0 2px 8px rgba(26, 115, 232, .35);
+      margin-top: 4px;
+    }
+
+    .login-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(26, 115, 232, .45);
+    }
+
+    .login-btn:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .login-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, #1557b0 0%, #1a73e8 60%, #0ea5e9 100%);
+      color: white;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(21, 87, 176, .4);
+      min-height: 64px;
+      flex-wrap: wrap;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, .18);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+
+    .header-sub {
+      font-size: 11px;
+      opacity: .75;
+      margin-top: 1px;
+    }
+
+    /* NAV TABS */
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1.5px solid rgba(255, 255, 255, .25);
+      background: rgba(255, 255, 255, .1);
+      color: rgba(255, 255, 255, .8);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      background: rgba(255, 255, 255, .2);
+      color: white;
+    }
+
+    .nav-tab.active {
+      background: white;
+      color: var(--primary-dark);
+      font-weight: 600;
+      border-color: white;
+    }
+
+    /* USER INFO IN HEADER */
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      text-align: right;
+    }
+
+    .user-name-display {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .user-role-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .user-role-badge.Manager {
+      background: rgba(124, 58, 237, .25);
+      color: #d8b4fe;
+    }
+
+    .user-role-badge.Senior-Doctor {
+      background: rgba(8, 145, 178, .25);
+      color: #a5f3fc;
+    }
+
+    .user-role-badge.Staff {
+      background: rgba(21, 128, 61, .25);
+      color: #86efac;
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: rgba(255, 255, 255, .12);
+      border: 1.5px solid rgba(255, 255, 255, .25);
+      border-radius: var(--radius-sm);
+      color: white;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+
+    .logout-btn:hover {
+      background: rgba(217, 48, 37, .3);
+      border-color: rgba(217, 48, 37, .5);
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .25);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse-live 2s ease infinite;
+    }
+
+    @keyframes pulse-live {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .6;
+        transform: scale(.85);
+      }
+    }
+
+    /* ===== APP LAYOUT ===== */
+    #app-screen {
+      display: none;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+    }
+
+    @media (max-width: 960px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .header {
+        padding: 12px 16px;
+      }
+
+      .container {
+        padding: 16px 12px;
+      }
+    }
+
+    /* PAGE VIEWS */
+    .page-view {
+      display: none;
+    }
+
+    .page-view.active {
+      display: block;
+    }
+
+    /* ===== SECTION & TOOLBAR ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-count {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .scan-btn {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      background: linear-gradient(135deg, #1557b0, #1a73e8);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      box-shadow: 0 2px 8px rgba(26, 115, 232, .35);
+      white-space: nowrap;
+    }
+
+    .scan-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26, 115, 232, .45);
+    }
+
+    /* ===== STATS ===== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-number.available {
+      color: var(--available);
+    }
+
+    .stat-number.inuse {
+      color: var(--inuse);
+    }
+
+    .stat-number.total {
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    /* ===== EQUIPMENT GRID ===== */
+    .equipment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .equipment-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== EQUIPMENT CARD ===== */
+    .eq-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition), box-shadow var(--transition);
+      animation: card-in 300ms ease both;
+    }
+
+    .eq-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    @keyframes card-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .eq-card.available {
+      border-top: 3px solid var(--available);
+    }
+
+    .eq-card.inuse {
+      border-top: 3px solid var(--inuse);
+    }
+
+    .eq-card-header {
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .eq-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .eq-dept {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status-badge {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-badge.available {
+      background: var(--available-bg);
+      color: var(--available);
+      border: 1px solid var(--available-border);
+    }
+
+    .status-badge.inuse {
+      background: var(--inuse-bg);
+      color: var(--inuse);
+      border: 1px solid var(--inuse-border);
+    }
+
+    .eq-qr {
+      padding: 8px 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .qr-canvas {
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
+      overflow: hidden;
+    }
+
+    .eq-qr-info {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .eq-qr-id {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    .eq-card-footer {
+      padding: 10px 16px 14px;
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      text-align: center;
+    }
+
+    .btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .btn-request {
+      background: var(--inuse-bg);
+      border-color: var(--inuse-border);
+      color: var(--inuse);
+    }
+
+    .btn-request:hover {
+      background: var(--inuse);
+      border-color: var(--inuse);
+      color: white;
+    }
+
+    .btn-toggle {
+      background: var(--available-bg);
+      border-color: var(--available-border);
+      color: var(--available);
+    }
+
+    .btn-toggle:hover {
+      background: var(--available);
+      border-color: var(--available);
+      color: white;
+    }
+
+    .btn-release {
+      background: #e8f0fe;
+      border-color: #a8c4f5;
+      color: var(--primary);
+    }
+
+    .btn-release:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-body {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* ===== REQUESTS ===== */
+    .request-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+      animation: card-in 250ms ease both;
+    }
+
+    .request-item:last-child {
+      border-bottom: none;
+    }
+
+    .request-item:hover {
+      background: var(--surface-2);
+    }
+
+    .request-item.urgent {
+      border-left: 3px solid var(--urgent);
+      padding-left: 13px;
+      background: var(--urgent-bg);
+    }
+
+    .request-eq-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .request-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .urgent-flag {
+      color: var(--urgent);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: .5px;
+    }
+
+    .approval-needed-badge {
+      display: inline-block;
+      background: var(--manager-bg);
+      color: var(--manager-color);
+      border: 1px solid var(--manager-border);
+      border-radius: 10px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      letter-spacing: .3px;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+
+    .approve-reject-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .btn-approve,
+    .btn-reject {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+
+    .btn-approve {
+      background: var(--available-bg);
+      color: var(--available);
+      border: 1px solid var(--available-border);
+    }
+
+    .btn-approve:hover {
+      background: var(--available);
+      color: white;
+    }
+
+    .btn-reject {
+      background: var(--inuse-bg);
+      color: var(--inuse);
+      border: 1px solid var(--inuse-border);
+    }
+
+    .btn-reject:hover {
+      background: var(--inuse);
+      color: white;
+    }
+
+    /* ===== AUDIT LOG ===== */
+    .log-item {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .log-item:last-child {
+      border-bottom: none;
+    }
+
+    .log-action {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .log-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      animation: fade-in 200ms ease;
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      animation: modal-in 250ms ease;
+    }
+
+    @keyframes modal-in {
+      from {
+        opacity: 0;
+        transform: scale(.95) translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: var(--bg);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover {
+      background: var(--inuse-bg);
+      color: var(--inuse);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface);
+      transition: var(--transition);
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, .1);
+    }
+
+    .priority-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .priority-option {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: var(--transition);
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      color: var(--text-secondary);
+    }
+
+    .priority-option.selected-normal {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+
+    .priority-option.selected-urgent {
+      background: var(--urgent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(227, 116, 0, .35);
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      padding: 9px 18px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+
+    .btn-cancel:hover {
+      background: var(--bg);
+    }
+
+    .btn-primary {
+      padding: 9px 20px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #1557b0, #1a73e8);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+      box-shadow: 0 2px 8px rgba(26, 115, 232, .3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26, 115, 232, .4);
+    }
+
+    .btn-danger {
+      padding: 9px 20px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--inuse);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+
+    .btn-danger:hover {
+      background: #b71c1c;
+    }
+
+    /* ===== SCANNER ===== */
+    #scanner-container {
+      width: 100%;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .scan-result {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .scan-result.success {
+      background: var(--available-bg);
+      color: var(--available);
+      border: 1px solid var(--available-border);
+    }
+
+    .scan-result.error {
+      background: var(--inuse-bg);
+      color: var(--inuse);
+      border: 1px solid var(--inuse-border);
+    }
+
+    .scan-result.warning {
+      background: var(--urgent-bg);
+      color: var(--urgent);
+      border: 1px solid #f5d98a;
+    }
+
+    .conflict-alert {
+      background: var(--inuse-bg);
+      border: 2px solid var(--inuse);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .conflict-alert.show {
+      display: block;
+      animation: card-in 250ms ease;
+    }
+
+    .conflict-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--inuse);
+      margin-bottom: 4px;
+    }
+
+    .conflict-msg {
+      font-size: 13px;
+      color: #7d1a15;
+    }
+
+    /* ===== MANAGE USERS PAGE ===== */
+    .manage-users-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .manage-users-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .create-user-panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .create-user-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .temp-password-box {
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--available);
+      letter-spacing: 1px;
+      text-align: center;
+      margin: 12px 0;
+      display: none;
+    }
+
+    .temp-password-box.show {
+      display: block;
+      animation: card-in 250ms ease;
+    }
+
+    .temp-password-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .users-table-panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .users-table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .users-table-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .users-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .users-table th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-bottom: 1.5px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .users-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .users-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .users-table tr:hover td {
+      background: var(--surface-2);
+    }
+
+    .role-chip {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .role-chip.Manager {
+      background: var(--manager-bg);
+      color: var(--manager-color);
+      border: 1px solid var(--manager-border);
+    }
+
+    .role-chip.Senior-Doctor {
+      background: var(--doctor-bg);
+      color: var(--doctor-color);
+      border: 1px solid var(--doctor-border);
+    }
+
+    .role-chip.Staff {
+      background: var(--staff-bg);
+      color: var(--staff-color);
+      border: 1px solid var(--staff-border);
+    }
+
+    .active-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .active-badge.active {
+      background: var(--available-bg);
+      color: var(--available);
+      border: 1px solid var(--available-border);
+    }
+
+    .active-badge.inactive {
+      background: var(--inuse-bg);
+      color: var(--inuse);
+      border: 1px solid var(--inuse-border);
+    }
+
+    .tbl-action-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+      margin-right: 4px;
+    }
+
+    .tbl-action-btn.reset {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid #b3cef5;
+    }
+
+    .tbl-action-btn.reset:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tbl-action-btn.deactivate {
+      background: var(--inuse-bg);
+      color: var(--inuse);
+      border: 1px solid var(--inuse-border);
+    }
+
+    .tbl-action-btn.deactivate:hover {
+      background: var(--inuse);
+      color: white;
+    }
+
+    .tbl-action-btn.reactivate {
+      background: var(--available-bg);
+      color: var(--available);
+      border: 1px solid var(--available-border);
+    }
+
+    .tbl-action-btn.reactivate:hover {
+      background: var(--available);
+      color: white;
+    }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: #1a2332;
+      color: white;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .25);
+      pointer-events: auto;
+      animation: toast-in 300ms ease;
+      max-width: 340px;
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .toast.success {
+      border-left: 3px solid var(--available);
+    }
+
+    .toast.error {
+      border-left: 3px solid var(--inuse);
+    }
+
+    .toast.info {
+      border-left: 3px solid var(--primary);
+    }
+
+    .toast.warning {
+      border-left: 3px solid var(--urgent);
+    }
+
+    /* ===== EMPTY / LOADING ===== */
+    .empty-state {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .empty-text {
+      font-size: 13px;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f0f4f8 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius);
+      height: 200px;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .btn-action-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      box-shadow: 0 2px 8px rgba(22, 163, 74, .35);
+      white-space: nowrap;
+    }
+
+    .btn-action-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, .45);
+    }
+
+    .btn-action-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .btn-action-secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .btn-qr-sticker {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      margin-top: 4px;
+    }
+
+    .btn-qr-sticker:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: #b3cef5;
+    }
+
+    /* STICKER CONTAINER IN MODAL */
+    .sticker-badge {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 320px;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .08);
+      text-align: center;
+      position: relative;
+    }
+
+    .sticker-header {
+      background: linear-gradient(135deg, #1557b0, #1a73e8);
+      color: white;
+      padding: 10px 12px 8px;
+    }
+
+    .sticker-header-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+
+    .sticker-header-sub {
+      font-size: 10px;
+      opacity: .85;
+    }
+
+    .sticker-body {
+      padding: 14px 16px;
+    }
+
+    .sticker-eq-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .sticker-dept-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      background: #e8f0fe;
+      color: #1557b0;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .sticker-qr-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 12px;
+      padding: 8px;
+      background: white;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 8px;
+      width: 170px;
+      height: 170px;
+    }
+
+    .sticker-asset-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: .5px;
+    }
+
+    .sticker-footer {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    /* PRINT ALL PREVIEW GRID */
+    .print-grid-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 10px;
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+    }
+
+    .print-item-preview {
+      background: white;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .print-item-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .print-item-dept {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .print-item-qr {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .print-item-id {
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* PRINT STYLES */
+    #print-area {
+      display: none;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+
+      #print-area,
+      #print-area * {
+        visibility: visible !important;
+      }
+
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+        padding: 20px !important;
+        background: white !important;
+      }
+
+      .print-sticker-card {
+        page-break-inside: avoid;
+        border: 2px dashed #334155 !important;
+        border-radius: 8px !important;
+        padding: 16px !important;
+        text-align: center !important;
+        background: white !important;
+        color: black !important;
+      }
+
+      .print-sticker-card .p-header {
+        font-size: 14px;
+        font-weight: bold;
+        border-bottom: 1px solid #000;
+        padding-bottom: 4px;
+        margin-bottom: 8px;
+      }
+
+      .print-sticker-card .p-name {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 2px;
+      }
+
+      .print-sticker-card .p-dept {
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+
+      .print-sticker-card .p-qr {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 8px;
+      }
+
+      .print-sticker-card .p-id {
+        font-family: monospace;
+        font-size: 14px;
+        font-weight: bold;
+        padding: 4px;
+        border: 1px solid #94a3b8;
+        border-radius: 4px;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       LOGIN SCREEN
+  ============================================================ -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">&#127973;</div>
+        <div class="login-app-name">MediTrack</div>
+        <div class="login-app-sub">Hospital Equipment Tracking</div>
+      </div>
+      <div class="login-title">Sign in to your account</div>
+      <div class="login-error" id="login-error"></div>
+      <div class="form-group">
+        <label class="form-label" for="login-username">Username</label>
+        <input id="login-username" class="form-input" type="text" placeholder="Enter username"
+          autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-password">Password</label>
+        <input id="login-password" class="form-input" type="password" placeholder="Enter password"
+          autocomplete="current-password" />
+      </div>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+      <div class="login-hint">Default: admin / Admin@1234 (change after first login)</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       APP SCREEN (shown after login)
+  ============================================================ -->
+  <div id="app-screen">
+
+    <!-- HEADER -->
+    <header class="header" role="banner">
+      <div class="header-brand">
+        <div class="header-logo">&#127973;</div>
+        <div>
+          <div class="header-title">MediTrack</div>
+          <div class="header-sub">Equipment Visibility System</div>
+        </div>
+      </div>
+
+      <!-- NAV TABS (populated by JS based on role) -->
+      <nav class="header-nav" id="header-nav" aria-label="Main navigation"></nav>
+
+      <div class="header-user">
+        <div class="user-info">
+          <div class="user-name-display" id="header-username">Loading...</div>
+          <div id="header-role-badge" class="user-role-badge"></div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()" aria-label="Log out">&#128274; Logout</button>
+        <div class="live-badge" title="Realtime updates active">
+          <div class="live-dot"></div>
+          <span>LIVE</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container" role="main">
+
+      <!-- ===================== DASHBOARD PAGE ===================== -->
+      <div id="page-dashboard" class="page-view">
+        <div class="stats-bar">
+          <div class="stat-card">
+            <div class="stat-number total" id="stat-total">&mdash;</div>
+            <div class="stat-label">Total Items</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number available" id="stat-available">&mdash;</div>
+            <div class="stat-label">Available</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number inuse" id="stat-inuse">&mdash;</div>
+            <div class="stat-label">In Use</div>
+          </div>
+        </div>
+
+        <div class="layout">
+          <section aria-label="Equipment Dashboard">
+            <div class="section-header">
+              <h1 class="section-title">&#129514; Equipment Dashboard <span class="section-count" id="eq-count">0</span>
+              </h1>
+            </div>
+            <div class="toolbar">
+              <div class="filter-group" role="group" aria-label="Filter by status">
+                <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">All</button>
+                <button class="filter-btn" id="filter-available" onclick="setFilter('Available')">Available</button>
+                <button class="filter-btn" id="filter-inuse" onclick="setFilter('In Use')">In Use</button>
+              </div>
+              <div class="filter-group" id="dept-filter-group"></div>
+              <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button class="scan-btn" onclick="openScanner()" aria-label="Scan QR Code">&#128247; Scan QR</button>
+                <button class="btn-action-primary" id="add-eq-btn" onclick="openAddEquipmentModal()"
+                  style="display:none;" aria-label="Add Equipment">&#10010; Add Product</button>
+                <button class="btn-action-secondary" id="print-all-btn" onclick="openPrintAllModal()"
+                  aria-label="Print All QR Labels">&#128424; Print All QR</button>
+              </div>
+            </div>
+            <div id="equipment-grid" class="equipment-grid" aria-live="polite">
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+            </div>
+          </section>
+
+          <aside aria-label="Sidebar">
+            <div class="sidebar">
+              <div class="panel">
+                <div class="panel-header">
+                  <div class="panel-title">&#128203; Pending Requests <span class="section-count"
+                      id="req-count">0</span></div>
+                </div>
+                <div class="panel-body" id="requests-list" aria-live="polite">
+                  <div class="empty-state">
+                    <div class="empty-icon">&#128205;</div>
+                    <div class="empty-text">No pending requests</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-header">
+                  <div class="panel-title">&#128269; Audit Log</div>
+                </div>
+                <div class="panel-body" id="audit-list" aria-live="polite">
+                  <div class="empty-state">
+                    <div class="empty-icon">&#128220;</div>
+                    <div class="empty-text">No actions yet</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div><!-- /page-dashboard -->
+
+      <!-- ===================== MANAGE USERS PAGE ===================== -->
+      <div id="page-users" class="page-view">
+        <div class="section-header">
+          <h1 class="section-title">&#128100; Manage Users</h1>
+        </div>
+        <div class="manage-users-grid">
+
+          <!-- CREATE USER FORM -->
+          <div class="create-user-panel">
+            <div class="create-user-title">&#10010; Create New User</div>
+            <div class="form-group">
+              <label class="form-label" for="new-username">Username</label>
+              <input id="new-username" class="form-input" type="text" placeholder="e.g. dr.smith" maxlength="40" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-role">Role</label>
+              <select id="new-role" class="form-select">
+                <option value="Staff">Staff</option>
+                <option value="Senior Doctor">Senior Doctor</option>
+                <option value="Manager">Manager</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-dept">Department</label>
+              <select id="new-dept" class="form-select">
+                <option value="">-- None --</option>
+              </select>
+            </div>
+            <div class="temp-password-box" id="new-temp-pw-box"></div>
+            <div class="temp-password-label" id="new-temp-pw-label"></div>
+            <button class="btn-primary" style="width:100%;margin-top:8px;" onclick="createUser()"
+              id="create-user-btn">Create User</button>
+          </div>
+
+          <!-- USERS TABLE -->
+          <div class="users-table-panel">
+            <div class="users-table-header">
+              <div class="users-table-title">&#128101; All Users <span class="section-count" id="users-count">0</span>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="users-table" aria-label="Users list">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="users-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Loading...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /page-users -->
+
+    </main><!-- /container -->
+  </div><!-- /app-screen -->
+
+  <!-- ============================================================
+       SCANNER MODAL
+  ============================================================ -->
+  <div id="scanner-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">&#128247; Scan Equipment QR Code</div>
+        <button class="modal-close" onclick="closeScanner()" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="conflict-alert" id="conflict-alert">
+          <div class="conflict-title">&#9888; CONFLICT DETECTED</div>
+          <div class="conflict-msg" id="conflict-msg"></div>
+        </div>
+        <div id="scanner-container"></div>
+        <div id="scan-result"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeScanner()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       REQUEST MODAL
+  ============================================================ -->
+  <div id="request-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">&#128221; Request Equipment</div>
+        <button class="modal-close" onclick="closeRequestModal()" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div id="request-eq-info"
+          style="padding:12px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:16px;font-size:13px;color:var(--text-secondary);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Requested By</label>
+          <div
+            style="padding:10px 12px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text-secondary);"
+            id="req-user-display">—</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <div class="priority-toggle">
+            <button class="priority-option selected-normal" id="pri-normal" onclick="selectPriority('Normal')"
+              type="button">Normal</button>
+            <button class="priority-option" id="pri-urgent" onclick="selectPriority('Urgent')" type="button">&#128680;
+              Urgent</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeRequestModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitRequest()" id="submit-req-btn">Submit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       RESET PASSWORD MODAL
+  ============================================================ -->
+  <div id="reset-pw-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">&#128272; Reset Password</div>
+        <button class="modal-close" onclick="closeResetPwModal()" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+          Resetting password for: <strong id="reset-pw-username-display"></strong>
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="reset-pw-new">New Password</label>
+          <input id="reset-pw-new" class="form-input" type="text" placeholder="Enter new password (min 6 chars)" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeResetPwModal()">Cancel</button>
+        <button class="btn-primary" onclick="doResetPassword()" id="reset-pw-btn">Reset Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADD PRODUCT / EQUIPMENT MODAL
+  ============================================================ -->
+  <div id="add-equipment-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">&#10010; Add New Product / Equipment</div>
+        <button class="modal-close" onclick="closeAddEquipmentModal()" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="new-eq-name">Product / Equipment Name</label>
+          <input id="new-eq-name" class="form-input" type="text" placeholder="e.g. ECG Machine A, Wheelchair C"
+            maxlength="60" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-eq-dept">Department</label>
+          <select id="new-eq-dept" class="form-select" onchange="autoSuggestQrId()">
+            <!-- dynamically loaded -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-eq-qr">QR Code ID (Asset Tag)</label>
+          <input id="new-eq-qr" class="form-input" type="text" placeholder="e.g. MT-ICU-003" maxlength="40" />
+          <p style="font-size:11px;color:var(--text-muted);margin-top:4px;">Unique identifier encoded inside the QR
+            sticker.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-eq-status">Initial Status</label>
+          <select id="new-eq-status" class="form-select">
+            <option value="Available">Available</option>
+            <option value="In Use">In Use</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeAddEquipmentModal()">Cancel</button>
+        <button class="btn-primary" onclick="createEquipment()" id="create-eq-btn">&#10010; Add Product &amp; Generate
+          QR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       QR STICKER MODAL (PRINT & DOWNLOAD PNG)
+  ============================================================ -->
+  <div id="sticker-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <div class="modal-title">&#128424; Physical QR Sticker Label</div>
+        <button class="modal-close" onclick="closeStickerModal()" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="modal-body" style="text-align:center;">
+        <!-- Physical Sticker Badge Preview -->
+        <div class="sticker-badge" id="sticker-badge-preview">
+          <div class="sticker-header">
+            <div class="sticker-header-title">&#127973; MEDITRACK ASSET</div>
+            <div class="sticker-header-sub">Hospital Equipment Visibility</div>
+          </div>
+          <div class="sticker-body">
+            <div class="sticker-eq-name" id="sticker-display-name">Equipment Name</div>
+            <div class="sticker-dept-tag" id="sticker-display-dept">ICU</div>
+            <div class="sticker-qr-wrapper" id="sticker-qr-container"></div>
+            <div class="sticker-asset-box" id="sticker-display-id">MT-ICU-001</div>
+            <div class="sticker-footer">Scan with MediTrack app to update status</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">
+          You can print this physical sticker directly or download a high-resolution PNG image for sticker/barcode
+          printers.
+        </p>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <button class="btn-cancel" onclick="closeStickerModal()">Close</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-action-secondary" id="sticker-download-btn" onclick="downloadCurrentStickerPng()">&#11015;
+            Download PNG</button>
+          <button class="btn-primary" id="sticker-print-btn" onclick="printCurrentSticker()">&#128424; Print
+            Sticker</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PRINT ALL QR LABELS MODAL
+  ============================================================ -->
+  <div id="print-all-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal" style="max-width:760px;">
+      <div class="modal-header">
+        <div class="modal-title">&#128424; Print All Equipment QR Labels</div>
+        <button class="modal-close" onclick="closePrintAllModal()" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div
+          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:13px;color:var(--text-secondary);">
+            Preview of printable asset tags (<strong id="print-all-count">0</strong> items)
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;" for="print-all-dept-filter">FILTER
+              DEPT:</label>
+            <select id="print-all-dept-filter" class="form-select" style="width:auto;padding:6px 10px;font-size:12px;"
+              onchange="renderPrintAllPreview()">
+              <option value="all">All Departments</option>
+            </select>
+          </div>
+        </div>
+        <div class="print-grid-preview" id="print-all-preview-grid"></div>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between;">
+        <button class="btn-cancel" onclick="closePrintAllModal()">Close</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-primary" onclick="printAllStickersAction()">&#128424; Print Labels Sheet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Print Area for window.print() -->
+  <div id="print-area"></div>
+
+  <div class="toast-container" id="toast-container" aria-live="assertive"></div>
+
+  <!-- ============================================================
+       APPLICATION SCRIPT
+  ============================================================ -->
+  <script>
+    // ==========================================
+    // CONFIG
+    // ==========================================
+    const SUPABASE_URL = 'https://qfgvjyhnvmcczhqicend.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ3ZqeWhudm1jY3pocWljZW5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzNDM2MDEsImV4cCI6MjEwNTkxOTYwMX0.8_lpwS74BXQCpiJciXOt7XtBmIIj2g3b7JaGUbPbaGU';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ==========================================
+    // SESSION / AUTH STATE
+    // ==========================================
+    let currentUser = null; // { id, username, role, department_id }
+
+    function getSession() {
+      try { return JSON.parse(localStorage.getItem('meditrack_session')); } catch { return null; }
+    }
+    function setSession(user) {
+      localStorage.setItem('meditrack_session', JSON.stringify(user));
+      currentUser = user;
+    }
+    function clearSession() {
+      localStorage.removeItem('meditrack_session');
+      currentUser = null;
+    }
+
+    // ==========================================
+    // LOGIN
+    // ==========================================
+    async function doLogin() {
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+
+      errEl.classList.remove('show');
+
+      if (!username || !password) {
+        errEl.textContent = 'Please enter both username and password.';
+        errEl.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+
+      try {
+        // Fetch user by username (only active accounts)
+        const { data, error } = await db.from('users')
+          .select('id, username, role, department_id, password_hash, is_active')
+          .eq('username', username)
+          .single();
+
+        if (error || !data) {
+          throw new Error('Invalid username or password.');
+        }
+        if (!data.is_active) {
+          throw new Error('This account has been deactivated. Contact your Manager.');
+        }
+
+        // Compare password using bcryptjs
+        const match = await dcodeIO.bcrypt.compare(password, data.password_hash);
+        if (!match) {
+          throw new Error('Invalid username or password.');
+        }
+
+        // Store session (never store password_hash)
+        setSession({
+          id: data.id,
+          username: data.username,
+          role: data.role,
+          department_id: data.department_id
+        });
+
+        showAppScreen();
+
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    }
+
+    function doLogout() {
+      clearSession();
+      // Stop realtime channels & scanner
+      stopScanner();
+      db.removeAllChannels();
+      // Reset UI
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-error').classList.remove('show');
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+      // Reset state
+      allEquipment = [];
+      departments = [];
+    }
+
+    // ==========================================
+    // SHOW APP SCREEN
+    // ==========================================
+    function showAppScreen() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+
+      // Update header
+      document.getElementById('header-username').textContent = currentUser.username;
+      const rb = document.getElementById('header-role-badge');
+      rb.textContent = currentUser.role;
+      rb.className = 'user-role-badge ' + currentUser.role.replace(' ', '-');
+
+      // Show/hide Add Equipment button for Managers
+      const addEqBtn = document.getElementById('add-eq-btn');
+      if (addEqBtn) {
+        addEqBtn.style.display = (currentUser.role === 'Manager') ? 'inline-flex' : 'none';
+      }
+
+      // Build nav tabs
+      buildNav();
+
+      // Navigate to dashboard and load data
+      showPage('dashboard');
+      appInit();
+    }
+
+    function buildNav() {
+      const nav = document.getElementById('header-nav');
+      nav.innerHTML = '';
+      const tabs = [{ id: 'dashboard', label: '&#128202; Dashboard', roles: ['Manager', 'Senior Doctor', 'Staff'] }];
+      if (currentUser.role === 'Manager') {
+        tabs.push({ id: 'users', label: '&#128100; Manage Users', roles: ['Manager'] });
+      }
+      tabs.forEach(tab => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-tab';
+        btn.id = 'nav-' + tab.id;
+        btn.innerHTML = tab.label;
+        btn.onclick = () => showPage(tab.id);
+        nav.appendChild(btn);
+      });
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      const page = document.getElementById('page-' + pageId);
+      if (page) page.classList.add('active');
+      const tab = document.getElementById('nav-' + pageId);
+      if (tab) tab.classList.add('active');
+
+      if (pageId === 'users') loadUsersTable();
+    }
+
+    // ==========================================
+    // APP INIT (data loading + realtime)
+    // ==========================================
+    let allEquipment = [];
+    let departments = [];
+    let currentFilter = 'all';
+    let currentDeptFilter = 'all';
+    let selectedPriority = 'Normal';
+    let currentRequestEquipmentId = null;
+    let html5Scanner = null;
+    let scannerActive = false;
+    let scanCooldown = false;
+
+    async function appInit() {
+      await loadDepartments();
+      await loadEquipment();
+      await loadRequests();
+      await loadAuditLog();
+      subscribeRealtime();
+    }
+
+    async function loadDepartments() {
+      const { data, error } = await db.from('departments').select('*').order('id');
+      if (error) { console.error(error); return; }
+      departments = data;
+
+      // Populate dept filter buttons
+      const dg = document.getElementById('dept-filter-group');
+      dg.innerHTML = '';
+      const allBtn = document.createElement('button');
+      allBtn.className = 'filter-btn active'; allBtn.id = 'dept-all';
+      allBtn.textContent = 'All Depts';
+      allBtn.onclick = () => setDeptFilter('all', allBtn);
+      dg.appendChild(allBtn);
+      data.forEach(d => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn'; btn.id = 'dept-' + d.id;
+        btn.textContent = d.name;
+        btn.onclick = () => setDeptFilter(d.id, btn);
+        dg.appendChild(btn);
+      });
+
+      // Populate new-dept select in user creation form
+      const nd = document.getElementById('new-dept');
+      if (nd) {
+        nd.innerHTML = '<option value="">-- None --</option>';
+        data.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id; opt.textContent = d.name;
+          nd.appendChild(opt);
+        });
+      }
+
+      // Populate new-eq-dept select in equipment creation modal
+      const eqDeptSelect = document.getElementById('new-eq-dept');
+      if (eqDeptSelect) {
+        eqDeptSelect.innerHTML = '';
+        data.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id; opt.textContent = d.name;
+          eqDeptSelect.appendChild(opt);
+        });
+      }
+
+      // Populate print-all-dept-filter
+      const padf = document.getElementById('print-all-dept-filter');
+      if (padf) {
+        padf.innerHTML = '<option value="all">All Departments</option>';
+        data.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id; opt.textContent = d.name;
+          padf.appendChild(opt);
+        });
+      }
+    }
+
+    async function loadEquipment() {
+      const { data, error } = await db.from('equipment').select('*, departments(name)').order('id');
+      if (error) { console.error(error); return; }
+      allEquipment = data;
+      renderEquipment();
+      updateStats();
+    }
+
+    async function loadRequests() {
+      const { data, error } = await db.from('requests')
+        .select('*, equipment(name)').eq('status', 'Pending')
+        .order('created_at', { ascending: false }).limit(30);
+      if (error) { console.error(error); return; }
+      renderRequests(data);
+    }
+
+    async function loadAuditLog() {
+      const { data, error } = await db.from('audit_log')
+        .select('*, equipment(name)').order('timestamp', { ascending: false }).limit(25);
+      if (error) { console.error(error); return; }
+      renderAuditLog(data);
+    }
+
+    function subscribeRealtime() {
+      db.channel('equipment-rt')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'equipment' }, async (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            const idx = allEquipment.findIndex(e => e.id === payload.new.id);
+            if (idx !== -1) allEquipment[idx] = { ...allEquipment[idx], ...payload.new };
+            renderEquipment(); updateStats();
+            const eq = allEquipment.find(e => e.id === payload.new.id);
+            showToast((eq ? eq.name : 'Equipment') + ' status: ' + payload.new.status, 'info');
+          } else { await loadEquipment(); }
+        }).subscribe();
+
+      db.channel('requests-rt')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, async () => {
+          await loadRequests();
+        }).subscribe();
+    }
+
+    // ==========================================
+    // EQUIPMENT RENDERING
+    // ==========================================
+    function getFiltered() {
+      return allEquipment.filter(eq => {
+        const s = currentFilter === 'all' || eq.status === currentFilter;
+        const d = currentDeptFilter === 'all' || eq.department_id === currentDeptFilter;
+        return s && d;
+      });
+    }
+
+    function renderEquipment() {
+      const grid = document.getElementById('equipment-grid');
+      const filtered = getFiltered();
+      document.getElementById('eq-count').textContent = filtered.length;
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">&#128269;</div><div class="empty-text">No equipment matches filters</div></div>';
+        return;
+      }
+      grid.innerHTML = '';
+      filtered.forEach(eq => grid.appendChild(createCard(eq)));
+    }
+
+    function createCard(eq) {
+      const isAvail = eq.status === 'Available';
+      const sc = isAvail ? 'available' : 'inuse';
+      const deptName = eq.departments ? eq.departments.name : 'Unknown';
+      const canApprove = currentUser && (currentUser.role === 'Manager' || currentUser.role === 'Senior Doctor');
+
+      const card = document.createElement('div');
+      card.className = 'eq-card ' + sc;
+      card.id = 'eq-card-' + eq.id;
+      card.innerHTML =
+        '<div class="eq-card-header">' +
+        '<div><div class="eq-name">' + esc(eq.name) + '</div><div class="eq-dept">&#127970; ' + esc(deptName) + '</div></div>' +
+        '<span class="status-badge ' + sc + '">' + esc(eq.status) + '</span>' +
+        '</div>' +
+        '<div class="eq-qr">' +
+        '<div class="qr-canvas" id="qr-' + eq.id + '"></div>' +
+        '<div style="flex:1;min-width:0;">' +
+        '<div class="eq-qr-info">Scan to toggle status</div>' +
+        '<div class="eq-qr-id">' + esc(eq.qr_code_id) + '</div>' +
+        '<button class="btn-qr-sticker" onclick="openStickerModal(' + eq.id + ')" title="Print or Download Sticker Label">&#128424; Sticker Label</button>' +
+        '</div>' +
+        '</div>' +
+        '<div class="eq-card-footer">' +
+        (isAvail
+          ? '<button class="btn btn-toggle" onclick="manualToggle(' + eq.id + ')">Mark In Use</button>'
+          : '<button class="btn btn-release" onclick="manualToggle(' + eq.id + ')">&#10004; Release</button>' +
+          '<button class="btn btn-request" onclick="openRequestModal(' + eq.id + ')">Request</button>'
+        ) +
+        '</div>';
+
+      requestAnimationFrame(() => {
+        const qrDiv = card.querySelector('#qr-' + eq.id);
+        if (qrDiv) {
+          qrDiv.innerHTML = '';
+          try {
+            new QRCode(qrDiv, {
+              text: eq.qr_code_id,
+              width: 72, height: 72,
+              colorDark: '#1a2332', colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.M
+            });
+          } catch (e) { console.warn('QR gen error', e); }
+        }
+      });
+      return card;
+    }
+
+    function updateStats() {
+      document.getElementById('stat-total').textContent = allEquipment.length;
+      document.getElementById('stat-available').textContent = allEquipment.filter(e => e.status === 'Available').length;
+      document.getElementById('stat-inuse').textContent = allEquipment.filter(e => e.status === 'In Use').length;
+    }
+
+    // ==========================================
+    // FILTERS
+    // ==========================================
+    function setFilter(f) {
+      currentFilter = f;
+      ['all', 'Available', 'In Use'].forEach(x => {
+        const m = { 'all': 'filter-all', 'Available': 'filter-available', 'In Use': 'filter-inuse' };
+        const b = document.getElementById(m[x]);
+        if (b) b.classList.toggle('active', x === f);
+      });
+      renderEquipment();
+    }
+
+    function setDeptFilter(id, btn) {
+      currentDeptFilter = id;
+      document.querySelectorAll('#dept-filter-group .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderEquipment();
+    }
+
+    // ==========================================
+    // STATUS TOGGLE
+    // ==========================================
+    async function manualToggle(eqId) {
+      const eq = allEquipment.find(e => e.id === eqId);
+      if (!eq) return;
+      await doToggle(eq, currentUser.username);
+    }
+
+    async function doToggle(eq, performedBy) {
+      const newStatus = eq.status === 'Available' ? 'In Use' : 'Available';
+      const { error: ue } = await db.from('equipment').update({ status: newStatus }).eq('id', eq.id);
+      if (ue) { showToast('Failed: ' + ue.message, 'error'); return false; }
+      await db.from('audit_log').insert([{
+        equipment_id: eq.id,
+        action: 'Status changed to "' + newStatus + '"',
+        performed_by: performedBy || 'Unknown'
+      }]);
+      await loadAuditLog();
+      return true;
+    }
+
+    // ==========================================
+    // QR SCANNER — unchanged logic, uses currentUser
+    // ==========================================
+    function openScanner() {
+      document.getElementById('scanner-modal').style.display = 'flex';
+      document.getElementById('scan-result').innerHTML = '';
+      hideConflict();
+      startScanner();
+    }
+
+    function closeScanner() {
+      stopScanner();
+      document.getElementById('scanner-modal').style.display = 'none';
+      hideConflict();
+    }
+
+    function startScanner() {
+      if (scannerActive) return;
+      scannerActive = true;
+      const container = document.getElementById('scanner-container');
+      container.innerHTML = '';
+      html5Scanner = new Html5Qrcode('scanner-container');
+      html5Scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decoded) => onScanSuccess(decoded),
+        () => { }
+      ).catch(err => {
+        showScanResult('Camera error: ' + err + '. Please allow camera access.', 'error');
+        scannerActive = false;
+      });
+    }
+
+    function stopScanner() {
+      if (html5Scanner && scannerActive) {
+        html5Scanner.stop().then(() => { html5Scanner.clear(); html5Scanner = null; scannerActive = false; })
+          .catch(() => { html5Scanner = null; scannerActive = false; });
+      }
+    }
+
+    async function onScanSuccess(qrCodeId) {
+      if (scanCooldown) return;
+      scanCooldown = true;
+      setTimeout(() => { scanCooldown = false; }, 3000);
+      const trimmed = qrCodeId.trim();
+      const eq = allEquipment.find(e => e.qr_code_id === trimmed);
+      if (!eq) {
+        showScanResult('Unknown QR: "' + esc(trimmed) + '" — not in system.', 'error');
+        return;
+      }
+      // CONFLICT PREVENTION: already In Use
+      if (eq.status === 'In Use') {
+        showConflict(eq.name);
+        showToast(eq.name + ' is already In Use!', 'error');
+        return;
+      }
+      hideConflict();
+      showScanResult('Found: ' + esc(eq.name) + ' — updating...', 'success');
+      const ok = await doToggle(eq, currentUser.username);
+      if (ok) {
+        showScanResult(esc(eq.name) + ' is now In Use. Audit log updated.', 'success');
+        showToast(eq.name + ' marked In Use', 'success');
+        setTimeout(() => closeScanner(), 2000);
+      }
+    }
+
+    function showConflict(name) {
+      const el = document.getElementById('conflict-alert');
+      document.getElementById('conflict-msg').textContent = '"' + name + '" is already In Use. It cannot be marked In Use again. Scan a different item or release this one first.';
+      el.classList.add('show');
+    }
+    function hideConflict() { document.getElementById('conflict-alert').classList.remove('show'); }
+
+    function showScanResult(msg, type) {
+      const el = document.getElementById('scan-result');
+      el.className = 'scan-result ' + type;
+      el.innerHTML = msg;
+    }
+
+    // ==========================================
+    // REQUEST MODAL
+    // ==========================================
+    function openRequestModal(eqId) {
+      const eq = allEquipment.find(e => e.id === eqId);
+      if (!eq) return;
+      currentRequestEquipmentId = eqId;
+      const deptName = eq.departments ? eq.departments.name : 'Unknown';
+      document.getElementById('request-eq-info').innerHTML =
+        '<strong>Requesting:</strong> ' + esc(eq.name) +
+        ' &nbsp;|&nbsp; <strong>Dept:</strong> ' + esc(deptName) +
+        ' &nbsp;|&nbsp; <strong>Status:</strong> <span style="color:var(--inuse);font-weight:600">In Use</span>';
+      // Show logged-in user (read-only, no manual input)
+      document.getElementById('req-user-display').textContent = currentUser.username + ' (' + currentUser.role + ')';
+      selectPriority('Normal');
+      document.getElementById('request-modal').style.display = 'flex';
+    }
+
+    function closeRequestModal() {
+      document.getElementById('request-modal').style.display = 'none';
+      currentRequestEquipmentId = null;
+    }
+
+    function selectPriority(p) {
+      selectedPriority = p;
+      document.getElementById('pri-normal').className = 'priority-option' + (p === 'Normal' ? ' selected-normal' : '');
+      document.getElementById('pri-urgent').className = 'priority-option' + (p === 'Urgent' ? ' selected-urgent' : '');
+    }
+
+    async function submitRequest() {
+      if (!currentRequestEquipmentId) return;
+      const btn = document.getElementById('submit-req-btn');
+      btn.disabled = true; btn.textContent = 'Submitting...';
+      const { error } = await db.from('requests').insert([{
+        equipment_id: currentRequestEquipmentId,
+        requested_by: currentUser.username,  // Always from session
+        priority: selectedPriority,
+        status: 'Pending'
+      }]);
+      btn.disabled = false; btn.textContent = 'Submit Request';
+      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+      showToast(selectedPriority + ' request submitted!', 'success');
+      closeRequestModal();
+      await loadRequests();
+    }
+
+    // ==========================================
+    // RENDER REQUESTS (role-gated approve/reject)
+    // ==========================================
+    function renderRequests(reqs) {
+      const el = document.getElementById('requests-list');
+      document.getElementById('req-count').textContent = reqs.length;
+      if (reqs.length === 0) {
+        el.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128205;</div><div class="empty-text">No pending requests</div></div>';
+        return;
+      }
+      const canApprove = currentUser && (currentUser.role === 'Manager' || currentUser.role === 'Senior Doctor');
+      el.innerHTML = '';
+      reqs.forEach(req => {
+        const isU = req.priority === 'Urgent';
+        const item = document.createElement('div');
+        item.className = 'request-item' + (isU ? ' urgent' : '');
+        const eqName = req.equipment ? req.equipment.name : 'Equipment #' + req.equipment_id;
+
+        item.innerHTML =
+          '<div class="request-eq-name">' +
+          (isU ? '<span class="urgent-flag">&#128680; URGENT</span> ' : '') +
+          esc(eqName) +
+          (isU ? '<span class="approval-needed-badge">Needs Sr. Doctor / Manager</span>' : '') +
+          '</div>' +
+          '<div class="request-meta">&#128100; ' + esc(req.requested_by) + ' &middot; ' + fmtTime(req.created_at) + '</div>';
+
+        if (canApprove) {
+          const row = document.createElement('div');
+          row.className = 'approve-reject-row';
+          const approveBtn = document.createElement('button');
+          approveBtn.className = 'btn-approve';
+          approveBtn.textContent = '\u2713 Approve';
+          approveBtn.addEventListener('click', () => updateReq(req.id, 'Approved'));
+          const rejectBtn = document.createElement('button');
+          rejectBtn.className = 'btn-reject';
+          rejectBtn.textContent = '\u2715 Reject';
+          rejectBtn.addEventListener('click', () => updateReq(req.id, 'Rejected'));
+          row.appendChild(approveBtn);
+          row.appendChild(rejectBtn);
+          item.appendChild(row);
+        } else {
+          const wait = document.createElement('div');
+          wait.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:6px;';
+          wait.textContent = 'Awaiting approval by Senior Doctor or Manager';
+          item.appendChild(wait);
+        }
+
+        el.appendChild(item);
+      });
+    }
+
+    async function updateReq(id, status) {
+      const { error } = await db.from('requests').update({ status }).eq('id', id);
+      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+      showToast('Request ' + status, 'success');
+      await loadRequests();
+    }
+
+    // ==========================================
+    // RENDER AUDIT LOG
+    // ==========================================
+    function renderAuditLog(logs) {
+      const el = document.getElementById('audit-list');
+      if (logs.length === 0) {
+        el.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128220;</div><div class="empty-text">No actions yet</div></div>';
+        return;
+      }
+      el.innerHTML = '';
+      logs.forEach(log => {
+        const item = document.createElement('div');
+        item.className = 'log-item';
+        const eqName = log.equipment ? log.equipment.name : 'Eq#' + log.equipment_id;
+        item.innerHTML =
+          '<div class="log-action">&#128312; ' + esc(eqName) + '</div>' +
+          '<div class="log-meta">' + esc(log.action) + ' &middot; <strong>' + esc(log.performed_by) + '</strong></div>' +
+          '<div class="log-meta">' + fmtTime(log.timestamp) + '</div>';
+        el.appendChild(item);
+      });
+    }
+
+    // ==========================================
+    // MANAGE USERS (Manager only)
+    // ==========================================
+    async function loadUsersTable() {
+      const tbody = document.getElementById('users-tbody');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Loading...</td></tr>';
+
+      const { data, error } = await db
+        .from('users')
+        .select('id, username, role, department_id, is_active, created_at, departments(name)')
+        .order('id');
+
+      if (error) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:var(--inuse);padding:16px;">Failed to load users.</td></tr>';
+        return;
+      }
+      document.getElementById('users-count').textContent = data.length;
+      tbody.innerHTML = '';
+
+      data.forEach(u => {
+        const isSelf = u.id === currentUser.id;
+        const deptName = u.departments ? u.departments.name : '\u2014';
+        const roleKey = u.role.replace(' ', '-');
+
+        const tr = document.createElement('tr');
+
+        // Username cell
+        const tdUser = document.createElement('td');
+        tdUser.innerHTML = '<strong>' + esc(u.username) + '</strong>' +
+          (isSelf ? ' <span style="font-size:10px;color:var(--primary);font-weight:600;">(You)</span>' : '');
+        tr.appendChild(tdUser);
+
+        // Role cell
+        const tdRole = document.createElement('td');
+        tdRole.innerHTML = '<span class="role-chip ' + roleKey + '">' + esc(u.role) + '</span>';
+        tr.appendChild(tdRole);
+
+        // Department cell
+        const tdDept = document.createElement('td');
+        tdDept.textContent = deptName;
+        tr.appendChild(tdDept);
+
+        // Status cell
+        const tdStatus = document.createElement('td');
+        tdStatus.innerHTML = '<span class="active-badge ' + (u.is_active ? 'active' : 'inactive') + '">' +
+          (u.is_active ? 'Active' : 'Inactive') + '</span>';
+        tr.appendChild(tdStatus);
+
+        // Actions cell
+        const tdActions = document.createElement('td');
+        if (!isSelf) {
+          const resetBtn = document.createElement('button');
+          resetBtn.className = 'tbl-action-btn reset';
+          resetBtn.innerHTML = '&#128272; Reset PW';
+          resetBtn.addEventListener('click', () => openResetPwModal(u.id, u.username));
+          tdActions.appendChild(resetBtn);
+
+          const toggleBtn = document.createElement('button');
+          if (u.is_active) {
+            toggleBtn.className = 'tbl-action-btn deactivate';
+            toggleBtn.innerHTML = '&#8856; Deactivate';
+            toggleBtn.addEventListener('click', () => toggleUserActive(u.id, false));
+          } else {
+            toggleBtn.className = 'tbl-action-btn reactivate';
+            toggleBtn.innerHTML = '&#10003; Reactivate';
+            toggleBtn.addEventListener('click', () => toggleUserActive(u.id, true));
+          }
+          tdActions.appendChild(toggleBtn);
+        } else {
+          tdActions.innerHTML = '<span style="color:var(--text-muted);font-size:11px;">—</span>';
+        }
+        tr.appendChild(tdActions);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function createUser() {
+      const username = document.getElementById('new-username').value.trim();
+      const role = document.getElementById('new-role').value;
+      const deptId = document.getElementById('new-dept').value || null;
+      const btn = document.getElementById('create-user-btn');
+      const pwBox = document.getElementById('new-temp-pw-box');
+      const pwLabel = document.getElementById('new-temp-pw-label');
+
+      pwBox.classList.remove('show');
+      if (!username) { showToast('Please enter a username.', 'error'); return; }
+      if (username.length < 3) { showToast('Username must be at least 3 characters.', 'error'); return; }
+
+      // Generate a random temporary password
+      const tempPw = 'Tmp' + Math.random().toString(36).slice(2, 8) + '!';
+      btn.disabled = true; btn.textContent = 'Creating...';
+
+      try {
+        const salt = await dcodeIO.bcrypt.genSalt(10);
+        const hash = await dcodeIO.bcrypt.hash(tempPw, salt);
+
+        const { error } = await db.from('users').insert([{
+          username: username,
+          password_hash: hash,
+          role: role,
+          department_id: deptId ? parseInt(deptId) : null,
+          is_active: true
+        }]);
+
+        if (error) {
+          if (error.message.includes('unique')) {
+            showToast('Username "' + username + '" already exists.', 'error');
+          } else {
+            showToast('Error: ' + error.message, 'error');
+          }
+          return;
+        }
+
+        // Show temp password once
+        pwBox.textContent = tempPw;
+        pwBox.classList.add('show');
+        pwLabel.textContent = 'Share this password once — it will not be shown again.';
+
+        document.getElementById('new-username').value = '';
+        showToast('User "' + username + '" created!', 'success');
+        await loadUsersTable();
+
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Create User';
+      }
+    }
+
+    async function toggleUserActive(userId, isActive) {
+      const { error } = await db.from('users').update({ is_active: isActive }).eq('id', userId);
+      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+      showToast('User ' + (isActive ? 'reactivated' : 'deactivated') + '.', 'success');
+      await loadUsersTable();
+    }
+
+    // Reset password
+    let resetPwTargetId = null;
+
+    function openResetPwModal(userId, username) {
+      resetPwTargetId = userId;
+      document.getElementById('reset-pw-username-display').textContent = username;
+      document.getElementById('reset-pw-new').value = '';
+      document.getElementById('reset-pw-modal').style.display = 'flex';
+    }
+    function closeResetPwModal() {
+      document.getElementById('reset-pw-modal').style.display = 'none';
+      resetPwTargetId = null;
+    }
+
+    async function doResetPassword() {
+      const newPw = document.getElementById('reset-pw-new').value;
+      if (!newPw || newPw.length < 6) { showToast('Password must be at least 6 characters.', 'error'); return; }
+      const btn = document.getElementById('reset-pw-btn');
+      btn.disabled = true; btn.textContent = 'Resetting...';
+      try {
+        const salt = await dcodeIO.bcrypt.genSalt(10);
+        const hash = await dcodeIO.bcrypt.hash(newPw, salt);
+        const { error } = await db.from('users').update({ password_hash: hash }).eq('id', resetPwTargetId);
+        if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+        showToast('Password reset successfully.', 'success');
+        closeResetPwModal();
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Reset Password';
+      }
+    }
+
+    // ==========================================
+    // ADD EQUIPMENT (MANAGER ONLY)
+    // ==========================================
+    function openAddEquipmentModal() {
+      if (!currentUser || currentUser.role !== 'Manager') {
+        showToast('Only Managers can add new equipment.', 'error');
+        return;
+      }
+      document.getElementById('new-eq-name').value = '';
+      if (departments && departments.length > 0) {
+        document.getElementById('new-eq-dept').value = departments[0].id;
+      }
+      document.getElementById('new-eq-status').value = 'Available';
+      autoSuggestQrId();
+      document.getElementById('add-equipment-modal').style.display = 'flex';
+    }
+
+    function closeAddEquipmentModal() {
+      document.getElementById('add-equipment-modal').style.display = 'none';
+    }
+
+    function autoSuggestQrId() {
+      const deptSelect = document.getElementById('new-eq-dept');
+      if (!deptSelect || !deptSelect.value) return;
+      const deptId = parseInt(deptSelect.value);
+      const dept = departments.find(d => d.id === deptId);
+      let prefix = 'MT-EQ';
+      if (dept) {
+        const dName = dept.name.toUpperCase();
+        if (dName.includes('ICU')) prefix = 'MT-ICU';
+        else if (dName.includes('GENERAL') || dName.includes('WARD')) prefix = 'MT-GW';
+        else if (dName.includes('EMERGENCY')) prefix = 'MT-EM';
+        else prefix = 'MT-' + dept.name.replace(/[^A-Za-z0-9]/g, '').substring(0, 3).toUpperCase();
+      }
+      // Calculate count of items with this prefix + 1
+      const count = allEquipment.filter(e => e.qr_code_id && e.qr_code_id.startsWith(prefix)).length + 1;
+      const numStr = String(count).padStart(3, '0');
+      document.getElementById('new-eq-qr').value = prefix + '-' + numStr;
+    }
+
+    async function createEquipment() {
+      const name = document.getElementById('new-eq-name').value.trim();
+      const deptId = parseInt(document.getElementById('new-eq-dept').value);
+      const qrId = document.getElementById('new-eq-qr').value.trim().toUpperCase();
+      const status = document.getElementById('new-eq-status').value;
+      const btn = document.getElementById('create-eq-btn');
+
+      if (!name) {
+        showToast('Please enter an equipment / product name.', 'error');
+        return;
+      }
+      if (!qrId) {
+        showToast('Please enter a QR code asset ID.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+
+      try {
+        const { data, error } = await db.from('equipment').insert([{
+          name: name,
+          department_id: deptId,
+          qr_code_id: qrId,
+          status: status
+        }]).select();
+
+        if (error) {
+          if (error.message.includes('unique') || error.message.includes('qr_code_id')) {
+            showToast('QR Code ID "' + qrId + '" already exists. Choose a different ID.', 'error');
+          } else {
+            showToast('Error: ' + error.message, 'error');
+          }
+          return;
+        }
+
+        const insertedId = (data && data[0]) ? data[0].id : null;
+        await db.from('audit_log').insert([{
+          equipment_id: insertedId,
+          action: 'Added new equipment "' + name + '" (' + qrId + ')',
+          performed_by: currentUser.username
+        }]);
+
+        showToast('Product "' + name + '" added successfully!', 'success');
+        closeAddEquipmentModal();
+        await loadEquipment();
+        await loadAuditLog();
+
+        // Prompt user to preview/print the newly generated sticker immediately
+        if (insertedId) {
+          setTimeout(() => {
+            openStickerModal(insertedId);
+          }, 350);
+        }
+
+      } catch (err) {
+        showToast('Failed to add product: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '&#10010; Add Product &amp; Generate QR';
+      }
+    }
+
+    // ==========================================
+    // QR STICKER & PRINTING
+    // ==========================================
+    let currentStickerEqId = null;
+
+    function openStickerModal(eqId) {
+      const eq = allEquipment.find(e => e.id === eqId);
+      if (!eq) return;
+      currentStickerEqId = eqId;
+
+      document.getElementById('sticker-display-name').textContent = eq.name;
+      const deptName = eq.departments ? eq.departments.name : 'Department';
+      document.getElementById('sticker-display-dept').textContent = deptName;
+      document.getElementById('sticker-display-id').textContent = eq.qr_code_id;
+
+      // Render high-res QR in preview
+      const qrCont = document.getElementById('sticker-qr-container');
+      qrCont.innerHTML = '';
+      try {
+        new QRCode(qrCont, {
+          text: eq.qr_code_id,
+          width: 154,
+          height: 154,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch (e) { console.warn('QR gen error', e); }
+
+      document.getElementById('sticker-modal').style.display = 'flex';
+    }
+
+    function closeStickerModal() {
+      document.getElementById('sticker-modal').style.display = 'none';
+      currentStickerEqId = null;
+    }
+
+    // Generate high-DPI canvas sticker for image download
+    function generateStickerCanvas(eq, callback) {
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      document.body.appendChild(tempDiv);
+
+      new QRCode(tempDiv, {
+        text: eq.qr_code_id,
+        width: 260,
+        height: 260,
+        colorDark: '#0f172a',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const qrEl = tempDiv.querySelector('canvas') || tempDiv.querySelector('img');
+        const canvas = document.createElement('canvas');
+        const w = 500;
+        const h = 620;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+
+        // Background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+
+        // Border
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(2, 2, w - 4, h - 4);
+
+        // Header Banner
+        ctx.fillStyle = '#1557b0';
+        ctx.fillRect(4, 4, w - 8, 85);
+
+        // Header Text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🏥 MEDITRACK ASSET', w / 2, 42);
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fillText('Hospital Equipment Visibility System', w / 2, 68);
+
+        // Equipment Name
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 24px Inter, sans-serif';
+        ctx.fillText(eq.name, w / 2, 135);
+
+        // Department Tag
+        const deptName = (eq.departments && eq.departments.name) || 'Department';
+        ctx.fillStyle = '#e8f0fe';
+        const tagW = ctx.measureText(deptName).width + 36;
+        const tagH = 30;
+        ctx.fillRect(w / 2 - tagW / 2, 150, tagW, tagH);
+        ctx.fillStyle = '#1557b0';
+        ctx.font = '600 13px Inter, sans-serif';
+        ctx.fillText(deptName, w / 2, 170);
+
+        // Draw QR Code centered
+        if (qrEl) {
+          const qrSize = 250;
+          const qrX = (w - qrSize) / 2;
+          const qrY = 195;
+
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16);
+
+          ctx.drawImage(qrEl, qrX, qrY, qrSize, qrSize);
+        }
+
+        // Asset ID Box
+        const idY = 480;
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(40, idY, w - 80, 48);
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(40, idY, w - 80, 48);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 20px monospace';
+        ctx.fillText(eq.qr_code_id, w / 2, idY + 31);
+
+        // Footer instruction
+        ctx.fillStyle = '#64748b';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillText('Scan with MediTrack app to update status', w / 2, 575);
+
+        tempDiv.remove();
+        callback(canvas);
+      }, 120);
+    }
+
+    function downloadCurrentStickerPng() {
+      if (!currentStickerEqId) return;
+      const eq = allEquipment.find(e => e.id === currentStickerEqId);
+      if (!eq) return;
+
+      showToast('Generating sticker PNG...', 'info');
+      generateStickerCanvas(eq, (canvas) => {
+        const link = document.createElement('a');
+        link.download = 'MediTrack_Sticker_' + eq.qr_code_id + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('Downloaded sticker image for "' + eq.name + '"!', 'success');
+      });
+    }
+
+    function printCurrentSticker() {
+      if (!currentStickerEqId) return;
+      const eq = allEquipment.find(e => e.id === currentStickerEqId);
+      if (!eq) return;
+
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = '';
+
+      const deptName = eq.departments ? eq.departments.name : 'Unknown';
+      const card = document.createElement('div');
+      card.className = 'print-sticker-card';
+      card.innerHTML =
+        '<div class="p-header">&#127973; MEDITRACK ASSET TAG</div>' +
+        '<div class="p-name">' + esc(eq.name) + '</div>' +
+        '<div class="p-dept">&#127970; ' + esc(deptName) + '</div>' +
+        '<div class="p-qr" id="print-qr-' + eq.id + '"></div>' +
+        '<div class="p-id">' + esc(eq.qr_code_id) + '</div>' +
+        '<div style="font-size:10px;margin-top:6px;color:#555;">Scan with MediTrack to toggle status</div>';
+      printArea.appendChild(card);
+
+      new QRCode(card.querySelector('#print-qr-' + eq.id), {
+        text: eq.qr_code_id,
+        width: 160,
+        height: 160,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    }
+
+    // ==========================================
+    // PRINT ALL QR LABELS MODAL
+    // ==========================================
+    function openPrintAllModal() {
+      renderPrintAllPreview();
+      document.getElementById('print-all-modal').style.display = 'flex';
+    }
+
+    function closePrintAllModal() {
+      document.getElementById('print-all-modal').style.display = 'none';
+    }
+
+    function renderPrintAllPreview() {
+      const filterVal = document.getElementById('print-all-dept-filter').value;
+      const filtered = allEquipment.filter(eq => {
+        if (filterVal === 'all') return true;
+        return String(eq.department_id) === String(filterVal);
+      });
+
+      document.getElementById('print-all-count').textContent = filtered.length;
+      const grid = document.getElementById('print-all-preview-grid');
+      grid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);">No equipment in selected department</div>';
+        return;
+      }
+
+      filtered.forEach(eq => {
+        const item = document.createElement('div');
+        item.className = 'print-item-preview';
+        const deptName = eq.departments ? eq.departments.name : 'Unknown';
+        item.innerHTML =
+          '<div class="print-item-title">' + esc(eq.name) + '</div>' +
+          '<div class="print-item-dept">' + esc(deptName) + '</div>' +
+          '<div class="print-item-qr" id="prev-qr-' + eq.id + '"></div>' +
+          '<div class="print-item-id">' + esc(eq.qr_code_id) + '</div>';
+        grid.appendChild(item);
+
+        new QRCode(item.querySelector('#prev-qr-' + eq.id), {
+          text: eq.qr_code_id,
+          width: 90,
+          height: 90,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      });
+    }
+
+    function printAllStickersAction() {
+      const filterVal = document.getElementById('print-all-dept-filter').value;
+      const filtered = allEquipment.filter(eq => {
+        if (filterVal === 'all') return true;
+        return String(eq.department_id) === String(filterVal);
+      });
+
+      if (filtered.length === 0) {
+        showToast('No equipment to print.', 'error');
+        return;
+      }
+
+      const printArea = document.getElementById('print-area');
+      printArea.innerHTML = '';
+
+      filtered.forEach(eq => {
+        const deptName = eq.departments ? eq.departments.name : 'Unknown';
+        const card = document.createElement('div');
+        card.className = 'print-sticker-card';
+        card.innerHTML =
+          '<div class="p-header">&#127973; MEDITRACK ASSET TAG</div>' +
+          '<div class="p-name">' + esc(eq.name) + '</div>' +
+          '<div class="p-dept">&#127970; ' + esc(deptName) + '</div>' +
+          '<div class="p-qr" id="print-all-qr-' + eq.id + '"></div>' +
+          '<div class="p-id">' + esc(eq.qr_code_id) + '</div>' +
+          '<div style="font-size:10px;margin-top:6px;color:#555;">Scan with MediTrack to toggle status</div>';
+        printArea.appendChild(card);
+
+        new QRCode(card.querySelector('#print-all-qr-' + eq.id), {
+          text: eq.qr_code_id,
+          width: 140,
+          height: 140,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      });
+
+      setTimeout(() => {
+        window.print();
+      }, 400);
+    }
+
+    // ==========================================
+    // UTILITIES
+    // ==========================================
+    function esc(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function fmtTime(ts) {
+      if (!ts) return '';
+      try { return new Date(ts).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+      catch { return ts; }
+    }
+
+    function showToast(msg, type) {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = 'toast ' + (type || 'info');
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => { t.style.transition = 'opacity 300ms'; t.style.opacity = '0'; setTimeout(() => t.remove(), 310); }, 4000);
+    }
+
+    // ==========================================
+    // KEYBOARD / OVERLAY CLOSE
+    // ==========================================
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeScanner();
+        closeRequestModal();
+        closeResetPwModal();
+        closeAddEquipmentModal();
+        closeStickerModal();
+        closePrintAllModal();
+      }
+      if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
+        doLogin();
+      }
+    });
+    document.getElementById('scanner-modal').addEventListener('click', e => { if (e.target.id === 'scanner-modal') closeScanner(); });
+    document.getElementById('request-modal').addEventListener('click', e => { if (e.target.id === 'request-modal') closeRequestModal(); });
+    document.getElementById('reset-pw-modal').addEventListener('click', e => { if (e.target.id === 'reset-pw-modal') closeResetPwModal(); });
+    document.getElementById('add-equipment-modal').addEventListener('click', e => { if (e.target.id === 'add-equipment-modal') closeAddEquipmentModal(); });
+    document.getElementById('sticker-modal').addEventListener('click', e => { if (e.target.id === 'sticker-modal') closeStickerModal(); });
+    document.getElementById('print-all-modal').addEventListener('click', e => { if (e.target.id === 'print-all-modal') closePrintAllModal(); });
+
+    // ==========================================
+    // BOOT — check for existing session
+    // ==========================================
+    (function boot() {
+      const session = getSession();
+      if (session && session.id && session.username && session.role) {
+        currentUser = session;
+        showAppScreen();
+      }
+      // else login screen is already visible (display:flex in HTML)
+    })();
+
+  </script>
+</body>
+
+</html>
