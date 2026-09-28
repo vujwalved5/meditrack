@@ -6,7 +6,7 @@ user authentication, and role-based access control.
 ## Default Login Credentials
 
   Username:  admin
-  Password:  Admin@1234
+  Password:  NewAdmin@123!
 
 IMPORTANT: Change this password after your first login via Manage Users > Reset PW.
 
@@ -102,16 +102,16 @@ so that:
   - Raw passwords never leave the client as anything but HTTPS-encrypted traffic
   - All bcrypt computation happens server-side
   - Rate limiting can be enforced server-side to prevent brute-force attacks
-  - Supabase Auth (JWT tokens) can replace the sessionStorage approach
+  - Supabase Auth (JWT tokens) can replace the localStorage approach
 
 ## Database Schema
 
 Tables:
   departments   - ICU, General Ward, Emergency
-  equipment     - 8 items (ventilators, wheelchairs, infusion pumps, defibrillator, monitor)
-  requests      - equipment requests with Normal/Urgent priority
+  equipment     - Items tracking with condition, held_by, in_use_since
+  requests      - equipment requests with Normal/Urgent priority, requested_by (text)
   audit_log     - full history of all status changes (records real logged-in username)
-  users         - accounts with bcrypt-hashed passwords and role assignments
+  users         - accounts with bcrypt-hashed passwords and role assignments, is_active flag
 
 SQL Files:
   schema.sql        - original tables + seed data + Realtime + RLS
@@ -128,7 +128,7 @@ RLS: configured for anonymous access (demo mode)
 
   Frontend:       Vanilla HTML5, CSS3, JavaScript (no framework, no build step)
   Backend/DB:     Supabase (Postgres + REST + Realtime)
-  Authentication: Client-side bcryptjs (CDN) + sessionStorage session
+  Authentication: Client-side bcryptjs (CDN) + localStorage session + secure login RPC
   QR Generation:  qrcodejs (CDN)
   QR Scanning:    html5-qrcode (CDN)
   Fonts:          Inter (Google Fonts)
@@ -138,6 +138,8 @@ RLS: configured for anonymous access (demo mode)
   index.html         Complete single-page application (auth + RBAC + all equipment features)
   schema.sql         Original tables, seed data, Realtime, RLS
   schema_auth.sql    Users table, RLS, admin seed account
+  migration_v2.sql   v2 features migration script
+  migration_v3.sql   v3 security and bug fix migration script
   README.md          This file
 
 ## v2 — New Features (migration_v2.sql required)

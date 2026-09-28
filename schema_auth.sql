@@ -15,21 +15,23 @@ CREATE TABLE IF NOT EXISTS users (
   created_at    TIMESTAMP DEFAULT NOW()
 );
 
--- Row Level Security (anon read/write for demo)
+-- Row Level Security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "allow_all_users" ON users
-  FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "allow_authenticated_users" ON users
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "allow_anon_users_login" ON users
+  FOR ALL TO anon USING (false) WITH CHECK (false); -- Access should only be via SECURITY DEFINER function
 
 -- -------------------------------------------------------
 -- SEED: admin account
--- Password: Admin@1234
+-- Password: NewAdmin@123!
 -- Hash generated with bcrypt cost=10
 -- IMPORTANT: Change this password after first login!
 -- -------------------------------------------------------
 INSERT INTO users (username, password_hash, role, department_id, is_active)
 VALUES (
   'admin',
-  '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+  '$2a$10$wT/pS3zB59p5gC4j9rYc3u3D/Hk39GIfqI80YlQj1q8n9/gN6/1S2',
   'Manager',
   NULL,
   true

@@ -1550,7 +1550,7 @@
         <input id="login-password" class="form-input" type="password" placeholder="Enter password" autocomplete="current-password" />
       </div>
       <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In</button>
-      <div class="login-hint">Default: admin / Admin@1234 (change after first login)</div>
+      <div class="login-hint">Default: admin / NewAdmin@123! (change after first login)</div>
     </div>
   </div>
 
@@ -2008,16 +2008,11 @@
       btn.textContent = 'Signing in...';
 
       try {
-        const { data, error } = await db.from('users')
-          .select('id, username, role, department_id, password_hash, is_active')
-          .eq('username', username)
-          .single();
+        const { data, error } = await db.rpc('login', { username_param: username, password_param: password });
 
-        if (error || !data) throw new Error('Invalid username or password.');
-        if (!data.is_active) throw new Error('This account has been deactivated. Contact your Manager.');
-
-        const match = await dcodeIO.bcrypt.compare(password, data.password_hash);
-        if (!match) throw new Error('Invalid username or password.');
+        if (error) {
+           throw new Error(error.message || 'Invalid username or password.');
+        }
 
         setSession({
           id: data.id,
@@ -2246,8 +2241,9 @@
           await loadRequests();
         }).subscribe();
 
-      db.channel('auditlog-rt')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_log' }, async (payload) => {
+      if (currentUser.role !== 'Staff') {
+        db.channel('auditlog-rt')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_log' }, async (payload) => {
           const entry = payload.new;
           const eqId = entry.equipment_id;
 
@@ -2264,6 +2260,7 @@
           // Update collapsed summary counts
           renderAuditPage();
         }).subscribe();
+      }
     }
 
     // ==========================================
@@ -2554,6 +2551,14 @@
     async function manualToggle(eqId) {
       const eq = allEquipment.find(e => e.id === eqId);
       if (!eq) return;
+      if (eq.status === 'In Use' && eq.held_by && eq.held_by !== currentUser.username && currentUser.role !== 'Manager') {
+        showToast('Cannot release an item held by ' + eq.held_by, 'error');
+        return;
+      }
+      if (eq.condition === 'Out of Order' && eq.status === 'Available') {
+         showToast('Cannot check out an item that is Out of Order', 'error');
+         return;
+      }
       await doToggle(eq, currentUser.username);
     }
 
@@ -2571,14 +2576,22 @@
         updateData.in_use_since = null;
       }
 
-      const { error: ue } = await db.from('equipment').update(updateData).eq('id', eq.id);
-      if (ue) { showToast('Failed: ' + ue.message, 'error'); return false; }
+      // Atomic update
+      const { data, error: ue } = await db.from('equipment')
+        .update(updateData)
+        .eq('id', eq.id)
+        .eq('status', eq.status)
+        .select();
 
-      await db.from('audit_log').insert([{
+      if (ue) { showToast('Failed: ' + ue.message, 'error'); return false; }
+      if (!data || data.length === 0) { showToast('Conflict: Equipment state changed.', 'error'); return false; }
+
+      const { error: ae } = await db.from('audit_log').insert([{
         equipment_id: eq.id,
         action: action,
         performed_by: performedBy || 'Unknown'
       }]);
+      if (ae) { console.error('Audit log failed', ae); }
 
       return true;
     }
@@ -2660,9 +2673,18 @@
 
       // CONFLICT PREVENTION: already In Use by someone else
       if (eq.status === 'In Use') {
-        showConflict(eq.name, eq.held_by);
-        showToast(eq.name + ' is already In Use!', 'error');
-        return;
+        if (eq.held_by === currentUser.username) {
+          // allow release
+        } else {
+          showConflict(eq.name, eq.held_by);
+          showToast(eq.name + ' is already In Use!', 'error');
+          return;
+        }
+      }
+      
+      if (eq.condition === 'Out of Order' && eq.status === 'Available') {
+         showToast('Cannot check out an item that is Out of Order', 'error');
+         return;
       }
 
       hideConflict();
@@ -2813,6 +2835,11 @@
     }
 
     async function updateReq(id, status, equipmentId) {
+      const req = allRequests.find(r => r.id === id);
+      if (req && req.requested_by === currentUser.username) {
+        showToast('You cannot approve your own request.', 'error');
+        return;
+      }
       const { error } = await db.from('requests').update({ status }).eq('id', id);
       if (error) { showToast('Failed: ' + error.message, 'error'); return; }
 
@@ -2902,8 +2929,8 @@
         return raw.filter(e => {
           const matchDate = !cutoff || new Date(e.timestamp) >= cutoff;
           const matchAction = actionFilter === 'all' || e.action === actionFilter;
-          const matchUser = !q || (e.performed_by || '').toLowerCase().includes(q);
-          return matchDate && matchAction && (matchUser || true); // user filter is additive
+          const matchUser = !q || (e.performed_by || '').toLowerCase().includes(q.toLowerCase());
+          return matchDate && matchAction && matchUser;
         });
       }
 
@@ -3018,13 +3045,16 @@
       if (error) { timelineEl.innerHTML = '<div class="audit-empty">Failed to load.</div>'; return; }
 
       if (!allAuditLogs[eqId]) allAuditLogs[eqId] = { entries: [], loaded: false };
-      if (offset === 0) {
+      if (offset === 0 && !allAuditLogs[eqId].loaded) {
         allAuditLogs[eqId].entries = data;
       } else {
         // Append, avoid duplicates
         const existingIds = new Set(allAuditLogs[eqId].entries.map(e => e.id));
         data.forEach(e => { if (!existingIds.has(e.id)) allAuditLogs[eqId].entries.push(e); });
       }
+      // Re-sort entries in case realtime insert arrived out of order
+      allAuditLogs[eqId].entries.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
       allAuditLogs[eqId].loaded = true;
       allAuditLogs[eqId].hasMore = data.length === 20;
       allAuditLogs[eqId].offset = (offset + data.length);
@@ -3257,7 +3287,9 @@
       if (!username) { showToast('Please enter a username.', 'error'); return; }
       if (username.length < 3) { showToast('Username must be at least 3 characters.', 'error'); return; }
 
-      const tempPw = 'Tmp' + Math.random().toString(36).slice(2, 8) + '!';
+      const array = new Uint32Array(2);
+      window.crypto.getRandomValues(array);
+      const tempPw = 'Tmp' + array[0].toString(36) + '!';
       btn.disabled = true; btn.textContent = 'Creating...';
 
       try {
@@ -3726,11 +3758,18 @@
     // ==========================================
     // BOOT — check for existing session
     // ==========================================
-    (function boot() {
+    (async function boot() {
       const session = getSession();
       if (session && session.id && session.username && session.role) {
-        currentUser = session;
-        showAppScreen();
+        // Verify session against database
+        const { data, error } = await db.from('users').select('id').eq('id', session.id).eq('is_active', true).single();
+        if (data && !error) {
+          currentUser = session;
+          showAppScreen();
+          return;
+        } else {
+          clearSession();
+        }
       }
       // else login screen is already visible (display:flex in HTML)
     })();
