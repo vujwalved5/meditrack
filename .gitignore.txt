@@ -1,0 +1,9 @@
+.idea/
+.vscode/
+.DS_Store
+android-app/build/
+android-app/app/build/
+android-app/.gradle/
+android-app/local.properties
+*.jks
+*.keystore

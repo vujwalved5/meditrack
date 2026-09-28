@@ -140,6 +140,73 @@ RLS: configured for anonymous access (demo mode)
   schema_auth.sql    Users table, RLS, admin seed account
   README.md          This file
 
+## v2 — New Features (migration_v2.sql required)
+
+### Expandable Equipment List
+The dashboard now shows equipment in an accordion list instead of a card grid.
+
+- Every row is a clickable button (keyboard-accessible with Enter/Space).
+- Clicking a row expands it to show: Location, Status (with live duration counter
+  when In Use), Used by, Condition badge, QR code (96px), and the action area.
+- Only ONE row can be open at a time. Opening another closes the previous.
+- Search box filters by name, department, or QR ID in real-time.
+- Department chips and Available/In Use/All status filters all work together.
+- When Supabase pushes a live equipment update, the affected row refreshes WITHOUT
+  collapsing the currently open row or scrolling the page.
+
+### Request Access Rules
+- The "Request Access" button is shown ONLY for Staff and Senior Doctor.
+  Managers cannot see or use it.
+- The button is disabled (with helper text) if:
+    - The logged-in user is already holding the item (held_by === username)
+    - The item condition is "Out of Order"
+- submitRequest() returns early with an error toast if called by a Manager,
+  so the rule cannot be bypassed from the browser console.
+
+### Condition Tracking (Manager only)
+- Each equipment row in the expanded view shows a Condition badge:
+    Usable (green), Needs Maintenance (amber), Out of Order (gray).
+- Managers see a Condition dropdown + Save button to update it.
+- Every change is logged in audit_log with action "Condition Changed".
+
+### Audit Log Page
+- Accessible via the "Audit Log" nav tab for Manager and Senior Doctor.
+  Staff cannot see the tab. Navigating directly (e.g. via console) redirects
+  to the Dashboard.
+- One accordion row per piece of equipment (all equipment listed, even with
+  zero history — shows "No usage yet").
+- Collapsed row shows: name, department, total "Checked Out" count, last activity
+  summary (relative time + user), and current status pill.
+- Expanded row shows a vertical timeline (newest first) with:
+    - Colored dot by action (Checked Out=red, Released=green, Request Submitted=amber,
+      Approved=green, Rejected=gray, Condition Changed=blue)
+    - Action label, username, formatted timestamp
+    - For Released entries: "used for Xh Ym" calculated from the preceding Checked Out
+    - For Checked Out with no matching Released: "still in use"
+- Timeline loads lazily (limit 20) when the row is expanded, with a "Load more" button.
+- Filters: text search (name or user), department, date range, action type.
+- Export CSV: downloads currently filtered data as a CSV file.
+- Realtime: new audit_log inserts prepend to the open row's timeline immediately.
+
+### Navigation (final state)
+  Staff:          Dashboard
+  Senior Doctor:  Dashboard, Audit Log
+  Manager:        Dashboard, Audit Log, Manage Users
+
+### Database Changes
+Run migration_v2.sql in the Supabase SQL Editor before using v2 features.
+
+New columns on the equipment table:
+  condition     TEXT DEFAULT 'Usable'   -- 'Usable' | 'Needs Maintenance' | 'Out of Order'
+  held_by       TEXT                    -- username of the current user; null when free
+  in_use_since  TIMESTAMP               -- when checked out; null when free
+
+audit_log actions now use these exact strings for reliable grouping:
+  'Checked Out', 'Released', 'Request Submitted', 'Request Approved',
+  'Request Rejected', 'Condition Changed'
+
+Realtime is also enabled on the audit_log table (in addition to equipment and requests).
+
 ## Out of Scope
 
 The following features are intentionally not implemented:
