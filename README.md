@@ -114,14 +114,13 @@ Tables:
   users         - accounts with bcrypt-hashed passwords and role assignments, is_active flag
 
 SQL Files:
-  schema.sql        - original tables + seed data + Realtime + RLS
-  schema_auth.sql   - users table + RLS + admin seed account
+  schema.sql        - complete master schema (tables, seed data, Realtime, RLS, auth & RPC)
 
 ## Supabase Configuration
 
 Project URL: https://qfgvjyhnvmcczhqicend.supabase.co
 Anon Key: embedded in index.html (safe for public demos)
-Realtime: enabled on equipment and requests tables
+Realtime: enabled on equipment, requests, and audit_log tables
 RLS: configured for anonymous access (demo mode)
 
 ## Tech Stack
@@ -136,13 +135,10 @@ RLS: configured for anonymous access (demo mode)
 ## Files
 
   index.html         Complete single-page application (auth + RBAC + all equipment features)
-  schema.sql         Original tables, seed data, Realtime, RLS
-  schema_auth.sql    Users table, RLS, admin seed account
-  migration_v2.sql   v2 features migration script
-  migration_v3.sql   v3 security and bug fix migration script
+  schema.sql         Complete master schema (tables, seed data, Realtime, RLS, auth & RPC)
   README.md          This file
 
-## v2 — New Features (migration_v2.sql required)
+## v2 — Features
 
 ### Expandable Equipment List
 The dashboard now shows equipment in an accordion list instead of a card grid.
@@ -195,13 +191,13 @@ The dashboard now shows equipment in an accordion list instead of a card grid.
   Senior Doctor:  Dashboard, Audit Log
   Manager:        Dashboard, Audit Log, Manage Users
 
-### Database Changes
-Run migration_v2.sql in the Supabase SQL Editor before using v2 features.
+### Database Schema Details
+All columns and configurations are included in `schema.sql`.
 
-New columns on the equipment table:
+Columns on the equipment table:
   condition     TEXT DEFAULT 'Usable'   -- 'Usable' | 'Needs Maintenance' | 'Out of Order'
   held_by       TEXT                    -- username of the current user; null when free
-  in_use_since  TIMESTAMP               -- when checked out; null when free
+  in_use_since  TIMESTAMPTZ             -- when checked out; null when free (with timezone)
 
 audit_log actions now use these exact strings for reliable grouping:
   'Checked Out', 'Released', 'Request Submitted', 'Request Approved',
