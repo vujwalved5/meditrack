@@ -1524,6 +1524,240 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ===== PRODUCT TILES ===== */
+    .product-tiles-section {
+      margin-bottom: 16px;
+    }
+
+    .product-tiles-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .product-tiles-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .product-tiles-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+
+    .product-tiles-toggle:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Full grid view */
+    .product-tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      transition: var(--transition);
+    }
+
+    @media (min-width: 480px) { .product-tiles-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 768px) { .product-tiles-grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (min-width: 1100px) { .product-tiles-grid { grid-template-columns: repeat(6, 1fr); } }
+
+    /* Collapsed slim strip */
+    .product-tiles-grid.collapsed {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 8px;
+      padding-bottom: 4px;
+    }
+
+    .product-tiles-grid.collapsed .product-tile {
+      flex: 0 0 auto;
+      width: 100px;
+      min-height: 44px;
+      flex-direction: row;
+      gap: 6px;
+      padding: 6px 10px;
+    }
+
+    .product-tiles-grid.collapsed .pt-img-wrap {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .product-tiles-grid.collapsed .pt-name { font-size: 11px; }
+    .product-tiles-grid.collapsed .pt-summary { display: none; }
+    .product-tiles-grid.collapsed .pt-dot { display: none; }
+
+    /* Individual tile */
+    .product-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 8px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition), opacity var(--transition);
+      min-height: 44px;
+      text-align: center;
+      position: relative;
+    }
+
+    .product-tile:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 14px rgba(26, 115, 232, .15);
+    }
+
+    .product-tile:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .product-tile.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 4px 14px rgba(26, 115, 232, .2);
+    }
+
+    .product-tile.dimmed { opacity: .65; }
+
+    /* Image area */
+    .pt-img-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-sm);
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .pt-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .pt-emoji-fallback {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    /* Tile text */
+    .pt-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .pt-summary {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    /* Availability dot */
+    .pt-dot {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid var(--surface);
+    }
+
+    .pt-dot.green { background: var(--available); }
+    .pt-dot.red { background: var(--inuse); }
+
+    /* All Equipment tile count badge */
+    .pt-count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Breadcrumb bar */
+    .product-breadcrumb {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--primary-light);
+      border: 1.5px solid #b3cef5;
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .product-breadcrumb.show { display: flex; animation: card-in 200ms ease; }
+
+    .breadcrumb-path { color: var(--text-secondary); font-weight: 500; flex: 1; min-width: 0; }
+    .breadcrumb-path strong { color: var(--text); }
+    .breadcrumb-count { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+    .btn-breadcrumb-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border: 1.5px solid var(--primary);
+      border-radius: 20px;
+      background: white;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-breadcrumb-back:hover { background: var(--primary); color: white; }
+
+    /* new-product-type inline form */
+    .new-pt-form {
+      display: none;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-top: 8px;
+      gap: 8px;
+      flex-direction: column;
+    }
+
+    .new-pt-form.show { display: flex; }
   </style>
 </head>
 
@@ -1610,9 +1844,30 @@
               <h1 class="section-title">&#129514; Equipment Dashboard <span class="section-count" id="eq-count">0</span></h1>
             </div>
 
+            <!-- Product Type Tiles -->
+            <div class="product-tiles-section" id="product-tiles-section" style="display:none;">
+              <div class="product-tiles-header">
+                <span class="product-tiles-label">&#128248; Filter by Product Type</span>
+                <button class="product-tiles-toggle" id="tiles-collapse-btn" onclick="toggleTilesCollapse()" aria-label="Collapse or expand tile grid" title="Collapse / expand">
+                  <span id="tiles-collapse-icon">&#9650;</span> <span id="tiles-collapse-text">Collapse</span>
+                </button>
+              </div>
+              <div class="product-tiles-grid" id="product-tiles-grid" role="group" aria-label="Filter by product type">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Breadcrumb bar (shown when a tile is selected) -->
+            <div class="product-breadcrumb" id="product-breadcrumb" role="navigation" aria-label="Product filter breadcrumb">
+              <span class="breadcrumb-path" id="breadcrumb-path">All Equipment</span>
+              <span class="breadcrumb-count" id="breadcrumb-count"></span>
+              <button class="btn-breadcrumb-back" onclick="clearProductFilter()" aria-label="Back to all equipment">&#8592; Back to all</button>
+            </div>
+
             <!-- Search + Department + Status filters -->
             <div class="eq-search-bar">
               <input type="search" id="eq-search" class="eq-search-input" placeholder="Search equipment..." oninput="renderEquipment()" aria-label="Search equipment" />
+            </div>
             </div>
             <div class="toolbar">
               <div class="filter-group" role="group" aria-label="Filter by status">
@@ -1879,6 +2134,26 @@
             <option value="In Use">In Use</option>
           </select>
         </div>
+        <!-- Product Type (Manager only) -->
+        <div class="form-group" id="new-eq-pt-group">
+          <label class="form-label" for="new-eq-pt">Product Type</label>
+          <select id="new-eq-pt" class="form-select" onchange="onProductTypeSelectChange()">
+            <option value="">-- None --</option>
+            <!-- dynamically loaded from productTypes -->
+            <option value="__new__">&#10010; New product type...</option>
+          </select>
+          <!-- Inline new product type form -->
+          <div class="new-pt-form" id="new-pt-form">
+            <div>
+              <label class="form-label" for="new-pt-name" style="margin-bottom:4px;">New Type Name</label>
+              <input id="new-pt-name" class="form-input" type="text" placeholder="e.g. ECG Monitor" maxlength="50" />
+            </div>
+            <div>
+              <label class="form-label" for="new-pt-img" style="margin-bottom:4px;">Image path / URL <span style="font-weight:400;text-transform:none;color:var(--text-muted);">(optional)</span></label>
+              <input id="new-pt-img" class="form-input" type="text" placeholder="e.g. images/ecg-monitor.png" />
+            </div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeAddEquipmentModal()">Cancel</button>
@@ -2044,6 +2319,9 @@
       document.getElementById('login-screen').style.display = 'flex';
       allEquipment = [];
       departments = [];
+      productTypes = [];          // v3
+      currentProductFilter = 'all'; // v3
+      tilesCollapsed = false;     // v3
       allAuditLogs = {};
       openEqRowId = null;
       openAuditRowId = null;
@@ -2120,8 +2398,11 @@
     // ==========================================
     let allEquipment = [];
     let departments = [];
+    let productTypes = [];        // v3: product type objects from product_types table
     let currentFilter = 'all';
     let currentDeptFilter = 'all';
+    let currentProductFilter = 'all'; // v3: 'all' or product_type_id (integer)
+    let tilesCollapsed = false;   // v3: tile grid collapse state
     let selectedPriority = 'Normal';
     let currentRequestEquipmentId = null;
     let html5Scanner = null;
@@ -2131,6 +2412,7 @@
 
     async function appInit() {
       await loadDepartments();
+      await loadProductTypes();   // v3: must run before loadEquipment so tiles render with data
       await loadEquipment();
       await loadRequests();
       subscribeRealtime();
@@ -2203,11 +2485,14 @@
     }
 
     async function loadEquipment() {
-      const { data, error } = await db.from('equipment').select('*, departments(name)').order('id');
+      const { data, error } = await db.from('equipment')
+        .select('*, departments(name), product_types(name, image_url)')
+        .order('id');
       if (error) { console.error(error); return; }
       allEquipment = data;
       renderEquipment();
       updateStats();
+      renderProductTiles(); // v3
     }
 
     async function loadRequests() {
@@ -2229,6 +2514,7 @@
             // Re-render without closing the open row
             renderEquipment();
             updateStats();
+            renderProductTiles(); // v3 — keep tile counts live
             const eq = allEquipment.find(e => e.id === payload.new.id);
             showToast((eq ? eq.name : 'Equipment') + ' updated: ' + payload.new.status, 'info');
           } else {
@@ -2274,13 +2560,204 @@
       return allEquipment.filter(eq => {
         const s = currentFilter === 'all' || eq.status === currentFilter;
         const d = currentDeptFilter === 'all' || eq.department_id === currentDeptFilter;
+        // v3: product type filter
+        const pt = currentProductFilter === 'all' || eq.product_type_id === currentProductFilter;
         const deptName = (eq.departments ? eq.departments.name : '').toLowerCase();
         const m = !q || eq.name.toLowerCase().includes(q) || deptName.includes(q) || (eq.qr_code_id || '').toLowerCase().includes(q);
-        return s && d && m;
+        return s && d && pt && m;
       });
     }
 
     let durationTimers = [];
+
+    // ==========================================
+    // PRODUCT TYPES — v3
+    // ==========================================
+
+    // Emoji fallbacks for each known product type name
+    const PT_EMOJI = {
+      'ventilator':       '🫁',
+      'wheelchair':       '♿',
+      'infusion pump':    '💉',
+      'defibrillator':    '⚡',
+      'portable monitor': '🖥️',
+    };
+
+    function getPtEmoji(name) {
+      if (!name) return '🏥';
+      return PT_EMOJI[name.toLowerCase()] || '🏥';
+    }
+
+    async function loadProductTypes() {
+      try {
+        const { data, error } = await db.from('product_types').select('*').order('id');
+        if (error) { console.warn('product_types not available:', error.message); productTypes = []; }
+        else { productTypes = data || []; }
+      } catch (e) {
+        console.warn('product_types load failed:', e);
+        productTypes = [];
+      }
+      // Show the tiles section only if product types are available
+      const section = document.getElementById('product-tiles-section');
+      if (section) section.style.display = productTypes.length > 0 ? 'block' : 'none';
+      renderProductTiles();
+    }
+
+    function renderProductTiles() {
+      const grid = document.getElementById('product-tiles-grid');
+      if (!grid) return;
+
+      // If no product types loaded, keep section hidden
+      const section = document.getElementById('product-tiles-section');
+      if (productTypes.length === 0) {
+        if (section) section.style.display = 'none';
+        return;
+      }
+      if (section) section.style.display = 'block';
+
+      // Apply collapsed class from tilesCollapsed state
+      grid.classList.toggle('collapsed', tilesCollapsed);
+      const iconEl = document.getElementById('tiles-collapse-icon');
+      const textEl = document.getElementById('tiles-collapse-text');
+      if (iconEl) iconEl.textContent = tilesCollapsed ? '▼' : '▲';
+      if (textEl) textEl.textContent = tilesCollapsed ? 'Expand' : 'Collapse';
+
+      grid.innerHTML = '';
+
+      // --- "All Equipment" tile ---
+      const allCount = allEquipment.length;
+      const allTile = document.createElement('button');
+      allTile.className = 'product-tile' + (currentProductFilter === 'all' ? ' selected' : '');
+      allTile.setAttribute('aria-pressed', currentProductFilter === 'all' ? 'true' : 'false');
+      allTile.setAttribute('aria-label', 'All Equipment — ' + allCount + ' items');
+      allTile.type = 'button';
+      allTile.onclick = () => setProductFilter('all');
+
+      const allImgWrap = document.createElement('div');
+      allImgWrap.className = 'pt-img-wrap';
+      allImgWrap.innerHTML = '<span class="pt-emoji-fallback">🏥</span>';
+
+      const allName = document.createElement('div');
+      allName.className = 'pt-name';
+      allName.textContent = 'All Equipment';
+
+      const allSummary = document.createElement('div');
+      allSummary.className = 'pt-summary';
+      allSummary.innerHTML = '<span class="pt-count-badge">' + allCount + '</span>';
+
+      allTile.appendChild(allImgWrap);
+      allTile.appendChild(allName);
+      allTile.appendChild(allSummary);
+      grid.appendChild(allTile);
+
+      // --- One tile per product type ---
+      productTypes.forEach(pt => {
+        const items = allEquipment.filter(e => e.product_type_id === pt.id);
+        const availCount = items.filter(e => e.status === 'Available').length;
+        const totalCount = items.length;
+        const hasAvail = availCount > 0;
+        const isSelected = currentProductFilter === pt.id;
+
+        const tile = document.createElement('button');
+        tile.className = 'product-tile' + (isSelected ? ' selected' : '') + (!hasAvail && totalCount > 0 ? ' dimmed' : '');
+        tile.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+        tile.setAttribute('aria-label', esc(pt.name) + ' — ' + totalCount + ' items, ' + availCount + ' available');
+        tile.type = 'button';
+        tile.onclick = () => setProductFilter(pt.id);
+
+        // Availability dot
+        if (totalCount > 0) {
+          const dot = document.createElement('span');
+          dot.className = 'pt-dot ' + (hasAvail ? 'green' : 'red');
+          dot.setAttribute('aria-hidden', 'true');
+          tile.appendChild(dot);
+        }
+
+        // Image area
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'pt-img-wrap';
+
+        if (pt.image_url) {
+          const img = document.createElement('img');
+          img.src = pt.image_url;
+          img.alt = pt.name;
+          img.loading = 'lazy';
+          img.onerror = function() {
+            // Fallback to emoji on broken image
+            this.parentNode.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
+          };
+          imgWrap.appendChild(img);
+        } else {
+          imgWrap.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
+        }
+
+        const namEl = document.createElement('div');
+        namEl.className = 'pt-name';
+        namEl.textContent = pt.name;
+
+        const sumEl = document.createElement('div');
+        sumEl.className = 'pt-summary';
+        sumEl.textContent = totalCount + ' item' + (totalCount !== 1 ? 's' : '') + ' · ' + availCount + ' available';
+
+        tile.appendChild(imgWrap);
+        tile.appendChild(namEl);
+        tile.appendChild(sumEl);
+        grid.appendChild(tile);
+      });
+
+      // Update breadcrumb bar
+      updateBreadcrumb();
+    }
+
+    function setProductFilter(typeId) {
+      // Toggle off if already selected
+      if (currentProductFilter === typeId) {
+        currentProductFilter = 'all';
+      } else {
+        currentProductFilter = typeId;
+      }
+
+      // Guard: if selected type no longer has data, fall back to all
+      if (currentProductFilter !== 'all') {
+        const stillExists = productTypes.some(pt => pt.id === currentProductFilter);
+        if (!stillExists) currentProductFilter = 'all';
+      }
+
+      renderProductTiles();
+      renderEquipment();
+    }
+
+    function clearProductFilter() {
+      currentProductFilter = 'all';
+      renderProductTiles();
+      renderEquipment();
+    }
+
+    function toggleTilesCollapse() {
+      tilesCollapsed = !tilesCollapsed;
+      renderProductTiles();
+    }
+
+    function updateBreadcrumb() {
+      const bar = document.getElementById('product-breadcrumb');
+      const pathEl = document.getElementById('breadcrumb-path');
+      const countEl = document.getElementById('breadcrumb-count');
+      if (!bar || !pathEl || !countEl) return;
+
+      if (currentProductFilter === 'all') {
+        bar.classList.remove('show');
+        return;
+      }
+
+      const pt = productTypes.find(p => p.id === currentProductFilter);
+      if (!pt) { bar.classList.remove('show'); return; }
+
+      const items = allEquipment.filter(e => e.product_type_id === pt.id);
+      const filtered = getFiltered(); // respects all active filters
+      pathEl.innerHTML = 'All Equipment &rsaquo; <strong>' + esc(pt.name) + 's</strong>';
+      countEl.textContent = filtered.length + ' item' + (filtered.length !== 1 ? 's' : '') + ' shown';
+      bar.classList.add('show');
+    }
 
     function stopDurationTimers() {
       durationTimers.forEach(t => clearInterval(t));
@@ -2295,7 +2772,11 @@
       stopDurationTimers();
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state" style=""><div class="empty-icon">&#128269;</div><div class="empty-text">No equipment matches your filters</div></div>';
+        const hint = currentProductFilter !== 'all'
+          ? 'No equipment of this type matches your filters. <button onclick="clearProductFilter()" style="color:var(--primary);background:none;border:none;cursor:pointer;font-size:13px;padding:0;font-family:inherit;">Clear product filter</button>'
+          : 'No equipment matches your filters';
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128269;</div><div class="empty-text">' + hint + '</div></div>';
+        renderProductTiles(); // v3 — keep tiles live even when list is empty
         return;
       }
 
@@ -3379,8 +3860,43 @@
         document.getElementById('new-eq-dept').value = departments[0].id;
       }
       document.getElementById('new-eq-status').value = 'Available';
+
+      // v3: populate product type dropdown (Manager only)
+      const ptSel = document.getElementById('new-eq-pt');
+      const ptGroup = document.getElementById('new-eq-pt-group');
+      if (ptSel && ptGroup) {
+        ptSel.innerHTML = '<option value="">-- None --</option>';
+        productTypes.forEach(pt => {
+          const opt = document.createElement('option');
+          opt.value = pt.id;
+          opt.textContent = pt.name;
+          ptSel.appendChild(opt);
+        });
+        const newOpt = document.createElement('option');
+        newOpt.value = '__new__';
+        newOpt.textContent = '\u2795 New product type...';
+        ptSel.appendChild(newOpt);
+        // Hide the inline form and reset its inputs
+        document.getElementById('new-pt-form').classList.remove('show');
+        document.getElementById('new-pt-name').value = '';
+        document.getElementById('new-pt-img').value = '';
+      }
+
       autoSuggestQrId();
       document.getElementById('add-equipment-modal').style.display = 'flex';
+    }
+
+    // v3: Show / hide the inline new product type form
+    function onProductTypeSelectChange() {
+      const sel = document.getElementById('new-eq-pt');
+      const form = document.getElementById('new-pt-form');
+      if (!sel || !form) return;
+      if (sel.value === '__new__') {
+        form.classList.add('show');
+        document.getElementById('new-pt-name').focus();
+      } else {
+        form.classList.remove('show');
+      }
     }
 
     function closeAddEquipmentModal() {
@@ -3419,12 +3935,45 @@
       btn.textContent = 'Adding...';
 
       try {
+        // v3: resolve product_type_id — may involve creating a new type
+        let productTypeId = null;
+        const ptSel = document.getElementById('new-eq-pt');
+        if (ptSel && ptSel.value && ptSel.value !== '') {
+          if (ptSel.value === '__new__') {
+            // Create new product type first
+            const newPtName = (document.getElementById('new-pt-name').value || '').trim();
+            const newPtImg  = (document.getElementById('new-pt-img').value  || '').trim();
+            if (!newPtName) {
+              showToast('Please enter a name for the new product type.', 'error');
+              btn.disabled = false;
+              btn.innerHTML = '&#10010; Add Product &amp; Generate QR';
+              return;
+            }
+            const { data: ptData, error: ptErr } = await db.from('product_types')
+              .insert([{ name: newPtName, image_url: newPtImg || null }])
+              .select()
+              .single();
+            if (ptErr) {
+              showToast('Failed to create product type: ' + ptErr.message, 'error');
+              btn.disabled = false;
+              btn.innerHTML = '&#10010; Add Product &amp; Generate QR';
+              return;
+            }
+            // Add to local cache so tiles update immediately
+            productTypes.push(ptData);
+            productTypeId = ptData.id;
+          } else {
+            productTypeId = parseInt(ptSel.value) || null;
+          }
+        }
+
         const { data, error } = await db.from('equipment').insert([{
           name: name,
           department_id: deptId,
           qr_code_id: qrId,
           status: status,
-          condition: 'Usable'
+          condition: 'Usable',
+          product_type_id: productTypeId  // v3
         }]).select();
 
         if (error) {
@@ -3445,7 +3994,7 @@
 
         showToast('Product "' + name + '" added successfully!', 'success');
         closeAddEquipmentModal();
-        await loadEquipment();
+        await loadEquipment();   // also triggers renderProductTiles() via loadEquipment
 
         if (insertedId) {
           setTimeout(() => { openStickerModal(insertedId); }, 350);

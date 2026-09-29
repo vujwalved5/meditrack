@@ -213,3 +213,84 @@ The following features are intentionally not implemented:
   - Booking time slots
   - Maintenance scheduling
   - Human-resource conflict handling
+
+---
+
+## v3 — Product Tiles
+
+### ⚠️ Migration Required
+Before using this version, run `migration_v3.sql` in the **Supabase SQL Editor**:
+  1. Open https://app.supabase.com and select your project
+  2. Go to SQL Editor > New Query
+  3. Paste the contents of migration_v3.sql and click Run
+  4. Confirm the verification SELECT at the bottom shows 8 rows with product types
+
+### New Database Table: product_types
+
+  product_types
+    id          SERIAL PRIMARY KEY
+    name        TEXT UNIQUE NOT NULL       -- e.g. "Ventilator"
+    image_url   TEXT                       -- e.g. "images/ventilator.png"
+    created_at  TIMESTAMP DEFAULT NOW()
+
+### New Column on equipment
+
+  product_type_id  INTEGER REFERENCES product_types(id)  -- nullable
+
+### How Product Tiles Work
+
+1. On login, loadProductTypes() fetches all rows from product_types.
+2. A tile grid appears above the search bar on the Dashboard.
+3. The first tile is "All Equipment" (default selected).
+4. Each subsequent tile shows:
+   - The product image (falls back to an emoji if missing or broken)
+   - The product name
+   - Live count: "N items · N available"
+   - A green dot (≥1 available) or red dot (none available)
+5. Clicking a tile sets a product type filter that combines with the
+   existing search box, department chips, and status filters.
+6. Clicking the selected tile again resets the filter to "All".
+7. A breadcrumb bar appears when a tile is selected, showing
+   "All Equipment › Ventilators" plus the current filtered count,
+   and a "← Back to all" button.
+8. A ▲/▼ collapse button above the grid lets users hide the tiles
+   to a slim horizontal scrollable strip and restore them.
+9. Tile counts and dots update live via Realtime when equipment
+   status changes in another browser window.
+
+### Seeded Product Types
+
+  Ventilator      → images/ventilator.png
+  Wheelchair      → images/wheelchair.png
+  Infusion Pump   → images/infusion-pump.png
+  Defibrillator   → images/defibrillator.png
+  Portable Monitor→ images/portable-monitor.png
+
+### Image Files to Supply
+
+Place the following square PNG files (400×400px, white/light background) in the
+images/ folder next to index.html:
+
+  images/ventilator.png
+  images/wheelchair.png
+  images/infusion-pump.png
+  images/defibrillator.png
+  images/portable-monitor.png
+
+The images/ folder contains a README.md with detailed requirements.
+If any file is missing, the tile shows an emoji fallback and still works.
+
+### Manager: Add Product Type Inline
+
+  - The Add Product modal now has a "Product Type" dropdown.
+  - Choosing "+ New product type..." reveals a text field (name) and
+    an optional image path/URL field.
+  - Creating a new type inserts into product_types first, then uses
+    the returned id as product_type_id on the new equipment row.
+  - The new type appears immediately in the tile grid without a page reload.
+  - Only Managers see this control (same gate as the Add Product button).
+
+### SQL Files
+
+  schema.sql        - Complete master schema (v2 features included)
+  migration_v3.sql  - v3 incremental migration (product types, tile data)
