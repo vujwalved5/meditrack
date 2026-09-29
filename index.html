@@ -1868,8 +1868,8 @@
             <div class="eq-search-bar">
               <input type="search" id="eq-search" class="eq-search-input" placeholder="Search equipment..." oninput="renderEquipment()" aria-label="Search equipment" />
             </div>
-            </div>
             <div class="toolbar">
+
               <div class="filter-group" role="group" aria-label="Filter by status">
                 <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">All</button>
                 <button class="filter-btn" id="filter-available" onclick="setFilter('Available')">Available</button>
@@ -2320,6 +2320,7 @@
       allEquipment = [];
       departments = [];
       productTypes = [];          // v3
+      allRequests = [];           // clear so approve guard doesn't use stale data
       currentProductFilter = 'all'; // v3
       tilesCollapsed = false;     // v3
       allAuditLogs = {};
@@ -2399,6 +2400,7 @@
     let allEquipment = [];
     let departments = [];
     let productTypes = [];        // v3: product type objects from product_types table
+    let allRequests = [];         // cached pending requests for approve/reject guard
     let currentFilter = 'all';
     let currentDeptFilter = 'all';
     let currentProductFilter = 'all'; // v3: 'all' or product_type_id (integer)
@@ -2485,14 +2487,26 @@
     }
 
     async function loadEquipment() {
-      const { data, error } = await db.from('equipment')
+      // v3: try to fetch with product_types join; fall back gracefully if table doesn't exist yet
+      let { data, error } = await db.from('equipment')
         .select('*, departments(name), product_types(name, image_url)')
         .order('id');
-      if (error) { console.error(error); return; }
+
+      if (error) {
+        console.warn('product_types join failed, falling back:', error.message);
+        showToast('Product tiles unavailable: run migration_v3.sql', 'info');
+        // Retry without the product_types join
+        const fallback = await db.from('equipment')
+          .select('*, departments(name)')
+          .order('id');
+        if (fallback.error) { console.error(fallback.error); return; }
+        data = fallback.data;
+      }
+
       allEquipment = data;
       renderEquipment();
       updateStats();
-      renderProductTiles(); // v3
+      renderProductTiles(); // v3 — safe: renderProductTiles has its own try/catch
     }
 
     async function loadRequests() {
@@ -2560,8 +2574,17 @@
       return allEquipment.filter(eq => {
         const s = currentFilter === 'all' || eq.status === currentFilter;
         const d = currentDeptFilter === 'all' || eq.department_id === currentDeptFilter;
-        // v3: product type filter
-        const pt = currentProductFilter === 'all' || eq.product_type_id === currentProductFilter;
+        // v3: product type filter — handles real int IDs and virtual string keys (pre-migration fallback)
+        let pt = true;
+        if (currentProductFilter !== 'all') {
+          if (typeof currentProductFilter === 'string' && currentProductFilter.startsWith('_')) {
+            // Virtual tile: match by name-base
+            const base = currentProductFilter.slice(1); // strip leading '_'
+            pt = eq.name.replace(/\s+[A-Za-z0-9]$/, '').trim() === base;
+          } else {
+            pt = eq.product_type_id === currentProductFilter;
+          }
+        }
         const deptName = (eq.departments ? eq.departments.name : '').toLowerCase();
         const m = !q || eq.name.toLowerCase().includes(q) || deptName.includes(q) || (eq.qr_code_id || '').toLowerCase().includes(q);
         return s && d && pt && m;
@@ -2591,122 +2614,139 @@
     async function loadProductTypes() {
       try {
         const { data, error } = await db.from('product_types').select('*').order('id');
-        if (error) { console.warn('product_types not available:', error.message); productTypes = []; }
-        else { productTypes = data || []; }
+        if (error) {
+          console.warn('product_types table not available:', error.message);
+          productTypes = [];
+        } else {
+          productTypes = data || [];
+        }
       } catch (e) {
-        console.warn('product_types load failed:', e);
+        console.warn('loadProductTypes failed:', e);
         productTypes = [];
       }
-      // Show the tiles section only if product types are available
-      const section = document.getElementById('product-tiles-section');
-      if (section) section.style.display = productTypes.length > 0 ? 'block' : 'none';
-      renderProductTiles();
+      // Always call renderProductTiles — it will decide whether to show/hide
+      try { renderProductTiles(); } catch (e) { console.error('renderProductTiles failed after loadProductTypes:', e); }
+    }
+
+    // Build a list of virtual product-type objects to display as tiles.
+    // Priority: real productTypes from DB. Fallback: group allEquipment by
+    // name-base (strip trailing " A", " B", " 1", " 2", etc.) so tiles render
+    // even before migration_v3.sql is run.
+    function buildEffectiveTiles() {
+      if (productTypes.length > 0) return productTypes;
+
+      // Fallback: derive virtual types from equipment names
+      const baseName = name => name.replace(/\s+[A-Za-z0-9]$/, '').trim();
+      const seen = new Map();
+      allEquipment.forEach(eq => {
+        const base = baseName(eq.name);
+        if (!seen.has(base)) seen.set(base, { id: '_' + base, name: base, image_url: null, _virtual: true });
+      });
+      return Array.from(seen.values());
     }
 
     function renderProductTiles() {
-      const grid = document.getElementById('product-tiles-grid');
-      if (!grid) return;
+      try {
+        const grid = document.getElementById('product-tiles-grid');
+        if (!grid) return;
 
-      // If no product types loaded, keep section hidden
-      const section = document.getElementById('product-tiles-section');
-      if (productTypes.length === 0) {
-        if (section) section.style.display = 'none';
-        return;
+        const section = document.getElementById('product-tiles-section');
+        const effectiveTiles = buildEffectiveTiles();
+
+        // No data at all — hide section
+        if (allEquipment.length === 0 && effectiveTiles.length === 0) {
+          if (section) section.style.display = 'none';
+          return;
+        }
+        if (section) section.style.display = 'block';
+
+        // Collapse toggle UI
+        grid.classList.toggle('collapsed', tilesCollapsed);
+        const iconEl = document.getElementById('tiles-collapse-icon');
+        const textEl = document.getElementById('tiles-collapse-text');
+        if (iconEl) iconEl.textContent = tilesCollapsed ? '\u25bc' : '\u25b2';
+        if (textEl) textEl.textContent = tilesCollapsed ? 'Expand' : 'Collapse';
+
+        grid.innerHTML = '';
+
+        // --- "All Equipment" tile ---
+        const allCount = allEquipment.length;
+        const allTile = document.createElement('button');
+        allTile.className = 'product-tile' + (currentProductFilter === 'all' ? ' selected' : '');
+        allTile.setAttribute('aria-pressed', currentProductFilter === 'all' ? 'true' : 'false');
+        allTile.setAttribute('aria-label', 'All Equipment \u2014 ' + allCount + ' items');
+        allTile.type = 'button';
+        allTile.onclick = () => setProductFilter('all');
+        allTile.innerHTML =
+          '<div class="pt-img-wrap"><span class="pt-emoji-fallback">&#127973;</span></div>' +
+          '<div class="pt-name">All Equipment</div>' +
+          '<div class="pt-summary"><span class="pt-count-badge">' + allCount + '</span></div>';
+        grid.appendChild(allTile);
+
+        // --- One tile per effective type ---
+        effectiveTiles.forEach(pt => {
+          // Match items: real DB type or virtual name-base group
+          const items = pt._virtual
+            ? allEquipment.filter(e => e.name.replace(/\s+[A-Za-z0-9]$/, '').trim() === pt.name)
+            : allEquipment.filter(e => e.product_type_id === pt.id);
+          const availCount = items.filter(e => e.status === 'Available').length;
+          const totalCount = items.length;
+          const hasAvail = availCount > 0;
+          const isSelected = currentProductFilter === pt.id;
+
+          const tile = document.createElement('button');
+          tile.className = 'product-tile' +
+            (isSelected ? ' selected' : '') +
+            (!hasAvail && totalCount > 0 ? ' dimmed' : '');
+          tile.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+          tile.setAttribute('aria-label', esc(pt.name) + ' \u2014 ' + totalCount + ' items, ' + availCount + ' available');
+          tile.type = 'button';
+          tile.onclick = () => setProductFilter(pt.id);
+
+          // Availability dot
+          if (totalCount > 0) {
+            const dot = document.createElement('span');
+            dot.className = 'pt-dot ' + (hasAvail ? 'green' : 'red');
+            dot.setAttribute('aria-hidden', 'true');
+            tile.appendChild(dot);
+          }
+
+          // Image wrap with emoji fallback
+          const imgWrap = document.createElement('div');
+          imgWrap.className = 'pt-img-wrap';
+          if (pt.image_url) {
+            const img = document.createElement('img');
+            img.src = pt.image_url;
+            img.alt = pt.name;
+            img.loading = 'lazy';
+            // Guaranteed emoji fallback on any load failure
+            img.onerror = function() {
+              this.parentNode.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
+            };
+            imgWrap.appendChild(img);
+          } else {
+            imgWrap.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
+          }
+
+          const namEl = document.createElement('div');
+          namEl.className = 'pt-name';
+          namEl.textContent = pt.name;
+
+          const sumEl = document.createElement('div');
+          sumEl.className = 'pt-summary';
+          sumEl.textContent = totalCount + ' item' + (totalCount !== 1 ? 's' : '') + ' \u00b7 ' + availCount + ' avail';
+
+          tile.appendChild(imgWrap);
+          tile.appendChild(namEl);
+          tile.appendChild(sumEl);
+          grid.appendChild(tile);
+        });
+
+        // Breadcrumb — wrapped separately
+        try { updateBreadcrumb(); } catch(e) { console.warn('updateBreadcrumb error:', e); }
+      } catch (e) {
+        console.error('renderProductTiles error (suppressed):', e);
       }
-      if (section) section.style.display = 'block';
-
-      // Apply collapsed class from tilesCollapsed state
-      grid.classList.toggle('collapsed', tilesCollapsed);
-      const iconEl = document.getElementById('tiles-collapse-icon');
-      const textEl = document.getElementById('tiles-collapse-text');
-      if (iconEl) iconEl.textContent = tilesCollapsed ? '▼' : '▲';
-      if (textEl) textEl.textContent = tilesCollapsed ? 'Expand' : 'Collapse';
-
-      grid.innerHTML = '';
-
-      // --- "All Equipment" tile ---
-      const allCount = allEquipment.length;
-      const allTile = document.createElement('button');
-      allTile.className = 'product-tile' + (currentProductFilter === 'all' ? ' selected' : '');
-      allTile.setAttribute('aria-pressed', currentProductFilter === 'all' ? 'true' : 'false');
-      allTile.setAttribute('aria-label', 'All Equipment — ' + allCount + ' items');
-      allTile.type = 'button';
-      allTile.onclick = () => setProductFilter('all');
-
-      const allImgWrap = document.createElement('div');
-      allImgWrap.className = 'pt-img-wrap';
-      allImgWrap.innerHTML = '<span class="pt-emoji-fallback">🏥</span>';
-
-      const allName = document.createElement('div');
-      allName.className = 'pt-name';
-      allName.textContent = 'All Equipment';
-
-      const allSummary = document.createElement('div');
-      allSummary.className = 'pt-summary';
-      allSummary.innerHTML = '<span class="pt-count-badge">' + allCount + '</span>';
-
-      allTile.appendChild(allImgWrap);
-      allTile.appendChild(allName);
-      allTile.appendChild(allSummary);
-      grid.appendChild(allTile);
-
-      // --- One tile per product type ---
-      productTypes.forEach(pt => {
-        const items = allEquipment.filter(e => e.product_type_id === pt.id);
-        const availCount = items.filter(e => e.status === 'Available').length;
-        const totalCount = items.length;
-        const hasAvail = availCount > 0;
-        const isSelected = currentProductFilter === pt.id;
-
-        const tile = document.createElement('button');
-        tile.className = 'product-tile' + (isSelected ? ' selected' : '') + (!hasAvail && totalCount > 0 ? ' dimmed' : '');
-        tile.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-        tile.setAttribute('aria-label', esc(pt.name) + ' — ' + totalCount + ' items, ' + availCount + ' available');
-        tile.type = 'button';
-        tile.onclick = () => setProductFilter(pt.id);
-
-        // Availability dot
-        if (totalCount > 0) {
-          const dot = document.createElement('span');
-          dot.className = 'pt-dot ' + (hasAvail ? 'green' : 'red');
-          dot.setAttribute('aria-hidden', 'true');
-          tile.appendChild(dot);
-        }
-
-        // Image area
-        const imgWrap = document.createElement('div');
-        imgWrap.className = 'pt-img-wrap';
-
-        if (pt.image_url) {
-          const img = document.createElement('img');
-          img.src = pt.image_url;
-          img.alt = pt.name;
-          img.loading = 'lazy';
-          img.onerror = function() {
-            // Fallback to emoji on broken image
-            this.parentNode.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
-          };
-          imgWrap.appendChild(img);
-        } else {
-          imgWrap.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
-        }
-
-        const namEl = document.createElement('div');
-        namEl.className = 'pt-name';
-        namEl.textContent = pt.name;
-
-        const sumEl = document.createElement('div');
-        sumEl.className = 'pt-summary';
-        sumEl.textContent = totalCount + ' item' + (totalCount !== 1 ? 's' : '') + ' · ' + availCount + ' available';
-
-        tile.appendChild(imgWrap);
-        tile.appendChild(namEl);
-        tile.appendChild(sumEl);
-        grid.appendChild(tile);
-      });
-
-      // Update breadcrumb bar
-      updateBreadcrumb();
     }
 
     function setProductFilter(typeId) {
@@ -2717,9 +2757,10 @@
         currentProductFilter = typeId;
       }
 
-      // Guard: if selected type no longer has data, fall back to all
+      // Guard: if selected type no longer exists in effective tiles, fall back to all
       if (currentProductFilter !== 'all') {
-        const stillExists = productTypes.some(pt => pt.id === currentProductFilter);
+        const allTypes = buildEffectiveTiles();
+        const stillExists = allTypes.some(pt => pt.id === currentProductFilter);
         if (!stillExists) currentProductFilter = 'all';
       }
 
@@ -2739,24 +2780,29 @@
     }
 
     function updateBreadcrumb() {
-      const bar = document.getElementById('product-breadcrumb');
-      const pathEl = document.getElementById('breadcrumb-path');
-      const countEl = document.getElementById('breadcrumb-count');
-      if (!bar || !pathEl || !countEl) return;
+      try {
+        const bar = document.getElementById('product-breadcrumb');
+        const pathEl = document.getElementById('breadcrumb-path');
+        const countEl = document.getElementById('breadcrumb-count');
+        if (!bar || !pathEl || !countEl) return;
 
-      if (currentProductFilter === 'all') {
-        bar.classList.remove('show');
-        return;
+        if (currentProductFilter === 'all') {
+          bar.classList.remove('show');
+          return;
+        }
+
+        // Find in real productTypes or virtual fallback
+        const allTypes = buildEffectiveTiles();
+        const pt = allTypes.find(p => p.id === currentProductFilter);
+        if (!pt) { bar.classList.remove('show'); return; }
+
+        const filtered = getFiltered();
+        pathEl.innerHTML = 'All Equipment &rsaquo; <strong>' + esc(pt.name) + '</strong>';
+        countEl.textContent = filtered.length + ' item' + (filtered.length !== 1 ? 's' : '') + ' shown';
+        bar.classList.add('show');
+      } catch (e) {
+        console.warn('updateBreadcrumb error:', e);
       }
-
-      const pt = productTypes.find(p => p.id === currentProductFilter);
-      if (!pt) { bar.classList.remove('show'); return; }
-
-      const items = allEquipment.filter(e => e.product_type_id === pt.id);
-      const filtered = getFiltered(); // respects all active filters
-      pathEl.innerHTML = 'All Equipment &rsaquo; <strong>' + esc(pt.name) + 's</strong>';
-      countEl.textContent = filtered.length + ' item' + (filtered.length !== 1 ? 's' : '') + ' shown';
-      bar.classList.add('show');
     }
 
     function stopDurationTimers() {
@@ -3268,6 +3314,7 @@
     // RENDER REQUESTS (role-gated approve/reject)
     // ==========================================
     function renderRequests(reqs) {
+      allRequests = reqs || []; // keep in sync so updateReq() self-approve guard works
       const el = document.getElementById('requests-list');
       document.getElementById('req-count').textContent = reqs.length;
       if (reqs.length === 0) {
