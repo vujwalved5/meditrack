@@ -294,3 +294,77 @@ If any file is missing, the tile shows an emoji fallback and still works.
 
   schema.sql        - Complete master schema (v2 features included)
   migration_v3.sql  - v3 incremental migration (product types, tile data)
+
+---
+
+## v4 — AI Daily Insights
+
+Three AI-generated daily insights appear in a panel at the top of the Dashboard for Manager and Senior Doctor roles. Staff do not see the panel.
+
+### Deployment Required
+See **README_AI.md** for full setup steps. Summary:
+1. Run `migration_v3_ai_insights.sql` in Supabase SQL Editor
+2. Run `seed_demo_history.sql` for demo data (optional)
+3. Set secrets: `supabase secrets set ...` (see README_AI.md for exact commands)
+4. Deploy: `supabase functions deploy daily-insights --no-verify-jwt`
+5. Run `migration_v3_cron.sql` to schedule the 06:00 AM IST daily job
+6. Test with `curl` (see README_AI.md)
+
+### Features
+
+**Morning Ops Brief** (Manager + Senior Doctor)
+- Yesterday's checkout count vs 7-day baseline
+- Overnight items (held past midnight)
+- Equipment not in a Usable condition
+- Pending / urgent requests summary
+- AI-written headline, summary, and attention chips
+
+**Forgotten Equipment Detector** (Manager + Senior Doctor)
+- Flags items held longer than N× their type-specific median hold time
+- Severity: warning (≥3× median) or critical (≥6× median)
+- Falls back to an 8h default threshold when fewer than 5 sessions exist
+- AI provides a one-sentence message + suggested action per item
+
+**Department Rebalancing Recommender** (Manager only)
+- Compares utilization and demand requests across departments for the same equipment type
+- Identifies a specific unit to move from a low-demand department to a high-demand one
+- AI writes the rationale citing exact numbers; code selects the candidate
+
+### Design Principles
+- CODE computes all numbers, flags, severities, and candidates (deterministic + testable)
+- LLM only writes human-readable wording from those facts
+- No AI API key on the client side
+- Fallback: if the LLM fails, rule-based text is generated deterministically
+- Re-running the same day overwrites (delete + insert) — no duplicates
+- All AI text is escaped with `esc()` before display
+
+### New Files
+  migration_v3_ai_insights.sql  - ai_insights table, RLS, realtime
+  migration_v3_cron.sql         - pg_cron + pg_net scheduler
+  seed_demo_history.sql         - 14-day demo audit history + forgotten equipment scenario
+  README_AI.md                  - Deployment guide with exact CLI commands
+
+  supabase/functions/daily-insights/
+    index.ts      - Edge Function entry point
+    config.ts     - Threshold constants
+    time.ts       - Timezone helpers (parseUtc, localDayBounds, etc.)
+    data.ts       - Paginated data loader and session builder
+    metrics.ts    - Deterministic fact computation for all 3 features
+    llm.ts        - Gemini / Anthropic abstraction, retry, fallback
+    prompts.ts    - System prompt, per-feature prompts, validators
+    metrics.test.ts - Deno unit tests
+    .env.example  - Environment variable template
+
+### New Database Table
+
+  ai_insights
+    id            BIGSERIAL PRIMARY KEY
+    insight_date  DATE NOT NULL
+    type          TEXT -- 'morning_brief' | 'forgotten_equipment' | 'rebalancing'
+    department_id INTEGER REFERENCES departments(id) NULL
+    title         TEXT
+    summary       TEXT
+    data          JSONB  -- metrics + AI output
+    model         TEXT   -- AI model name or 'fallback'
+    created_at    TIMESTAMPTZ
+

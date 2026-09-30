@@ -1952,6 +1952,299 @@
         transition-delay: 0s !important;
       }
     }
+
+    /* ===== AI INSIGHTS PANEL ===== */
+    .ai-insights-section {
+      margin-bottom: 20px;
+    }
+
+    .ai-insights-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ai-insights-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ai-insights-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #7c3aed22, #1a73e822);
+      border: 1px solid #c4b0f0;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--manager-color);
+      letter-spacing: .3px;
+    }
+
+    .ai-collapse-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition);
+      min-height: 36px;
+    }
+
+    .ai-collapse-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    .ai-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 1100px) { .ai-cards-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    @media (min-width: 720px) and (max-width: 1099px) { .ai-cards-grid { grid-template-columns: 1fr 1fr; } }
+
+    .ai-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: card-in 280ms ease both;
+    }
+
+    .ai-card-header {
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #f8fafc, #f0f4f8);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ai-card-icon { font-size: 16px; }
+
+    .ai-card-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .ai-card-model {
+      font-size: 10px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .ai-card-body { padding: 14px 16px; }
+
+    .ai-headline {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .ai-summary {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    .ai-highlights {
+      list-style: none;
+      margin: 0 0 10px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ai-highlights li {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding-left: 14px;
+      position: relative;
+      line-height: 1.4;
+    }
+
+    .ai-highlights li::before {
+      content: '•';
+      position: absolute;
+      left: 2px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .ai-attention-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .ai-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .ai-chip.info { background: var(--primary-light); color: var(--primary); border: 1px solid #b3cef5; }
+    .ai-chip.warning { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+    .ai-chip.critical { background: var(--inuse-bg); color: var(--inuse); border: 1px solid var(--inuse-border); }
+
+    .ai-metrics-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+
+    .ai-metric-chip {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      min-width: 60px;
+    }
+
+    .ai-metric-val { font-size: 18px; font-weight: 700; color: var(--primary); line-height: 1; }
+    .ai-metric-lbl { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; white-space: nowrap; }
+
+    /* Forgotten equipment items */
+    .ai-forgotten-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .ai-forgotten-item {
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .ai-forgotten-item.critical { border-color: var(--inuse-border); background: var(--inuse-bg); }
+    .ai-forgotten-item.warning { border-color: var(--amber-border); background: var(--amber-bg); }
+
+    .ai-forgotten-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .ai-forgotten-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .ai-forgotten-msg { font-size: 12px; color: var(--text-secondary); margin-top: 6px; font-style: italic; }
+    .ai-forgotten-action { font-size: 12px; color: var(--primary); font-weight: 600; margin-top: 4px; }
+
+    .ai-severity-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      margin-left: 6px;
+    }
+
+    .ai-severity-pill.critical { background: var(--inuse-bg); color: var(--inuse); border: 1px solid var(--inuse-border); }
+    .ai-severity-pill.warning { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+
+    .ai-all-clear {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: var(--available-bg);
+      border: 1px solid var(--available-border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--available);
+      font-weight: 600;
+    }
+
+    /* Rebalancing */
+    .ai-rebal-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .ai-rebal-item {
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .ai-rebal-move { font-size: 13px; font-weight: 700; color: var(--text); }
+    .ai-rebal-rationale { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+    .ai-rebal-caveat { font-size: 11px; color: var(--amber); margin-top: 4px; font-style: italic; }
+
+    .ai-evidence-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 6px;
+    }
+
+    .ai-evidence-chip {
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid #b3cef5;
+    }
+
+    /* Footer */
+    .ai-card-footer {
+      padding: 8px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface-2);
+    }
+
+    .ai-stale-notice {
+      margin-top: 4px;
+      padding: 4px 10px;
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      color: var(--amber);
+      font-weight: 500;
+    }
+
+    .ai-empty-state {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      border: 1.5px dashed var(--border);
+    }
   </style>
 </head>
 
@@ -2022,6 +2315,28 @@
 
       <!-- ===================== DASHBOARD PAGE ===================== -->
       <div id="page-dashboard" class="page-view">
+
+        <!-- AI DAILY INSIGHTS PANEL (Manager + Senior Doctor only; hidden for Staff by JS) -->
+        <section class="ai-insights-section" id="ai-insights-section" aria-label="AI Daily Insights" style="display:none;">
+          <div class="ai-insights-header">
+            <div class="ai-insights-title">
+              &#129302; AI Daily Insights
+              <span class="ai-insights-badge">&#127959; Daily Analysis</span>
+            </div>
+            <button class="ai-collapse-btn" id="ai-collapse-btn"
+              onclick="toggleAiInsights()"
+              aria-expanded="true"
+              aria-controls="ai-insights-body">
+              <span id="ai-collapse-icon">&#9650;</span>
+              <span id="ai-collapse-text">Collapse</span>
+            </button>
+          </div>
+          <div id="ai-insights-body">
+            <div class="ai-empty-state" id="ai-insights-loading">Loading insights&#8230;</div>
+            <div class="ai-cards-grid" id="ai-cards-grid" style="display:none;"></div>
+          </div>
+        </section>
+
         <div class="stats-bar">
           <button type="button" class="stat-card stat-card-btn" onclick="setFilter('all')" aria-label="Show all items">
             <span class="stat-number total" id="stat-total">&mdash;</span>
@@ -2530,6 +2845,13 @@
       allRequests = [];           // clear so approve guard doesn't use stale data
       currentProductFilter = 'all'; // v3
       tilesCollapsed = false;     // v3
+      aiInsightsCollapsed = false; // v4
+      const aiSection = document.getElementById('ai-insights-section');
+      if (aiSection) aiSection.style.display = 'none';
+      const aiGrid = document.getElementById('ai-cards-grid');
+      if (aiGrid) { aiGrid.innerHTML = ''; aiGrid.style.display = 'none'; }
+      const aiLoading = document.getElementById('ai-insights-loading');
+      if (aiLoading) { aiLoading.textContent = 'Loading insights\u2026'; aiLoading.style.display = 'block'; }
       allAuditLogs = {};
       openEqRowId = null;
       openAuditRowId = null;
@@ -2624,6 +2946,7 @@
       await loadProductTypes();   // v3: must run before loadEquipment so tiles render with data
       await loadEquipment();
       await loadRequests();
+      await loadInsights();       // v4: AI insights
       subscribeRealtime();
     }
 
@@ -2724,6 +3047,309 @@
       renderRequests(data);
     }
 
+    // ==========================================
+    // AI INSIGHTS (v4)
+    // ==========================================
+    let aiInsightsCollapsed = false;
+    let aiInsightsDebounceTimer = null;
+
+    // parseUtc for the frontend — appends 'Z' when no timezone offset is present
+    function parseUtcFe(s) {
+      if (!s) return new Date(NaN);
+      if (/[Zz]$/.test(s) || /[+-]\d{2}:\d{2}$/.test(s)) return new Date(s);
+      return new Date(s + 'Z');
+    }
+
+    // Get 'YYYY-MM-DD' in Asia/Kolkata from a UTC Date
+    function toLocalDateKolkata(utcDate) {
+      try {
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric', month: '2-digit', day: '2-digit'
+        }).format(utcDate);
+      } catch { return ''; }
+    }
+
+    // Format a model string for display
+    function fmtModel(model) {
+      if (!model || model === 'fallback' || model === 'none') return 'rule-based';
+      return model;
+    }
+
+    // Format a local timestamp for the footer
+    function fmtLocalTs(isoStr) {
+      if (!isoStr) return '';
+      try {
+        const d = parseUtcFe(isoStr);
+        return d.toLocaleString('en-IN', {
+          timeZone: 'Asia/Kolkata',
+          day: '2-digit', month: 'short',
+          hour: '2-digit', minute: '2-digit'
+        });
+      } catch { return ''; }
+    }
+
+    // Format hours as 'Xh Ym'
+    function fmtHeld(hours) {
+      if (!hours && hours !== 0) return '';
+      const h = Math.floor(hours);
+      const m = Math.round((hours - h) * 60);
+      if (h === 0) return m + 'm';
+      if (m === 0) return h + 'h';
+      return h + 'h ' + m + 'm';
+    }
+
+    async function loadInsights() {
+      // Show section for Manager and Senior Doctor only
+      const role = currentUser && currentUser.role;
+      if (role === 'Staff' || !role) return;
+
+      const section = document.getElementById('ai-insights-section');
+      if (section) section.style.display = 'block';
+
+      try {
+        const { data, error } = await db
+          .from('ai_insights')
+          .select('*')
+          .order('insight_date', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(30);
+
+        if (error) throw error;
+        renderInsights(data || []);
+      } catch (err) {
+        console.error('[insights] load failed:', err);
+        const loading = document.getElementById('ai-insights-loading');
+        if (loading) loading.textContent = 'Could not load AI insights.';
+      }
+    }
+
+    function renderInsights(rows) {
+      const loading = document.getElementById('ai-insights-loading');
+      const grid = document.getElementById('ai-cards-grid');
+      if (!grid) return;
+
+      // Take the newest row per type
+      const byType = {};
+      for (const row of rows) {
+        if (!byType[row.type]) byType[row.type] = row;
+      }
+
+      const types = ['morning_brief', 'forgotten_equipment', 'rebalancing'];
+      const hasAny = types.some(t => byType[t]);
+
+      if (!hasAny) {
+        if (loading) {
+          loading.textContent = 'No insights yet. The first automatic run is at 6:00 AM.';
+          loading.style.display = 'block';
+        }
+        grid.style.display = 'none';
+        return;
+      }
+
+      if (loading) loading.style.display = 'none';
+      grid.style.display = 'grid';
+      grid.innerHTML = '';
+
+      const role = currentUser && currentUser.role;
+      const todayStr = toLocalDateKolkata(new Date());
+
+      // Card 1: Morning Brief
+      if (byType['morning_brief']) {
+        grid.appendChild(buildBriefCard(byType['morning_brief'], todayStr));
+      }
+
+      // Card 2: Forgotten Equipment
+      if (byType['forgotten_equipment']) {
+        grid.appendChild(buildForgottenCard(byType['forgotten_equipment'], todayStr));
+      }
+
+      // Card 3: Rebalancing (Manager only)
+      if (role === 'Manager' && byType['rebalancing']) {
+        grid.appendChild(buildRebalancingCard(byType['rebalancing'], todayStr));
+      }
+    }
+
+    function buildCardFooter(row, todayStr) {
+      const ts = fmtLocalTs(row.created_at);
+      const model = fmtModel(row.model);
+      const footerText = 'Generated ' + esc(ts) + ' \u00b7 ' + esc(model);
+      const isStale = row.insight_date && row.insight_date < todayStr;
+      const staleHtml = isStale
+        ? '<div class="ai-stale-notice">&#9888; Last updated ' + esc(row.insight_date) + '. Today&#x2019;s run hasn&#x2019;t completed yet.</div>'
+        : '';
+      return '<div class="ai-card-footer">' + footerText + staleHtml + '</div>';
+    }
+
+    function buildBriefCard(row, todayStr) {
+      const card = document.createElement('div');
+      card.className = 'ai-card';
+
+      const d = row.data || {};
+      const ai = d.ai || {};
+      const metrics = d.metrics || {};
+      const yest = metrics.yesterday || {};
+      const reqs = metrics.requests || {};
+      const snap = metrics.snapshot || {};
+
+      // Headline & summary
+      const headline = ai.headline || row.title || 'Morning Brief';
+      const summary = ai.summary || row.summary || '';
+
+      // Highlights
+      let highlightsHtml = '';
+      if (Array.isArray(ai.highlights) && ai.highlights.length > 0) {
+        highlightsHtml = '<ul class="ai-highlights">' +
+          ai.highlights.map(h => '<li>' + esc(String(h)) + '</li>').join('') +
+          '</ul>';
+      }
+
+      // Attention chips
+      let attentionHtml = '';
+      if (Array.isArray(ai.attention) && ai.attention.length > 0) {
+        attentionHtml = '<div class="ai-attention-chips">' +
+          ai.attention.map(a => {
+            const sev = ['info','warning','critical'].includes(a.severity) ? a.severity : 'info';
+            return '<span class="ai-chip ' + sev + '">' + esc(String(a.text || '')) + '</span>';
+          }).join('') +
+          '</div>';
+      }
+
+      // Metrics strip (numbers from computed facts, not from LLM text)
+      const metricsStrip =
+        '<div class="ai-metrics-strip">' +
+        '<div class="ai-metric-chip"><span class="ai-metric-val">' + esc(String(yest.checkouts ?? '—')) + '</span><span class="ai-metric-lbl">Checkouts</span></div>' +
+        '<div class="ai-metric-chip"><span class="ai-metric-val">' + esc(String(yest.utilization_pct != null ? yest.utilization_pct + '%' : '—')) + '</span><span class="ai-metric-lbl">Utilization</span></div>' +
+        '<div class="ai-metric-chip"><span class="ai-metric-val">' + esc(String(reqs.pending_count ?? '—')) + '</span><span class="ai-metric-lbl">Pending Req.</span></div>' +
+        '<div class="ai-metric-chip"><span class="ai-metric-val">' + esc(String(Array.isArray(metrics.overnight) ? metrics.overnight.length : '—')) + '</span><span class="ai-metric-lbl">Overnight</span></div>' +
+        '</div>';
+
+      card.innerHTML =
+        '<div class="ai-card-header">' +
+        '<span class="ai-card-icon">&#127774;</span>' +
+        '<span class="ai-card-name">Morning Brief</span>' +
+        '<span class="ai-card-model">' + esc(fmtModel(row.model)) + '</span>' +
+        '</div>' +
+        '<div class="ai-card-body">' +
+        '<div class="ai-headline">' + esc(headline) + '</div>' +
+        '<div class="ai-summary">' + esc(summary) + '</div>' +
+        highlightsHtml +
+        attentionHtml +
+        metricsStrip +
+        '</div>' +
+        buildCardFooter(row, todayStr);
+
+      return card;
+    }
+
+    function buildForgottenCard(row, todayStr) {
+      const card = document.createElement('div');
+      card.className = 'ai-card';
+
+      const d = row.data || {};
+      const items = Array.isArray(d.items) ? d.items : [];
+      const summary = row.summary || '';
+
+      let bodyHtml;
+      if (items.length === 0) {
+        bodyHtml = '<div class="ai-all-clear">&#9989; All equipment is within normal hold times.</div>';
+      } else {
+        bodyHtml = '<div class="ai-forgotten-list">' +
+          items.map(item => {
+            const sevClass = item.severity === 'critical' ? 'critical' : 'warning';
+            const heldStr = fmtHeld(item.held_hours);
+            const typStr = item.typical_hours != null ? ' (typical ' + fmtHeld(item.typical_hours) + ')' : '';
+            const msg = item.ai_message || '';
+            const action = item.suggested_action || '';
+            return '<div class="ai-forgotten-item ' + sevClass + '">' +
+              '<div class="ai-forgotten-name">' + esc(item.name) +
+              '<span class="ai-severity-pill ' + sevClass + '">' + esc(item.severity) + '</span></div>' +
+              '<div class="ai-forgotten-meta">' + esc(item.department) +
+              ' &#183; Held by ' + esc(item.held_by) +
+              ' &#183; ' + esc(heldStr) + esc(typStr) + '</div>' +
+              (msg ? '<div class="ai-forgotten-msg">' + esc(msg) + '</div>' : '') +
+              (action ? '<div class="ai-forgotten-action">&#128270; ' + esc(action) + '</div>' : '') +
+              '</div>';
+          }).join('') +
+          '</div>';
+      }
+
+      card.innerHTML =
+        '<div class="ai-card-header">' +
+        '<span class="ai-card-icon">&#128269;</span>' +
+        '<span class="ai-card-name">Forgotten Equipment</span>' +
+        '<span class="ai-card-model">' + esc(fmtModel(row.model)) + '</span>' +
+        '</div>' +
+        '<div class="ai-card-body">' +
+        (summary ? '<div class="ai-summary">' + esc(summary) + '</div>' : '') +
+        bodyHtml +
+        '</div>' +
+        buildCardFooter(row, todayStr);
+
+      return card;
+    }
+
+    function buildRebalancingCard(row, todayStr) {
+      const card = document.createElement('div');
+      card.className = 'ai-card';
+
+      const d = row.data || {};
+      const recs = Array.isArray(d.recommendations) ? d.recommendations : [];
+      const summary = row.summary || '';
+
+      let bodyHtml;
+      if (recs.length === 0) {
+        bodyHtml = '<div class="ai-empty-state" style="border:none;background:none;padding:8px 0;">No rebalancing moves suggested this week.</div>';
+      } else {
+        bodyHtml = '<div class="ai-rebal-list">' +
+          recs.map(rec => {
+            const rationale = rec.rationale || '';
+            const caveat = rec.caveat || '';
+            const ev = rec.evidence || {};
+            const evidenceChips =
+              '<div class="ai-evidence-chips">' +
+              (ev.to_demand_requests != null ? '<span class="ai-evidence-chip">' + esc(String(ev.to_demand_requests)) + ' requests</span>' : '') +
+              (ev.from_utilization != null ? '<span class="ai-evidence-chip">From: ' + esc(String(ev.from_utilization)) + '% util</span>' : '') +
+              (ev.to_utilization != null ? '<span class="ai-evidence-chip">To: ' + esc(String(ev.to_utilization)) + '% util</span>' : '') +
+              '</div>';
+            return '<div class="ai-rebal-item">' +
+              '<div class="ai-rebal-move">Move ' + esc(rec.equipment_name || rec.type_display || '') +
+              ' from ' + esc(rec.from_department) + ' &#8594; ' + esc(rec.to_department) + '</div>' +
+              (rationale ? '<div class="ai-rebal-rationale">' + esc(rationale) + '</div>' : '') +
+              (caveat ? '<div class="ai-rebal-caveat">&#9888; ' + esc(caveat) + '</div>' : '') +
+              evidenceChips +
+              '</div>';
+          }).join('') +
+          '</div>';
+      }
+
+      card.innerHTML =
+        '<div class="ai-card-header">' +
+        '<span class="ai-card-icon">&#9878;</span>' +
+        '<span class="ai-card-name">Rebalancing Suggestion</span>' +
+        '<span class="ai-card-model">' + esc(fmtModel(row.model)) + '</span>' +
+        '</div>' +
+        '<div class="ai-card-body">' +
+        (summary ? '<div class="ai-summary">' + esc(summary) + '</div>' : '') +
+        bodyHtml +
+        '</div>' +
+        buildCardFooter(row, todayStr);
+
+      return card;
+    }
+
+    function toggleAiInsights() {
+      aiInsightsCollapsed = !aiInsightsCollapsed;
+      const body = document.getElementById('ai-insights-body');
+      const btn = document.getElementById('ai-collapse-btn');
+      const icon = document.getElementById('ai-collapse-icon');
+      const text = document.getElementById('ai-collapse-text');
+      if (body) body.style.display = aiInsightsCollapsed ? 'none' : 'block';
+      if (btn) btn.setAttribute('aria-expanded', aiInsightsCollapsed ? 'false' : 'true');
+      if (icon) icon.textContent = aiInsightsCollapsed ? '\u25bc' : '\u25b2';
+      if (text) text.textContent = aiInsightsCollapsed ? 'Expand' : 'Collapse';
+    }
+
     function subscribeRealtime() {
       db.channel('equipment-rt')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'equipment' }, async (payload) => {
@@ -2747,6 +3373,15 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, async () => {
           await loadRequests();
         }).subscribe();
+
+      // AI Insights realtime subscription — debounced reload on new row
+      if (currentUser.role !== 'Staff') {
+        db.channel('ai-insights-rt')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ai_insights' }, () => {
+            clearTimeout(aiInsightsDebounceTimer);
+            aiInsightsDebounceTimer = setTimeout(() => { loadInsights(); }, 1500);
+          }).subscribe();
+      }
 
       if (currentUser.role !== 'Staff') {
         db.channel('auditlog-rt')
