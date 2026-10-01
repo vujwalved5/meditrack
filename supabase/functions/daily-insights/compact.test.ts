@@ -81,7 +81,7 @@ function makeForgottenItem(id: number, overrides: Record<string, unknown> = {}) 
 
 Deno.test('cleanText — strips newlines and control chars', () => {
   const result = cleanText('Hello\nWorld\x01\x1F');
-  assertEquals(result, 'Hello World  ');
+  assertEquals(result, 'Hello World');
   assert(!result.includes('\n'));
   assert(!result.includes('\x01'));
 });

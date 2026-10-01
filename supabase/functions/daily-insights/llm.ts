@@ -93,21 +93,24 @@ export interface AttemptRecord {
 // Schema helpers
 // ──────────────────────────────────────────────────────────
 
-type FeatureSchema = typeof BRIEF_RESPONSE_SCHEMA;
+type FeatureSchema = { type: string; properties?: Record<string, any>; items?: any; required?: string[]; description?: string; [key: string]: any };
 
-function getSchema(feature: string): FeatureSchema {
-  if (feature === 'morning_brief') return BRIEF_RESPONSE_SCHEMA;
-  if (feature === 'forgotten_equipment') return FORGOTTEN_RESPONSE_SCHEMA;
-  return REBALANCING_RESPONSE_SCHEMA;
+function getSchema(feature: string, override?: FeatureSchema): FeatureSchema {
+  if (override) return override;
+  if (feature === 'morning_brief') return BRIEF_RESPONSE_SCHEMA as FeatureSchema;
+  if (feature === 'forgotten_equipment') return FORGOTTEN_RESPONSE_SCHEMA as FeatureSchema;
+  return REBALANCING_RESPONSE_SCHEMA as FeatureSchema;
 }
 
-function getInputSchema(feature: string): FeatureSchema {
-  if (feature === 'morning_brief') return BRIEF_INPUT_SCHEMA;
-  if (feature === 'forgotten_equipment') return FORGOTTEN_INPUT_SCHEMA;
-  return REBALANCING_INPUT_SCHEMA;
+function getInputSchema(feature: string, override?: FeatureSchema): FeatureSchema {
+  if (override) return override;
+  if (feature === 'morning_brief') return BRIEF_INPUT_SCHEMA as FeatureSchema;
+  if (feature === 'forgotten_equipment') return FORGOTTEN_INPUT_SCHEMA as FeatureSchema;
+  return REBALANCING_INPUT_SCHEMA as FeatureSchema;
 }
 
-function getToolName(feature: string): string {
+function getToolName(feature: string, override?: string): string {
+  if (override) return override;
   if (feature === 'morning_brief') return 'write_brief';
   if (feature === 'forgotten_equipment') return 'write_forgotten_alerts';
   return 'write_rebalancing';
@@ -132,6 +135,7 @@ async function callProviderOnce(
   maxTokens: number,
   feature: string,
   signal: AbortSignal,
+  opts?: { schema?: FeatureSchema; toolName?: string; thinkingBudget?: number; systemPrompt?: string }
 ): Promise<OneAttemptResult> {
   const t0 = Date.now();
   let httpStatus = 0;
@@ -142,7 +146,7 @@ async function callProviderOnce(
 
     if (cfg.provider === 'anthropic') {
       // Anthropic forced tool use for structured output
-      const toolName = getToolName(feature);
+      const toolName = getToolName(feature, opts?.toolName);
       response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -154,12 +158,12 @@ async function callProviderOnce(
           model: cfg.model,
           max_tokens: maxTokens,
           temperature: 0.2,
-          system: SYSTEM_PROMPT,
+          system: opts?.systemPrompt ?? SYSTEM_PROMPT,
           messages: [{ role: 'user', content: userPrompt }],
           tools: [{
             name: toolName,
             description: 'Return the structured insight JSON',
-            input_schema: getInputSchema(feature),
+            input_schema: getInputSchema(feature, opts?.schema),
           }],
           tool_choice: { type: 'tool', name: toolName },
         }),
@@ -194,14 +198,14 @@ async function callProviderOnce(
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${cfg.model}:generateContent`;
 
       const body: Record<string, unknown> = {
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        systemInstruction: { parts: [{ text: opts?.systemPrompt ?? SYSTEM_PROMPT }] },
         contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
         generationConfig: {
           temperature: 0.2,
           maxOutputTokens: maxTokens,
           responseMimeType: 'application/json',
-          responseSchema: getSchema(feature),
-          ...(is25Flash ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+          responseSchema: getSchema(feature, opts?.schema),
+          ...(is25Flash || (opts?.thinkingBudget !== undefined && opts.thinkingBudget >= 0) ? { thinkingConfig: { thinkingBudget: opts?.thinkingBudget ?? 0 } } : {}),
         },
       };
 
@@ -351,27 +355,39 @@ export interface LLMResult<T> {
  * Never logs API keys or full prompts.
  */
 export async function callLLM<T>(
-  feature: 'morning_brief' | 'forgotten_equipment' | 'rebalancing',
+  feature: string,
   userPrompt: string,
   itemCount: number,
   validator: (obj: unknown) => obj is T,
-  coerce: (obj: unknown) => T,
+  coerce: (obj: unknown) => T | null,
   fallback: () => T,
   db: any,
   budgetCtx: BudgetCtx,
+  opts?: {
+    maxOutputTokens?: number;
+    timeoutMs?: number;
+    modelOverride?: { primary: ProviderConfig; backup: ProviderConfig };
+    schema?: FeatureSchema;
+    toolName?: string;
+    logType?: string;
+    thinkingBudget?: number;
+    systemPrompt?: string;
+  }
 ): Promise<LLMResult<T>> {
-  const primary = getPrimaryConfig();
-  const backup = getBackupConfig();
+  const primary = opts?.modelOverride?.primary ?? getPrimaryConfig();
+  const backup = opts?.modelOverride?.backup ?? getBackupConfig();
   const promptChars = userPrompt.length;
   const estTokens = Math.round(promptChars / 4);
-  const tokenBudget = outputTokenBudget(feature, itemCount);
+  const tokenBudget = (feature === 'morning_brief' || feature === 'forgotten_equipment' || feature === 'rebalancing')
+    ? outputTokenBudget(feature as any, itemCount)
+    : { initial: 800, max: 2000 };
   const attempts: AttemptRecord[] = [];
 
-  let currentMaxTokens = tokenBudget.initial;
+  let currentMaxTokens = opts?.maxOutputTokens ?? tokenBudget.initial;
 
   // Returns remaining ms in global budget
   const remaining = () => budgetCtx.totalBudgetMs - budgetCtx.usedMs;
-  const timeoutMs = () => Math.min(LLM_TIMEOUT_MS(), remaining());
+  const timeoutMs = () => Math.min(opts?.timeoutMs ?? LLM_TIMEOUT_MS(), remaining());
 
   // ── Single timed attempt ──
   async function attempt(
@@ -384,7 +400,7 @@ export async function callLLM<T>(
     const timer = setTimeout(() => controller.abort(), tmOut);
     let res: OneAttemptResult;
     try {
-      res = await callProviderOnce(cfg, userPrompt, maxTokens, feature, controller.signal);
+      res = await callProviderOnce(cfg, userPrompt, maxTokens, feature, controller.signal, opts);
     } finally {
       clearTimeout(timer);
     }
@@ -413,7 +429,7 @@ export async function callLLM<T>(
 
     attempts.push(rec);
     // Fire-and-forget log write
-    writeRunLog(db, { type: feature, ...rec });
+    writeRunLog(db, { type: opts?.logType ?? feature, ...rec });
 
     return { result: res, rec };
   }

@@ -418,3 +418,153 @@ Full facts are always stored in `data.metrics` (read by the UI). The LLM only se
 ### Caching
 
 On a same-day re-run, if `data.meta.input_hash` (SHA-256 of `PROMPT_VERSION + compact_payload`) matches and the row's model is not `"fallback"`, the LLM call is skipped. Use `"force": true` in the request body to bypass.
+## Weekly Deep Analysis
+
+The **Weekly Deep Analysis** feature performs a deep dive on 7 days of historical data, triggered manually by a Manager role user.
+
+### How it works
+
+1. The browser inserts a row into `ai_weekly_reports` (status='queued').
+2. The `AFTER INSERT` trigger `trg_ai_weekly_after_insert` immediately calls `ai_weekly_kick(id)`,  
+   which does `net.http_post` to `weekly-insights` with `{"report_id": N}`.
+3. The Edge Function claims the job atomically (`UPDATE … WHERE status='queued' RETURNING *`),  
+   runs the sequential LLM loop, and writes progress updates as it goes.
+4. The housekeeping cron (`*/2 * * * *`) marks stale running jobs as failed and re-kicks stuck queued ones.
+
+> **You do not need to manually call the function after inserting a row.** The trigger does it automatically.
+
+### Setup and Deployment
+
+1. **Database Migration**: Run `migration_v3c_weekly.sql` in the Supabase SQL Editor.  
+   Requirements: `vault.create_secret`, `pg_net`, and `pg_cron` must already be active  
+   (set up via `migration_v3_cron.sql`).
+
+   Verify the housekeeping schedule was created:
+   ```sql
+   SELECT jobname, schedule, active FROM cron.job WHERE jobname = 'meditrack-weekly-housekeeping';
+   ```
+
+2. **Secrets Configuration** — only set what you need; `AI_DEEP_MODEL` defaults to your daily `AI_MODEL`:
+   ```bash
+   # Provider must be 'gemini' or 'anthropic' (same values llm.ts accepts)
+   supabase secrets set --project-ref qfgvjyhnvmcczhqicend \
+     AI_DEEP_PROVIDER="gemini"
+
+   # Optionally pin a specific deep model (leave unset to share AI_MODEL with daily)
+   # supabase secrets set --project-ref qfgvjyhnvmcczhqicend AI_DEEP_MODEL="gemini-2.5-pro"
+
+   # Wall-clock budget — Supabase Free tier cap is ~150 s; 120 s is a safe default
+   supabase secrets set --project-ref qfgvjyhnvmcczhqicend \
+     WEEKLY_TOTAL_BUDGET_MS="120000" \
+     WEEKLY_STEP_TIMEOUT_MS="25000"
+   ```
+
+3. **Deploy the Edge Function**:
+   ```bash
+   supabase functions deploy weekly-insights \
+     --project-ref qfgvjyhnvmcczhqicend \
+     --no-verify-jwt
+   ```
+
+### Testing the Workflow
+
+**Dry run** (no DB writes, no LLM calls, shows compact payload):
+```bash
+curl -s --request POST 'https://qfgvjyhnvmcczhqicend.supabase.co/functions/v1/weekly-insights' \
+  --header "x-cron-secret: $CRON_SECRET" \
+  --header 'Content-Type: application/json' \
+  --data '{"dry_run": true, "show_prompts": true}' | jq .
+```
+
+**Synchronous debug run** (blocks until done — useful for integration testing):
+1. Insert a queued row from the SQL Editor:
+   ```sql
+   INSERT INTO ai_weekly_reports (requested_by) VALUES ('admin');
+   ```
+   Note the returned `id` (e.g., 42). The trigger will kick it automatically; if you want to test a fresh curl invocation, first reset the row:
+   ```sql
+   UPDATE ai_weekly_reports SET status = 'queued', started_at = NULL WHERE id = 42;
+   ```
+2. Then call with `wait: true` and the specific `report_id`:
+   ```bash
+   curl -s --request POST 'https://qfgvjyhnvmcczhqicend.supabase.co/functions/v1/weekly-insights' \
+     --header "x-cron-secret: $CRON_SECRET" \
+     --header 'Content-Type: application/json' \
+     --data '{"report_id": 42, "wait": true}' | jq .
+   ```
+
+**Force re-run ignoring cache**:
+```bash
+curl -s --request POST 'https://qfgvjyhnvmcczhqicend.supabase.co/functions/v1/weekly-insights' \
+  --header "x-cron-secret: $CRON_SECRET" \
+  --header 'Content-Type: application/json' \
+  --data '{"report_id": 42, "wait": true, "force": true}' | jq .
+```
+
+After a run, verify the result:
+```sql
+SELECT id, status, model, week_start, week_end, steps_done, steps_total, error, finished_at
+FROM ai_weekly_reports ORDER BY id DESC LIMIT 5;
+```
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| Job stuck in 'queued' after insert | Check `net._http_response` for kick failures: `SELECT * FROM net._http_response ORDER BY id DESC LIMIT 10;` Verify vault secret is set and function deployed. |
+| Job immediately failed | Edge Function crashed at start — check Supabase Dashboard → Edge Functions → Logs |
+| Job marked failed by housekeeping | Job ran >8 min. Check logs for section timeouts. Reduce `WEEKLY_STEP_TIMEOUT_MS` or increase `WEEKLY_TOTAL_BUDGET_MS`. |
+| 'partial' status | Some sections used rule-based fallback (LLM was unavailable). Amber note shown in UI. Check run log. |
+| Cooldown error on insert | The guard trigger `ai_weekly_guard()` enforces 30-min cooldown. Wait or clear stuck jobs: `UPDATE ai_weekly_reports SET status='failed', error='Manually cleared' WHERE status IN ('queued','running');` |
+
+### Operational Sample Queries
+
+**Weekly job durations**:
+```sql
+SELECT id, requested_by, status,
+  EXTRACT(EPOCH FROM (finished_at - requested_at)) AS duration_sec
+FROM ai_weekly_reports WHERE finished_at IS NOT NULL ORDER BY id DESC LIMIT 10;
+```
+
+**Per-section AI vs rule-based counts**:
+```sql
+SELECT id, week_start,
+  (SELECT COUNT(*) FROM jsonb_each(result->'sections') WHERE value->>'source' = 'ai') AS ai_sections,
+  (SELECT COUNT(*) FROM jsonb_each(result->'sections') WHERE value->>'source' = 'fallback') AS fallback_sections
+FROM ai_weekly_reports WHERE status IN ('done', 'partial') ORDER BY id DESC;
+```
+
+**Weekly LLM failures by error_category** (uses correct `ai_run_log` columns):
+```sql
+SELECT error_category, outcome, COUNT(*)
+FROM ai_run_log
+WHERE type LIKE 'weekly_%' AND outcome = 'failure'
+GROUP BY error_category, outcome
+ORDER BY COUNT(*) DESC;
+```
+
+**Housekeeping cron status**:
+```sql
+SELECT jobname, schedule, active FROM cron.job WHERE jobname = 'meditrack-weekly-housekeeping';
+```
+
+### Environment Variables — Weekly-specific
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AI_DEEP_PROVIDER` | value of `AI_PROVIDER` | Provider for the deep model: `gemini` or `anthropic` |
+| `AI_DEEP_MODEL` | value of `AI_MODEL` | Deep model ID. Leave unset to share daily model. |
+| `WEEKLY_TOTAL_BUDGET_MS` | `120000` | Total wall-clock budget for all sections (ms). Supabase Free cap ≈150 s. |
+| `WEEKLY_STEP_TIMEOUT_MS` | `25000` | Per-section LLM timeout (ms). Must be < `WEEKLY_TOTAL_BUDGET_MS`. |
+
+> **Note**: The housekeeping timeout (`8 minutes = 480 s`) is intentionally longer than `WEEKLY_TOTAL_BUDGET_MS` so the Edge Function has time to reach its final `try/catch` and write `status='failed'` before housekeeping marks it stale.
+
+### Security Note
+
+The `ai_weekly_guard()` trigger (BEFORE INSERT) enforces server-side:
+1. Only active Managers may insert.
+2. One job active at a time.
+3. 30-minute cooldown between jobs.
+4. Daily cap of 5 runs.
+
+This bounds compute and LLM cost exposure without requiring server-side authentication in the browser.

@@ -368,3 +368,7 @@ See **README_AI.md** for full setup steps. Summary:
     model         TEXT   -- AI model name or 'fallback'
     created_at    TIMESTAMPTZ
 
+### Weekly Deep Analysis
+A new **Weekly Deep Analysis** feature allows Managers to trigger a comprehensive 7-day review on demand.
+See **README_AI.md** for setup instructions, architecture details, and how to test the background job orchestration.
+
