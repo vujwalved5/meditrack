@@ -51,6 +51,56 @@ async function waitForRunLogGap(db: any, gapMs: number): Promise<void> {
   }
 }
 
+/**
+ * Item 3: Code-owned owner/priority mapping.
+ * The LLM returns [{ref, action, reason}]; we attach owner and priority.
+ * Unknown refs are dropped.
+ */
+const OWNER_MAP: Record<string, { owner: string; priority: number }> = {
+  out_of_order:       { owner: 'Manager',       priority: 1 },
+  needs_maint:        { owner: 'Manager',       priority: 2 },
+  maintenance:        { owner: 'Manager',       priority: 2 },
+  maint_watch:        { owner: 'Staff',         priority: 3 },
+  flagged_open:       { owner: 'Staff',         priority: 3 },
+  old_pending:        { owner: 'Senior Doctor', priority: 2 },
+  req_slow:           { owner: 'Senior Doctor', priority: 3 },
+  rebalance:          { owner: 'Manager',       priority: 2 },
+  non_usable_pending: { owner: 'Manager',       priority: 1 },
+  util_drop:          { owner: 'Manager',       priority: 4 },
+  idle:               { owner: 'Manager',       priority: 5 },
+  general:            { owner: 'Manager',       priority: 9 },
+};
+
+function attachOwners(actions: Array<{ ref: string; action: string; reason: string }>): Array<{ ref: string; action: string; reason: string; priority: number; owner: string }> {
+  return actions
+    .filter(a => a.ref in OWNER_MAP || a.ref === 'general')
+    .map(a => {
+      const mapping = OWNER_MAP[a.ref] ?? { owner: 'Manager', priority: 9 };
+      return { ...a, owner: mapping.owner as any, priority: mapping.priority };
+    })
+    .sort((a, b) => a.priority - b.priority);
+}
+
+/**
+ * Item 4: Number grounding.
+ * Extracts all numbers from AI text and checks each appears in the payload JSON
+ * or is in the whitelist of universal constants (7, 14, 24, 168).
+ * Returns true if grounded, false if ungrounded numbers found.
+ */
+const GROUNDING_WHITELIST = new Set([7, 14, 24, 168]);
+
+function isGrounded(text: string, payloadJson: string): boolean {
+  // Extract all standalone numbers (integers and decimals) from the text
+  const nums = text.match(/\b\d+(?:\.\d+)?\b/g) ?? [];
+  for (const raw of nums) {
+    const n = parseFloat(raw);
+    if (GROUNDING_WHITELIST.has(n)) continue;
+    // Check if this number appears anywhere in the payload JSON
+    if (!payloadJson.includes(raw)) return false;
+  }
+  return true;
+}
+
 // ──────────────────────────────────────────────────────────
 // Handler
 // ──────────────────────────────────────────────────────────
@@ -346,12 +396,13 @@ async function runJob(reportId: number, body: any) {
         budgetExhausted = true;
         resultJson.meta.budget_exhausted = true;
         console.warn(`[weekly] Budget exhausted before section ${s}. Using fallback.`);
-        const fd = fallbackFor(s, fullPayloads[s] ?? metrics.metrics);
+        const fd = fallbackFor(s, fullPayloads[s] ?? metrics.metrics, 'budget_exhausted');
         if (s === 'executive') {
-          resultJson.executive = { ...fd, source: 'fallback' };
+          const rawA = (fd?.actions ?? []) as Array<{ ref: string; action: string; reason: string }>;
+          resultJson.executive = { ...fd, actions: attachOwners(rawA), source: 'fallback', verdict: metrics.verdict };
         } else {
           resultJson.sections[s] = { ...fd, source: 'fallback' };
-          if (fd.summary) sectionSummaries.push(`${s}: ${fd.summary}`);
+          if (fd.summary) sectionSummaries.push(s + ': ' + fd.summary);
         }
         anyFallback = true;
         stepDone++;
@@ -391,14 +442,41 @@ async function runJob(reportId: number, body: any) {
 
       let secData = llmResult.data;
       let source = llmResult.usedFallback ? 'fallback' : 'ai';
-      if (llmResult.usedFallback) anyFallback = true;
-      else modelsUsed.add(llmResult.model);
+      const errorCategory = llmResult.attempts.at(-1)?.error_category ?? undefined;
+      if (llmResult.usedFallback) {
+        anyFallback = true;
+        // Re-run fallbackFor so we get the richer text with fallback_reason attached
+        secData = fallbackFor(s, fullPayloads[s] ?? metrics.metrics, errorCategory);
+        source = 'fallback';
+      } else {
+        modelsUsed.add(llmResult.model);
+      }
+
+      // Item 4: number grounding check
+      const textToCheck = secData?.summary ?? '';
+      const payloadForGround = pLoad;
+      if (!llmResult.usedFallback && !isGrounded(textToCheck, payloadForGround)) {
+        console.warn(`[weekly] Ungrounded numbers in section ${s}; replacing with deterministic text.`);
+        resultJson.meta.ungrounded = resultJson.meta.ungrounded ?? {};
+        resultJson.meta.ungrounded[s] = true;
+        secData = fallbackFor(s, fullPayloads[s] ?? metrics.metrics, 'ungrounded');
+        source = 'fallback';
+        anyFallback = true;
+      }
 
       if (s === 'executive') {
-        resultJson.executive = { ...secData, source };
+        // Item 3: attach owner/priority from code mapping
+        const rawActions = (secData?.actions ?? []) as Array<{ ref: string; action: string; reason: string }>;
+        const enrichedActions = attachOwners(rawActions);
+        // Strip trailing punctuation from action and keep reason separate
+        const cleanedActions = enrichedActions.map(a => ({
+          ...a,
+          action: a.action.replace(/[.:\s]+$/, ''),
+        }));
+        resultJson.executive = { ...secData, actions: cleanedActions, source, verdict: metrics.verdict };
       } else {
         resultJson.sections[s] = { ...secData, source };
-        if (secData?.summary) sectionSummaries.push(`${s}: ${secData.summary}`);
+        if (secData?.summary) sectionSummaries.push(s + ': ' + secData.summary);
       }
 
       stepDone++;
@@ -411,11 +489,13 @@ async function runJob(reportId: number, body: any) {
     // Fill skipped sections with rule-based fallback
     for (const s of allSections) {
       if (!activeSections.includes(s)) {
-        resultJson.sections[s] = { ...fallbackFor(s, {}), source: 'rule' };
+        resultJson.sections[s] = { ...fallbackFor(s, {}, 'no_data'), source: 'rule' };
       }
     }
     if (!resultJson.executive) {
-      resultJson.executive = { ...fallbackFor('executive', metrics.metrics), source: 'rule' };
+      const fd = fallbackFor('executive', { ...(metrics.metrics as any), verdict: metrics.verdict }, 'no_data');
+      const rawA = (fd?.actions ?? []) as Array<{ ref: string; action: string; reason: string }>;
+      resultJson.executive = { ...fd, actions: attachOwners(rawA), source: 'rule', verdict: metrics.verdict };
       anyFallback = true;
     }
 

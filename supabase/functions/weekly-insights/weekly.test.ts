@@ -272,7 +272,7 @@ Deno.test("validateWeeklySection - rejects missing summary", () => {
 });
 
 Deno.test("validateWeeklySection - validates executive section", () => {
-  const obj = { headline: 'Good Week', summary: 'All fine.', actions: [] };
+  const obj = { headline: 'Good Week', summary: 'All fine.', actions: [{ ref: 'general', action: 'Fix this', reason: 'Because' }] };
   assert(validateWeeklySection('executive', obj), 'valid executive section must pass');
 });
 
@@ -282,7 +282,7 @@ Deno.test("validateWeeklySection - validates executive section", () => {
 Deno.test("fallbackFor - returns valid shapes for all sections", () => {
   const sections = ['utilization', 'demand', 'health', 'handling', 'rebalancing', 'executive'];
   for (const s of sections) {
-    const fb = fallbackFor(s, {});
+    const fb = fallbackFor(s, {}, 'test_error');
     assert(fb !== null && typeof fb === 'object', `fallbackFor(${s}) must return an object`);
     if (s !== 'executive') {
       assert('summary' in fb, `fallbackFor(${s}) must have summary`);
@@ -320,7 +320,7 @@ Deno.test("Sequential orchestration - fallback used when budget would be exhaust
   // When totalBudgetMs - usedMs < stepTimeout + gap, fallbackFor must be used.
   // We simulate this by checking the fallback produces valid section data.
   const s = 'utilization';
-  const fb = fallbackFor(s, { overall: { util_pct: 50, checkouts: 10, chx_diff: -5 } });
+  const fb = fallbackFor(s, { overall: { util_pct: 50, checkouts: 10, checkouts_change: '-5%' } }, 'budget_exhausted');
   assert(typeof fb.summary === 'string' && fb.summary.length > 0, 'fallback summary is non-empty');
   assert(Array.isArray(fb.findings), 'fallback findings is array');
 });
@@ -583,7 +583,7 @@ Deno.test("Payload - utilization section uses readable key names", () => {
   const { payload } = toWeeklyPayload('utilization', metrics);
   const p = payload as any;
   // Old single-letter keys must be gone
-  assert(p.overall.checkouts !== undefined, 'must use "checkouts" not "chx"');
+  assert(p.overall.checkouts_per_week !== undefined, 'must use "checkouts_per_week" not "chx"');
   assert(p.overall.util_pct !== undefined, 'must use "util_pct" not "util"');
   assert(p.dept[0].dept !== undefined, 'must use "dept" not "d"');
   assert(p.dept[0].checkouts !== undefined, 'must use "checkouts" not "chx"');
@@ -620,9 +620,9 @@ Deno.test("Payload - health section hours are formatted as duration strings", ()
   };
   const { payload } = toWeeklyPayload('health', metrics);
   const p = payload as any;
-  assert(typeof p.maint[0].hours === 'string', 'maint hours must be pre-formatted string');
-  assert(p.maint[0].hours.includes('h') || p.maint[0].hours.includes('m'), 'maint hours must look like duration');
-  assert(typeof p.long_sess[0].duration === 'string', 'long_sess duration must be pre-formatted string');
+  assert(typeof p.usage_review_candidates[0].hours_since_last_check === 'string', 'usage_review_candidates hours_since_last_check must be pre-formatted string');
+  assert(p.usage_review_candidates[0].hours_since_last_check.includes('h') || p.usage_review_candidates[0].hours_since_last_check.includes('m'), 'usage_review_candidates hours_since_last_check must look like duration');
+  assert(typeof p.long_sessions[0].session_duration === 'string', 'long_sessions duration must be pre-formatted string');
 });
 
 // ──────────────────────────────────────────────────────────
@@ -636,3 +636,125 @@ Deno.test("Config - SECTION_KEY_LEGENDS covers all sections", () => {
   }
 });
 
+// ──────────────────────────────────────────────────────────
+// 23. Owner mapping
+// ──────────────────────────────────────────────────────────
+const OWNER_MAP: Record<string, { owner: string; priority: number }> = {
+  out_of_order:       { owner: 'Manager',       priority: 1 },
+  needs_maint:        { owner: 'Manager',       priority: 2 },
+  maintenance:        { owner: 'Manager',       priority: 2 },
+  maint_watch:        { owner: 'Staff',         priority: 3 },
+  flagged_open:       { owner: 'Staff',         priority: 3 },
+  old_pending:        { owner: 'Senior Doctor', priority: 2 },
+  req_slow:           { owner: 'Senior Doctor', priority: 3 },
+  rebalance:          { owner: 'Manager',       priority: 2 },
+  non_usable_pending: { owner: 'Manager',       priority: 1 },
+  util_drop:          { owner: 'Manager',       priority: 4 },
+  idle:               { owner: 'Manager',       priority: 5 },
+  general:            { owner: 'Manager',       priority: 9 },
+};
+
+function attachOwners(actions: Array<{ ref: string; action: string; reason: string }>): Array<{ ref: string; action: string; reason: string; priority: number; owner: string }> {
+  return actions
+    .filter(a => a.ref in OWNER_MAP || a.ref === 'general')
+    .map(a => {
+      const mapping = OWNER_MAP[a.ref] ?? { owner: 'Manager', priority: 9 };
+      return { ...a, owner: mapping.owner as any, priority: mapping.priority };
+    })
+    .sort((a, b) => a.priority - b.priority);
+}
+
+const GROUNDING_WHITELIST = new Set([7, 14, 24, 168]);
+
+function isGrounded(text: string, payloadJson: string): boolean {
+  const nums = text.match(/\b\d+(?:\.\d+)?\b/g) ?? [];
+  for (const raw of nums) {
+    const n = parseFloat(raw);
+    if (GROUNDING_WHITELIST.has(n)) continue;
+    if (!payloadJson.includes(raw)) return false;
+  }
+  return true;
+}
+
+Deno.test("Owner mapping - assigns owner and priority based on ref", () => {
+  const actions = [
+    { ref: 'out_of_order', action: 'Fix', reason: 'Broken' },
+    { ref: 'req_slow', action: 'Speed up', reason: 'Delayed' },
+    { ref: 'unknown_ref', action: 'Ignore', reason: 'Unknown' },
+    { ref: 'general', action: 'General action', reason: 'General' },
+  ];
+  const enriched = attachOwners(actions);
+  // 'unknown_ref' should be dropped
+  assertEquals(enriched.length, 3, 'Unknown refs should be dropped');
+  // Sorting check: out_of_order (priority 1) < req_slow (priority 3) < general (priority 9)
+  assertEquals(enriched[0].ref, 'out_of_order');
+  assertEquals(enriched[0].owner, 'Manager');
+  assertEquals(enriched[1].ref, 'req_slow');
+  assertEquals(enriched[1].owner, 'Senior Doctor');
+  assertEquals(enriched[2].ref, 'general');
+  assertEquals(enriched[2].owner, 'Manager');
+});
+
+// ──────────────────────────────────────────────────────────
+// 24. Number grounding
+// ──────────────────────────────────────────────────────────
+Deno.test("Number grounding - validates numbers against payload and whitelist", () => {
+  const payload = JSON.stringify({
+    checkouts: 84,
+    util_pct: 23.5,
+  });
+  
+  // 84 is in payload, 7 is in whitelist
+  assert(isGrounded("We had 84 checkouts over 7 days.", payload), 'Grounded numbers should pass');
+  
+  // 23.5 is in payload, 24 is in whitelist
+  assert(isGrounded("Utilization was 23.5%, measured 24 hours a day.", payload), 'Decimals and whitelist should pass');
+  
+  // 100 is neither in payload nor whitelist
+  assert(!isGrounded("We had 100 checkouts.", payload), 'Ungrounded numbers should fail');
+});
+
+// ──────────────────────────────────────────────────────────
+// 25. Contract test: UI_READS
+// ──────────────────────────────────────────────────────────
+import { UI_READS } from './types.ts';
+
+Deno.test("Contract - UI_READS paths exist in canonical result", () => {
+  const data = makeData({});
+  // This will produce empty but valid metrics
+  const metrics = computeWeeklyMetrics(data as any, new Date(), 'UTC');
+  
+  // Build a dummy WeeklyResult
+  const res: any = {
+    window: metrics.window,
+    verdict: metrics.verdict,
+    metrics: metrics.metrics,
+    sections: { utilization: { summary: 'Sum', source: 'rule' } },
+    executive: { headline: 'H', summary: 'S', actions: [], verdict: 'mixed', source: 'rule' },
+    meta: { attempts: [], input_hash: '', prompt_version: '', payload_chars: {}, est_tokens: {}, trimmed: [], budget_exhausted: false },
+  };
+
+  for (const read of UI_READS) {
+    // Resolve dot path
+    const parts = read.path.split('.');
+    let curr = res;
+    let found = true;
+    for (const p of parts) {
+      if (curr === undefined || curr === null || !(p in curr)) {
+        found = false;
+        break;
+      }
+      curr = curr[p];
+    }
+    assert(found, `Path ${read.path} must exist in result`);
+    
+    // Type check (allow empty arrays for array types)
+    if (read.type === 'array') {
+      assert(Array.isArray(curr), `Path ${read.path} must be an array`);
+    } else if (read.type === 'object') {
+      assert(typeof curr === 'object' && !Array.isArray(curr) && curr !== null, `Path ${read.path} must be an object`);
+    } else {
+      assert(typeof curr === read.type, `Path ${read.path} must be of type ${read.type}`);
+    }
+  }
+});

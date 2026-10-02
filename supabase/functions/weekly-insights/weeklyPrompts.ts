@@ -3,10 +3,22 @@
 // ============================================================
 import { SYSTEM_PROMPT } from '../daily-insights/prompts.ts';
 
-export const WEEKLY_PROMPT_VERSION = 'w2';
+export const WEEKLY_PROMPT_VERSION = 'w3';
 
-export const WEEKLY_EXTRA_RULES = 
-  `This is a weekly review for hospital managers. Compare this week (W) with the previous week (P) only where the data provides both. Describe observations and suggestions; never assign blame to individuals. If evidence is limited (thin_data, small counts), say so and keep conclusions modest. Reference only the supplied ids.`;
+export const WEEKLY_EXTRA_RULES = [
+  'This is a weekly review for hospital managers.',
+  'Compare this week (W) with the previous week (P) only where the data provides both. If no previous data, omit comparisons.',
+  'Describe observations and suggestions; never assign blame to individuals.',
+  'If evidence is limited (thin_data, small counts), say so and keep conclusions modest.',
+  'Reference only the supplied ids (m1, m2, c1 etc). Do NOT invent names or numbers not in the payload.',
+  'NEVER use the word "scheduled" — nothing in this system is scheduled. Use "flagged by usage" or "high-usage item".',
+  'NEVER generalize a finding for one item to the whole type or fleet (e.g. do not say "all ventilators").',
+  'Do NOT use "immediate" or "urgent" unless the issue severity field is "critical".',
+  'Hospitals run 24/7. Describe off-hours activity as a count and share (e.g. "12 of 84 checkouts, 14%") without judgment.',
+  'Always say "percentage points" for utilization changes (not %).',
+  'Item-level idle findings must name the item and its group size, e.g. \'Item \'Wheelchair B\' had 0 checkouts (the other 2 Wheelchair units had 28).\'',
+  'The executive actions list [{ref, action, reason}] must reference issue refs from top_issues only. Code will attach owner and priority.',
+].join(' ');
 
 export const WEEKLY_SYSTEM_PROMPT = `${SYSTEM_PROMPT}\n${WEEKLY_EXTRA_RULES}`;
 
@@ -15,12 +27,12 @@ export const WEEKLY_SYSTEM_PROMPT = `${SYSTEM_PROMPT}\n${WEEKLY_EXTRA_RULES}`;
  * understands the abbreviated field names in the compact JSON payload.
  */
 export const SECTION_KEY_LEGENDS: Record<string, string> = {
-  utilization: 'Key: dept=department, item=equipment_type, checkouts=checkout_count, util_pct=utilization_percent, wd=weekday, block=time_block.',
-  demand: 'Key: item=equipment_name, dept=department, requests=request_count, med_ttd=median_hours_to_decision, urgent_pct=urgent_percent, approval_pct=approval_rate_percent.',
-  health: 'Key: item=equipment_name, dept=department, hours=hours_since_last_check, checkouts=checkouts_since_last_check, duration=session_duration, flagged_open=open_sessions_over_threshold.',
-  handling: 'Key: holder=user_name, checkouts=checkout_count, off_hrs=off_hours_checkouts, missed=missed_releases, rel_other=released_by_different_user.',
-  rebalancing: 'Key: item=equipment_name, type=equipment_type, from=from_department, from_util=from_util_pct, to=to_department, to_util=to_util_pct, to_req=to_demand_requests.',
-  executive: 'Key: area=section_area, severity=issue_severity, facts=text_facts, util_pct=utilization_percent, chx_diff=checkout_delta_pct, util_diff=utilization_delta_pt.',
+  utilization: 'Keys: dept=department, item=equipment_type, checkouts_per_week=checkout_count, util_pct=utilization_percent, wd=weekday(3-char), block=time_block, checkouts_change=formatted_delta, util_change=formatted_pt_delta.',
+  demand: 'Keys: item=equipment_name, dept=department, requests_count=number_of_requests, med_ttd=median_hours_to_decision_preformatted, urgent_share_pct=urgent_percent, approval_rate_pct=approved_over_submitted.',
+  health: 'Keys: condition_issues=[items_not_fully_usable], usage_review_candidates=[high_usage_items_flagged_by_hours_or_checkouts_NOT_manufacturer_schedules], open_sessions_held_unusually_long=count_of_open_sessions_over_threshold, condition_changes_this_week=count.',
+  handling: 'Keys: holder=user_name, checkouts_per_week=checkout_count, off_hours_checkouts=count_outside_06:00-22:00, off_hours_share_pct=percent_of_total, checkouts_without_recorded_release=inferred_sessions, releases_by_non_holder=count.',
+  rebalancing: 'Keys: title=code_built_summary, from_dept=from_department, from_util_pct=source_util_percent, to_dept=destination_department, to_util_pct=dest_util_percent, to_demand_requests=pending_requests_at_destination.',
+  executive: 'Keys: area=section_area, severity=issue_severity(critical|warning), facts=text_facts, checkouts_per_week=total_checkouts, util_pct=utilization_percent, checkouts_change=formatted_delta, util_change=formatted_pt_delta.',
 };
 
 // ──────────────────────────────────────────────────────────
@@ -101,12 +113,11 @@ export const EXECUTIVE_SCHEMA = {
       items: {
         type: 'object',
         properties: { 
+          ref:    { type: 'string' },
           action: { type: 'string' }, 
-          reason: { type: 'string' }, 
-          priority: { type: 'integer' }, 
-          owner: { type: 'string', enum: ['Manager', 'Senior Doctor', 'Staff'] } 
+          reason: { type: 'string' },
         },
-        required: ['action', 'reason', 'priority', 'owner'],
+        required: ['ref', 'action', 'reason'],
       },
     },
   },
@@ -127,7 +138,9 @@ export function getWeeklySchema(section: string): any {
 export function validateWeeklySection(section: string, obj: any, expectedIds?: string[]): boolean {
   if (!obj || typeof obj !== 'object') return false;
   if (section === 'executive') {
-    return typeof obj.headline === 'string' && typeof obj.summary === 'string' && Array.isArray(obj.actions);
+    return typeof obj.headline === 'string' && typeof obj.summary === 'string' &&
+      Array.isArray(obj.actions) &&
+      obj.actions.every((a: any) => typeof a.ref === 'string' && typeof a.action === 'string' && typeof a.reason === 'string');
   }
   if (typeof obj.summary !== 'string' || !Array.isArray(obj.findings)) return false;
   if (section === 'health' && !Array.isArray(obj.maintenance)) return false;
@@ -149,59 +162,82 @@ export function validateWeeklySection(section: string, obj: any, expectedIds?: s
   return true;
 }
 
-export function fallbackFor(section: string, facts: any): any {
+export function fallbackFor(section: string, facts: any, errorCategory?: string): any {
+  const meta = errorCategory ? { fallback_reason: errorCategory } : {};
   if (section === 'utilization') {
-    return {
-      summary: `Utilization was ${facts.overall?.util_pct ?? 0}% this week with ${facts.overall?.checkouts ?? 0} checkouts.`,
-      findings: [{ text: `Checkouts changed by ${facts.overall?.chx_diff ?? 0}%.`, severity: 'info' }]
-    };
+    // Richer deterministic text using actual metric values
+    const ov = facts.overall ?? {};
+    const checkouts = ov.checkouts_per_week ?? ov.checkouts ?? 0;
+    const util = ov.util_pct ?? 0;
+    const chxChange = ov.checkouts_change ?? '';
+    const utilChange = ov.util_change ?? '';
+    // Find busiest and quietest dept
+    const depts: any[] = facts.dept ?? [];
+    const sorted = [...depts].sort((a, b) => (b.util_pct ?? 0) - (a.util_pct ?? 0));
+    const busiest = sorted[0];
+    const quietest = sorted.length > 1 ? sorted[sorted.length - 1] : null;
+    // Peak slot
+    const peaks: any[] = facts.peaks ?? [];
+    const topPeak = peaks[0];
+    let summary = `This week saw ${checkouts} total checkouts and ${util}% overall utilization.`;
+    if (chxChange) summary += ` Checkouts changed by ${chxChange}.`;
+    if (utilChange) summary += ` Utilization changed ${utilChange} vs the previous week.`;
+    if (busiest) summary += ` Highest utilization: ${busiest.dept} at ${busiest.util_pct ?? 0}% with ${busiest.checkouts ?? 0} checkouts.`;
+    if (quietest && quietest.dept !== busiest?.dept) summary += ` Lowest: ${quietest.dept} at ${quietest.util_pct ?? 0}%.`;
+    if (topPeak) summary += ` Peak slot: ${topPeak.block} with ${topPeak.checkouts} checkouts.`;
+    return { ...meta, summary, findings: [{ text: `Utilization: ${util}% (${utilChange || 'no prior week comparison'}).`, severity: 'info' }] };
   }
   if (section === 'demand') {
-    return {
-      summary: `There were ${facts.reqs?.submitted ?? 0} requests submitted this week.`,
-      findings: [{ text: `Approval rate was ${facts.approval_pct ?? 0}%.`, severity: 'info' }]
+    const reqs = facts.requests_summary ?? facts.reqs ?? {};
+    return { ...meta,
+      summary: `There were ${reqs.submitted ?? 0} requests submitted this week. Approval rate: ${facts.approval_rate_pct ?? 0}%.`,
+      findings: [{ text: `Pending now: ${reqs.pending_now ?? 0}.`, severity: 'info' }]
     };
   }
   if (section === 'health') {
-    const maintList = facts.maint || [];
-    return {
-      summary: `Health review completed.`,
-      findings: [{ text: `${facts.cond_changes ?? 0} condition changes recorded.`, severity: 'info' }],
+    const maintList = facts.usage_review_candidates ?? facts.maint ?? [];
+    const condIssues = facts.condition_issues ?? facts.non_usable ?? [];
+    return { ...meta,
+      summary: `Health review: ${condIssues.length} item(s) with condition issues. ${facts.condition_changes_this_week ?? facts.cond_changes ?? 0} condition change(s) this week.`,
+      findings: [{ text: `${maintList.length} item(s) flagged for usage review.`, severity: maintList.length > 0 ? 'warning' : 'info' }],
       maintenance: maintList.map((m: any) => ({
-        id: m.id,
-        message: `${m.item} requires maintenance check.`,
-        action: `Review and schedule maintenance.`
+        id: m.id ?? 'm?',
+        message: (m.item ?? m.name ?? 'Item') + ' flagged for usage-based review.',
+        action: 'Review usage and inspect if needed.',
       }))
     };
   }
   if (section === 'handling') {
-    return {
-      summary: `${facts.users ?? 0} distinct users checked out items.`,
-      findings: [{ text: `${facts.off_hrs ?? 0} off-hours checkouts occurred.`, severity: 'info' }]
+    return { ...meta,
+      summary: `${facts.distinct_users_this_week ?? facts.users ?? 0} distinct users checked out items this week.`,
+      findings: [{ text: `${facts.off_hours_checkouts ?? facts.off_hrs ?? 0} off-hours checkouts (${facts.off_hours_share_pct ?? 0}% of total).`, severity: 'info' }]
     };
   }
   if (section === 'rebalancing') {
-    const moves = facts.moves || [];
-    const purch = facts.purchasing || [];
-    return {
-      summary: `Rebalancing candidates identified.`,
+    const moves = facts.moves ?? [];
+    const purch = facts.purchasing_signals ?? facts.purchasing ?? [];
+    return { ...meta,
+      summary: moves.length > 0 ? 'Rebalancing opportunities identified.' : 'No rebalancing candidates this week.',
       moves: moves.map((m: any) => ({
-        id: m.id,
-        rationale: `Move ${m.item} from ${m.from} to ${m.to}.`,
-        caveat: ``
+        id: m.id ?? 'c?',
+        rationale: m.title ?? ('Move ' + (m.item ?? '?') + ' from ' + (m.from_dept ?? m.from ?? '?') + ' to ' + (m.to_dept ?? m.to ?? '?') + '.'),
+        caveat: '',
       })),
       purchasing: purch.map((p: any) => ({
-        id: p.id,
-        text: `Consider purchasing ${p.type}.`
+        id: p.id ?? 'p?',
+        text: 'Consider purchasing more ' + (p.type ?? '?') + ' (' + (p.reason ?? '') + ').',
       }))
     };
   }
   if (section === 'executive') {
-    return {
-      headline: `Weekly Review: ${facts.verdict === 'good' ? 'On Track' : 'Needs Attention'}`,
-      summary: `Utilization: ${facts.overall?.util_pct ?? 0}%. Please review issues.`,
-      actions: [{ action: `Review flagged issues.`, reason: `Ensure smooth operations.`, priority: 1, owner: 'Manager' }]
+    const ov = facts.overall ?? {};
+    const util = ov.util_pct ?? 0;
+    const checkouts = ov.checkouts_per_week ?? ov.checkouts ?? 0;
+    return { ...meta,
+      headline: 'Weekly Review: ' + (facts.verdict === 'good' ? 'On Track' : facts.verdict === 'mixed' ? 'Mixed Results' : 'Needs Attention'),
+      summary: `This week saw ${checkouts} checkouts at ${util}% utilization. Review prioritized actions below.`,
+      actions: [{ ref: 'general', action: 'Review flagged issues', reason: 'See section details for specifics.', priority: 1, owner: 'Manager' }]
     };
   }
-  return { summary: 'No data.', findings: [] };
+  return { ...meta, summary: 'No data available.', findings: [] };
 }
