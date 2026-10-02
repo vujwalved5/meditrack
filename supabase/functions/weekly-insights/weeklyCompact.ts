@@ -14,23 +14,30 @@ function utilPct(val: any) {
   return Math.round(Number(val));
 }
 
+/** Format a numeric hours value as a human-readable string, e.g. "222h", "1h 5m", "42m". */
+function fmtH(val: any): string | null {
+  if (val === null || val === undefined) return null;
+  return fmtHm(Number(val));
+}
+
 export function toWeeklyPayload(section: string, metrics: any): WeeklyPayloadResult {
   const budget = MAX_SECTION_PAYLOAD_CHARS[section] ?? 2000;
   const trimmed: string[] = [];
   let payload: Record<string, unknown> = {};
 
   if (section === 'utilization') {
+    // Keys: item=name, dept=department, checkouts=checkouts, util_pct=utilization%
     payload = {
       overall: {
-        chx: metrics.overall.checkouts,
-        util: utilPct(metrics.overall.utilization_pct),
+        checkouts: metrics.overall.checkouts,
+        util_pct: utilPct(metrics.overall.utilization_pct),
         chx_diff: metrics.overall.checkouts_delta_pct,
         util_diff: metrics.overall.utilization_delta_pt,
       },
-      daily: metrics.daily.map((d: any) => ({ wd: d.weekday, chx: d.checkouts, util: utilPct(d.utilization_pct) })),
-      dept: metrics.by_dept.map((d: any) => ({ d: cleanText(d.department), chx: d.checkouts, util: utilPct(d.utilization_pct) })),
-      type: metrics.by_type.map((t: any) => ({ t: cleanText(t.type), chx: t.checkouts, util: utilPct(t.utilization_pct) })),
-      peaks: metrics.peaks.map((p: any) => ({ t: p.block, chx: p.checkouts })),
+      daily: metrics.daily.map((d: any) => ({ wd: d.weekday, checkouts: d.checkouts, util_pct: utilPct(d.utilization_pct) })),
+      dept: metrics.by_dept.map((d: any) => ({ dept: cleanText(d.department), checkouts: d.checkouts, util_pct: utilPct(d.utilization_pct) })),
+      type: metrics.by_type.map((t: any) => ({ item: cleanText(t.type), checkouts: t.checkouts, util_pct: utilPct(t.utilization_pct) })),
+      peaks: metrics.peaks.map((p: any) => ({ block: p.block, checkouts: p.checkouts })),
     };
     if (JSON.stringify(payload).length > budget) {
       delete payload.type;
@@ -41,48 +48,69 @@ export function toWeeklyPayload(section: string, metrics: any): WeeklyPayloadRes
       trimmed.push('dropped dept list');
     }
   } else if (section === 'demand') {
+    // Keys: item=equipment_name, dept=department, requests=count, med_ttd=median_time_to_decision
+    const medTtdFmt = fmtH(metrics.requests.median_ttd_hours);
     payload = {
-      reqs: { sub: metrics.requests.submitted, app: metrics.requests.approved, rej: metrics.requests.rejected, pend: metrics.requests.pending_now },
-      urgent: utilPct(metrics.requests.urgent_share_pct),
-      app_rate: utilPct(metrics.requests.approval_rate_pct),
-      med_ttd: metrics.requests.median_ttd_hours,
-      top: metrics.requests.top_requested_items.map((i: any) => ({ i: cleanText(i.name), c: i.count })),
-      by_dept: metrics.requests.demand_by_requester_dept.map((d: any) => ({ d: cleanText(d.department), c: d.requests })),
+      reqs: {
+        submitted: metrics.requests.submitted,
+        approved: metrics.requests.approved,
+        rejected: metrics.requests.rejected,
+        pending: metrics.requests.pending_now,
+      },
+      urgent_pct: utilPct(metrics.requests.urgent_share_pct),
+      approval_pct: utilPct(metrics.requests.approval_rate_pct),
+      ...(medTtdFmt !== null ? { med_ttd: medTtdFmt } : {}),
+      top_items: metrics.requests.top_requested_items.map((i: any) => ({ item: cleanText(i.name), requests: i.count })),
+      by_dept: metrics.requests.demand_by_requester_dept.map((d: any) => ({ dept: cleanText(d.department), requests: d.requests })),
     };
     if (JSON.stringify(payload).length > budget) {
       delete payload.by_dept;
       trimmed.push('dropped by_dept');
     }
   } else if (section === 'health') {
+    // Keys: item=equipment_name, dept=department, holder=held_by, hours=hours_since_check, checkouts=checkouts_since_check
     payload = {
-      non_usable: metrics.health.non_usable.slice(0, 3).map((u: any) => ({ i: cleanText(u.name), d: cleanText(u.department), c: cleanText(u.condition) })),
-      changes: metrics.health.condition_changes,
-      maint: metrics.health.maintenance_watch.map((m: any, i: number) => ({ id: `m${i+1}`, i: cleanText(m.name), h: m.hours_since_check, c: m.checkouts_since_check })),
-      long_sess: metrics.health.long_sessions_top.slice(0, 3).map((s: any) => ({ i: cleanText(s.name), h: s.duration_hours })),
+      non_usable: metrics.health.non_usable.slice(0, 3).map((u: any) => ({ item: cleanText(u.name), dept: cleanText(u.department), condition: cleanText(u.condition) })),
+      cond_changes: metrics.health.condition_changes,
+      maint: metrics.health.maintenance_watch.map((m: any, idx: number) => ({ id: `m${idx+1}`, item: cleanText(m.name), hours: fmtH(m.hours_since_check), checkouts: m.checkouts_since_check })),
+      long_sess: metrics.health.long_sessions_top.slice(0, 3).map((s: any) => ({ item: cleanText(s.name), duration: fmtH(s.duration_hours) })),
       flagged_open: metrics.health.currently_flagged_open_sessions,
     };
   } else if (section === 'handling') {
+    // Keys: holder=user, checkouts=checkouts_count
     payload = {
       users: metrics.handling.distinct_users,
-      top: metrics.handling.top_users.map((u: any) => ({ u: cleanText(u.user), c: u.checkouts })),
+      top_users: metrics.handling.top_users.map((u: any) => ({ holder: cleanText(u.user), checkouts: u.checkouts })),
       off_hrs: metrics.handling.off_hours_checkouts,
       missed: metrics.handling.missed_releases,
       rel_other: metrics.handling.released_by_other_count,
     };
   } else if (section === 'rebalancing') {
+    // Keys: item=equipment_name, from=from_department, to=to_department, util_pct=utilization%, requests=demand_requests
     payload = {
-      moves: metrics.rebalancing.moves.slice(0,3).map((m: any) => ({ id: m.candidate_id, t: cleanText(m.type_display), i: cleanText(m.equipment_name), f: cleanText(m.from_department), f_u: utilPct(m.evidence.from_utilization), t_d: cleanText(m.to_department), t_u: utilPct(m.evidence.to_utilization), t_r: m.evidence.to_demand_requests })),
-      purchasing: metrics.rebalancing.purchasing.map((p: any) => ({ id: p.id, t: cleanText(p.type), r: p.reason })),
+      moves: metrics.rebalancing.moves.slice(0,3).map((m: any) => ({
+        id: m.candidate_id,
+        item: cleanText(m.equipment_name),
+        type: cleanText(m.type_display),
+        from: cleanText(m.from_department),
+        from_util: utilPct(m.evidence.from_utilization),
+        to: cleanText(m.to_department),
+        to_util: utilPct(m.evidence.to_utilization),
+        to_req: m.evidence.to_demand_requests,
+      })),
+      purchasing: metrics.rebalancing.purchasing.map((p: any) => ({ id: p.id, type: cleanText(p.type), reason: p.reason })),
     };
   } else if (section === 'executive') {
-    // Only facts, headline summaries, top issues, verdict
+    // Keys: area=section_area, severity=issue_severity, facts=text_facts
     payload = {
       verdict: metrics.verdict,
       overall: {
-        chx: metrics.overall.checkouts, util: utilPct(metrics.overall.utilization_pct),
-        chx_diff: metrics.overall.checkouts_delta_pct, util_diff: metrics.overall.utilization_delta_pt
+        checkouts: metrics.overall.checkouts,
+        util_pct: utilPct(metrics.overall.utilization_pct),
+        chx_diff: metrics.overall.checkouts_delta_pct,
+        util_diff: metrics.overall.utilization_delta_pt,
       },
-      issues: metrics.issues.map((i: any) => ({ a: i.area, s: i.severity, f: i.text_facts })),
+      issues: metrics.issues.map((i: any) => ({ area: i.area, severity: i.severity, facts: i.text_facts })),
       section_summaries: metrics.section_summaries, // passed in explicitly
     };
   }

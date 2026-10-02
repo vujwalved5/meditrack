@@ -4,7 +4,7 @@
 import { AppData, Equipment, Session, busyHours, AuditEntry } from '../daily-insights/data.ts';
 import { parseUtc, toLocalDate, toLocalHour, localDayBounds, fmt1 } from '../daily-insights/time.ts';
 import { computeRebalancingCandidates } from '../daily-insights/metrics.ts';
-import { MAINT_REVIEW_HOURS, MAINT_REVIEW_CHECKOUTS } from './config.ts';
+import { getMaintThreshold } from './config.ts';
 
 // We import the configuration threshold constants from daily-insights since we reuse them.
 import {
@@ -82,6 +82,12 @@ export function computeWeeklyMetrics(
     utilization_delta_pt: fmt1(wUtilPct - pUtilPct),
   };
 
+  // ── Equipment type normalization: lower + remove all spaces ──
+  // Groups variants like "wheel chair" / "Wheelchair" / "wheelchair" together.
+  function normalizeType(raw: string): string {
+    return raw.toLowerCase().replace(/\s+/g, '').trim();
+  }
+
   // 2. Daily [7]
   const daily = [];
   for (let i = 0; i < 7; i++) {
@@ -131,15 +137,17 @@ export function computeWeeklyMetrics(
     };
   });
 
-  // 4. By Type
+  // 4. By Type — normalized key so "wheel chair" / "Wheelchair" group together
   const typeMap = new Map<string, { display: string, units: number, checkouts: number, busy: number, sessDurations: number[] }>();
   for (const eq of equipment) {
-    if (!typeMap.has(eq.equip_type)) typeMap.set(eq.equip_type, { display: eq.equip_type_display, units: 0, checkouts: 0, busy: 0, sessDurations: [] });
-    if (eq.condition !== 'Out of Order') typeMap.get(eq.equip_type)!.units++;
+    const normKey = normalizeType(eq.equip_type);
+    if (!typeMap.has(normKey)) typeMap.set(normKey, { display: eq.equip_type_display, units: 0, checkouts: 0, busy: 0, sessDurations: [] });
+    if (eq.condition !== 'Out of Order') typeMap.get(normKey)!.units++;
   }
   for (const eq of equipment) {
     if (eq.condition === 'Out of Order') continue;
-    const stats = typeMap.get(eq.equip_type)!;
+    const normKey = normalizeType(eq.equip_type);
+    const stats = typeMap.get(normKey)!;
     const sess = sessions.get(eq.id) ?? [];
     stats.busy += busyHours(sess, wStart, wEnd, now);
     for (const s of sess) {
@@ -150,7 +158,10 @@ export function computeWeeklyMetrics(
   }
   for (const c of wCheckouts) {
     const eq = equipment.find(e => e.id === c.equipment_id);
-    if (eq && eq.condition !== 'Out of Order') typeMap.get(eq.equip_type)!.checkouts++;
+    if (eq && eq.condition !== 'Out of Order') {
+      const normKey = normalizeType(eq.equip_type);
+      typeMap.get(normKey)!.checkouts++;
+    }
   }
   const by_type = Array.from(typeMap.values()).map(stats => ({
     type: stats.display,
@@ -248,6 +259,7 @@ export function computeWeeklyMetrics(
   
   const maintWatch = [];
   for (const eq of equipment) {
+    const thr = getMaintThreshold(eq.equip_type);
     const lastChange = audit.filter(a => a.action === 'Condition Changed' && a.equipment_id === eq.id)
       .sort((a, b) => parseUtc(b.timestamp).getTime() - parseUtc(a.timestamp).getTime())[0];
     const sinceTime = lastChange ? parseUtc(lastChange.timestamp) : parseUtc(audit[0]?.timestamp ?? new Date().toISOString());
@@ -255,7 +267,7 @@ export function computeWeeklyMetrics(
     let hSince = 0;
     for (const s of sessSince) hSince += busyHours([s], sinceTime, now, now);
     const cSince = audit.filter(a => a.action === 'Checked Out' && a.equipment_id === eq.id && parseUtc(a.timestamp).getTime() >= sinceTime.getTime()).length;
-    if (hSince >= MAINT_REVIEW_HOURS || cSince >= MAINT_REVIEW_CHECKOUTS) {
+    if (hSince >= thr.hours || cSince >= thr.checkouts) {
       maintWatch.push({ equipment_id: eq.id, name: eq.name, department: eq.department_name, hours_since_check: fmt1(hSince), checkouts_since_check: cSince });
     }
   }
@@ -377,29 +389,86 @@ export function computeWeeklyMetrics(
   };
 
   // 12. Issues
-  const issues: Array<{ ref: string; area: string; severity: string; text_facts: string; score: number }> = [];
-  
-  if (openFlagged > 0) issues.push({ ref: 'health', area: 'health', severity: 'critical', text_facts: `${openFlagged} sessions open over typical limits.`, score: 100 });
-  if (nonUsable.filter(u => pendingRequests.some(r => equipment.find(e => e.id === r.equipment_id)?.name === u.name)).length > 0) {
-    issues.push({ ref: 'health', area: 'health', severity: 'critical', text_facts: 'Non-usable items have pending requests.', score: 95 });
+  const rawIssues: Array<{ ref: string; area: string; severity: string; text_facts: string; score: number }> = [];
+
+  // --- health area ---
+  // Flagged open sessions (currently open, held longer than threshold)
+  if (openFlagged > 0) rawIssues.push({ ref: 'flagged_open', area: 'health', severity: 'critical', text_facts: `${openFlagged} sessions currently open beyond typical duration limits.`, score: 100 });
+
+  // Non-usable equipment issues
+  const outOfOrder = nonUsable.filter(u => u.condition === 'Out of Order');
+  const needsMaint = nonUsable.filter(u => u.condition === 'Needs Maintenance');
+  if (outOfOrder.length > 0) {
+    rawIssues.push({ ref: 'out_of_order', area: 'health', severity: 'critical', text_facts: `${outOfOrder.length} item${outOfOrder.length > 1 ? 's' : ''} Out of Order: ${outOfOrder.slice(0, 2).map(u => u.name).join(', ')}${outOfOrder.length > 2 ? '…' : ''}.`, score: 95 });
   }
-  
-  for (const m of maintWatch) {
-    issues.push({ ref: 'maint', area: 'health', severity: 'warning', text_facts: `${m.name} exceeds maintenance thresholds.`, score: 70 });
-  }
-  for (const i of items_metrics.idle_items) {
-    issues.push({ ref: 'idle', area: 'utilization', severity: 'warning', text_facts: `${i.name} was not used at all.`, score: 65 });
-  }
-  if (overall.utilization_delta_pt <= -15) {
-    issues.push({ ref: 'util_drop', area: 'utilization', severity: 'warning', text_facts: `Utilization dropped ${Math.abs(overall.utilization_delta_pt)}%.`, score: 80 });
-  }
-  if (reqSub > 0 && ttd.length > 0 && median(ttd) > 24) {
-    issues.push({ ref: 'req_slow', area: 'demand', severity: 'warning', text_facts: `Median request approval took > 24h.`, score: 75 });
+  if (needsMaint.length > 0) {
+    rawIssues.push({ ref: 'needs_maint', area: 'health', severity: 'warning', text_facts: `${needsMaint.length} item${needsMaint.length > 1 ? 's' : ''} flagged Needs Maintenance: ${needsMaint.slice(0, 2).map(u => u.name).join(', ')}${needsMaint.length > 2 ? '…' : ''}.`, score: 90 });
   }
 
-  issues.sort((a, b) => b.score - a.score);
-  const topIssues = issues.slice(0, 8);
-  
+  // Non-usable items with pending requests
+  if (nonUsable.filter(u => pendingRequests.some(r => equipment.find(e => e.id === r.equipment_id)?.name === u.name)).length > 0) {
+    rawIssues.push({ ref: 'non_usable_pending', area: 'health', severity: 'critical', text_facts: 'Non-usable items have pending requests — requesters may be unaware of unavailability.', score: 88 });
+  }
+
+  // Group ALL maintenance_watch items into ONE issue
+  if (maintWatch.length > 0) {
+    const topM = maintWatch[0];
+    rawIssues.push({
+      ref: 'maint_watch',
+      area: 'health',
+      severity: 'warning',
+      text_facts: `${maintWatch.length} item${maintWatch.length > 1 ? 's' : ''} exceed maintenance thresholds; top: ${topM.name} (${topM.hours_since_check}h, ${topM.checkouts_since_check} checkouts since last check).`,
+      score: 70,
+    });
+  }
+
+  // --- utilization area ---
+  if (overall.utilization_delta_pt <= -15) {
+    rawIssues.push({ ref: 'util_drop', area: 'utilization', severity: 'warning', text_facts: `Overall utilization dropped ${Math.abs(Number(overall.utilization_delta_pt))} percentage points vs. prior week.`, score: 80 });
+  }
+  // Idle items
+  const idleCount = items_metrics.idle_items.length;
+  if (idleCount > 0) {
+    const idleNames = items_metrics.idle_items.slice(0, 2).map((i: any) => i.name).join(', ');
+    rawIssues.push({ ref: 'idle', area: 'utilization', severity: 'warning', text_facts: `${idleCount} item${idleCount > 1 ? 's' : ''} had zero checkouts this week: ${idleNames}${idleCount > 2 ? '…' : ''}.`, score: 65 });
+  }
+
+  // --- demand area ---
+  if (reqSub > 0 && ttd.length > 0 && median(ttd) > 24) {
+    rawIssues.push({ ref: 'req_slow', area: 'demand', severity: 'warning', text_facts: `Median request decision time exceeded 24 h (${fmt1(median(ttd))} h this week).`, score: 75 });
+  }
+  // Pending requests older than 24h
+  const oldPending = pendingRequests.filter(r => (now.getTime() - parseUtc(r.created_at).getTime()) > 24 * 3600000);
+  if (oldPending.length > 0) {
+    rawIssues.push({ ref: 'old_pending', area: 'demand', severity: 'warning', text_facts: `${oldPending.length} pending request${oldPending.length > 1 ? 's' : ''} waiting more than 24 h for approval.`, score: 72 });
+  }
+
+  // --- rebalancing area ---
+  if (rebalancing.moves.length > 0) {
+    const topMove = rebalancing.moves[0];
+    rawIssues.push({
+      ref: 'rebalance',
+      area: 'rebalancing',
+      severity: 'warning',
+      text_facts: `Top rebalancing opportunity: move ${topMove.equipment_name} from ${topMove.from_department} (${Math.round(topMove.evidence.from_utilization)}% util) to ${topMove.to_department} (${Math.round(topMove.evidence.to_utilization)}% util, ${topMove.evidence.to_demand_requests} requests).`,
+      score: 60,
+    });
+  }
+
+  // Cap at 2 issues per area, then take top 8 overall
+  rawIssues.sort((a, b) => b.score - a.score);
+  const areaCounts = new Map<string, number>();
+  const issues: Array<{ ref: string; area: string; severity: string; text_facts: string; score: number }> = [];
+  for (const issue of rawIssues) {
+    const count = areaCounts.get(issue.area) ?? 0;
+    if (count < 2) {
+      issues.push(issue);
+      areaCounts.set(issue.area, count + 1);
+    }
+    if (issues.length >= 8) break;
+  }
+
+  const topIssues = issues;
   const hasCritical = topIssues.some(i => i.severity === 'critical');
   const warningCount = topIssues.filter(i => i.severity === 'warning').length;
   const verdict = hasCritical ? 'needs_attention' : (warningCount >= 2 ? 'mixed' : 'good');

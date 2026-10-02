@@ -125,10 +125,47 @@ async function handleDryRun(body: any) {
   const sections = ['utilization', 'demand', 'health', 'handling', 'rebalancing', 'executive'];
   const res: any = {};
 
+  // Map section name → the actual metrics sub-key (for full_facts_chars)
+  const sectionToMetricsKey: Record<string, string> = {
+    utilization: 'utilization', // computed inline below
+    demand: 'requests',
+    health: 'health',
+    handling: 'handling',
+    rebalancing: 'rebalancing',
+    executive: 'executive', // computed inline below
+  };
+
   for (const s of sections) {
-    const pl = toWeeklyPayload(s, metrics.metrics);
+    const pl = toWeeklyPayload(s, {
+      ...metrics.metrics,
+      verdict: metrics.verdict,
+      section_summaries: [],
+    });
+
+    // Compute full_facts_chars using the correct sub-key
+    let fullFacts: any;
+    if (s === 'utilization') {
+      fullFacts = {
+        overall: metrics.metrics.overall,
+        daily: metrics.metrics.daily,
+        by_dept: metrics.metrics.by_dept,
+        by_type: metrics.metrics.by_type,
+        peaks: metrics.metrics.peaks,
+      };
+    } else if (s === 'executive') {
+      fullFacts = {
+        verdict: metrics.verdict,
+        overall: metrics.metrics.overall,
+        issues: metrics.metrics.issues,
+        section_summaries: [],
+      };
+    } else {
+      const key = sectionToMetricsKey[s];
+      fullFacts = (metrics.metrics as any)[key] ?? {};
+    }
+
     res[s] = {
-      full_facts_chars: JSON.stringify((metrics.metrics as any)[s] ?? {}).length,
+      full_facts_chars: JSON.stringify(fullFacts).length,
       payload_chars: pl.payloadJson.length,
       est_tokens: Math.round(pl.payloadJson.length / 4),
       trimmed: pl.trimmed,

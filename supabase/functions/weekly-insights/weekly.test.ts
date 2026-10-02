@@ -2,9 +2,10 @@
 // ============================================================
 import { assertEquals, assert } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { getDeepModelConfig, WEEKLY_TOTAL_BUDGET_MS, WEEKLY_STEP_TIMEOUT_MS } from "./config.ts";
+import { getMaintThreshold, MAINT_REVIEW_THRESHOLDS } from "./config.ts";
 import { computeWeeklyMetrics } from "./weeklyMetrics.ts";
 import { toWeeklyPayload } from "./weeklyCompact.ts";
-import { validateWeeklySection, fallbackFor, WEEKLY_PROMPT_VERSION } from "./weeklyPrompts.ts";
+import { validateWeeklySection, fallbackFor, WEEKLY_PROMPT_VERSION, SECTION_KEY_LEGENDS } from "./weeklyPrompts.ts";
 
 // ──────────────────────────────────────────────────────────
 // Helpers
@@ -151,10 +152,10 @@ Deno.test("Metrics - released_by_other detected when releaser != checker-outer",
 // ──────────────────────────────────────────────────────────
 Deno.test("Metrics - maintenance_watch triggered when checkouts exceed threshold", () => {
   const now = new Date('2026-10-01T00:00:00Z');
-  // MAINT_REVIEW_CHECKOUTS = 40; we need 40+ checkouts on one item
+  // Ventilator per-type threshold is 25 checkouts; use 30 to clearly exceed it
   const checkouts: any[] = [];
-  for (let i = 0; i < 45; i++) {
-    // space them 3h apart over 5 days, within window W
+  for (let i = 0; i < 30; i++) {
+    // space them 3h apart over 4 days, within window W
     const d = new Date('2026-09-25T00:00:00Z');
     d.setHours(d.getHours() + i * 3);
     checkouts.push({ equipment_id: 5, ts: d.toISOString(), performed_by: 'user_x' });
@@ -319,7 +320,7 @@ Deno.test("Sequential orchestration - fallback used when budget would be exhaust
   // When totalBudgetMs - usedMs < stepTimeout + gap, fallbackFor must be used.
   // We simulate this by checking the fallback produces valid section data.
   const s = 'utilization';
-  const fb = fallbackFor(s, { overall: { util: 50, chx: 10, chx_diff: -5 } });
+  const fb = fallbackFor(s, { overall: { util_pct: 50, checkouts: 10, chx_diff: -5 } });
   assert(typeof fb.summary === 'string' && fb.summary.length > 0, 'fallback summary is non-empty');
   assert(Array.isArray(fb.findings), 'fallback findings is array');
 });
@@ -399,3 +400,239 @@ Deno.test("Retention - deletes rows beyond 20", () => {
   assertEquals(del22.length, 1, 'one row deleted when 22 rows exist');
   assertEquals(del22[0].id, 1, 'row id=1 gets deleted');
 });
+
+// ──────────────────────────────────────────────────────────
+// 18. Per-type maintenance thresholds
+// ──────────────────────────────────────────────────────────
+Deno.test("Config - getMaintThreshold returns type-specific values", () => {
+  const vent = getMaintThreshold('ventilator');
+  assertEquals(vent.hours, 80, 'ventilator hours threshold must be 80');
+  assertEquals(vent.checkouts, 25, 'ventilator checkouts threshold must be 25');
+
+  const wheelchair = getMaintThreshold('wheelchair');
+  assertEquals(wheelchair.hours, 200, 'wheelchair hours threshold must be 200');
+  assertEquals(wheelchair.checkouts, 60, 'wheelchair checkouts threshold must be 60');
+
+  // Unknown type falls back to global defaults
+  const unknown = getMaintThreshold('unknown_device');
+  assertEquals(unknown.hours, 120, 'unknown type falls back to default 120h');
+  assertEquals(unknown.checkouts, 40, 'unknown type falls back to default 40 checkouts');
+});
+
+Deno.test("Config - getMaintThreshold case-insensitive", () => {
+  const a = getMaintThreshold('VENTILATOR');
+  const b = getMaintThreshold('ventilator');
+  assertEquals(a.hours, b.hours, 'case-insensitive lookup must match');
+  assertEquals(a.checkouts, b.checkouts, 'case-insensitive lookup must match');
+});
+
+Deno.test("Config - wheelchair not triggered below its relaxed threshold", () => {
+  const now = new Date('2026-10-01T00:00:00Z');
+  // Wheelchair threshold is 60 checkouts; use 50 — should NOT trigger
+  const checkouts: any[] = [];
+  for (let i = 0; i < 50; i++) {
+    const d = new Date('2026-09-24T00:00:00Z');
+    d.setHours(d.getHours() + i * 3);
+    if (d < now) checkouts.push({ equipment_id: 7, ts: d.toISOString(), performed_by: 'user_y' });
+  }
+  const data = makeData({
+    equipment: [{ id: 7, name: 'Wheelchair A', department_name: 'GW', equip_type: 'wheelchair', equip_type_display: 'Wheelchair' }],
+    checkouts,
+  });
+  const m = computeWeeklyMetrics(data as any, now, 'UTC');
+  const wItem = m.metrics.health.maintenance_watch.find((x: any) => x.name === 'Wheelchair A');
+  assertEquals(wItem, undefined, 'wheelchair must not appear in maint watch with only 50 checkouts');
+});
+
+// ──────────────────────────────────────────────────────────
+// 19. Issues — grouped maintenance, area cap, new issue types
+// ──────────────────────────────────────────────────────────
+Deno.test("Issues - multiple maintenance_watch items become ONE issue", () => {
+  const now = new Date('2026-10-01T00:00:00Z');
+  // Create 3 items all exceeding their thresholds
+  const checkouts: any[] = [];
+  for (const eqId of [1, 2, 3]) {
+    for (let i = 0; i < 30; i++) {
+      const d = new Date('2026-09-25T00:00:00Z');
+      d.setHours(d.getHours() + i * 3);
+      checkouts.push({ equipment_id: eqId, ts: d.toISOString(), performed_by: 'user_x' });
+    }
+  }
+  const data = makeData({
+    equipment: [
+      { id: 1, name: 'Ventilator A', department_name: 'ICU', equip_type: 'ventilator', equip_type_display: 'Ventilator' },
+      { id: 2, name: 'Ventilator B', department_name: 'ICU', equip_type: 'ventilator', equip_type_display: 'Ventilator' },
+      { id: 3, name: 'Ventilator C', department_name: 'ICU', equip_type: 'ventilator', equip_type_display: 'Ventilator' },
+    ],
+    checkouts,
+  });
+  const m = computeWeeklyMetrics(data as any, now, 'UTC');
+  // All three should be in maintenance_watch
+  assert(m.metrics.health.maintenance_watch.length >= 3, 'all 3 should exceed ventilator threshold');
+  // issues[] should have exactly ONE maint_watch issue
+  const maintIssues = m.metrics.issues.filter((i: any) => i.ref === 'maint_watch');
+  assertEquals(maintIssues.length, 1, 'exactly one grouped maintenance_watch issue');
+  assert(maintIssues[0].text_facts.includes('3 items'), 'grouped issue text must mention count');
+});
+
+Deno.test("Issues - non-usable equipment produces Out of Order (critical) and Needs Maintenance (warning) issues", () => {
+  const now = new Date('2026-10-01T00:00:00Z');
+  const data = makeData({
+    equipment: [
+      { id: 1, name: 'Monitor A', department_name: 'ICU', equip_type: 'monitor', equip_type_display: 'Monitor', condition: 'Out of Order' },
+      { id: 2, name: 'Monitor B', department_name: 'ICU', equip_type: 'monitor', equip_type_display: 'Monitor', condition: 'Needs Maintenance' },
+    ],
+  });
+  const m = computeWeeklyMetrics(data as any, now, 'UTC');
+  const ooIssue = m.metrics.issues.find((i: any) => i.ref === 'out_of_order');
+  const nmIssue = m.metrics.issues.find((i: any) => i.ref === 'needs_maint');
+  assert(ooIssue !== undefined, 'Out of Order issue must be present');
+  assertEquals(ooIssue.severity, 'critical', 'Out of Order must be critical');
+  assert(nmIssue !== undefined, 'Needs Maintenance issue must be present');
+  assertEquals(nmIssue.severity, 'warning', 'Needs Maintenance must be warning');
+});
+
+Deno.test("Issues - area cap: at most 2 issues per area in top 8", () => {
+  const now = new Date('2026-10-01T00:00:00Z');
+  // Create many health triggers: multiple Out of Order + maint watch items + flagged open sessions
+  const checkouts: any[] = [];
+  for (const eqId of [1, 2, 3, 4, 5]) {
+    for (let i = 0; i < 30; i++) {
+      const d = new Date('2026-09-25T00:00:00Z');
+      d.setHours(d.getHours() + i * 3);
+      if (d < now) checkouts.push({ equipment_id: eqId, ts: d.toISOString(), performed_by: 'user' });
+    }
+  }
+  const data = makeData({
+    equipment: [
+      { id: 1, name: 'Vent A', department_name: 'ICU', equip_type: 'ventilator', equip_type_display: 'Ventilator', condition: 'Out of Order' },
+      { id: 2, name: 'Vent B', department_name: 'ICU', equip_type: 'ventilator', equip_type_display: 'Ventilator', condition: 'Needs Maintenance' },
+      { id: 3, name: 'Vent C', department_name: 'ICU', equip_type: 'ventilator', equip_type_display: 'Ventilator' },
+      { id: 4, name: 'Vent D', department_name: 'ICU', equip_type: 'ventilator', equip_type_display: 'Ventilator' },
+      { id: 5, name: 'Vent E', department_name: 'ICU', equip_type: 'ventilator', equip_type_display: 'Ventilator' },
+    ],
+    checkouts,
+  });
+  const m = computeWeeklyMetrics(data as any, now, 'UTC');
+  const issues = m.metrics.issues as any[];
+  // Count per area
+  const areaCounts = new Map<string, number>();
+  for (const iss of issues) {
+    areaCounts.set(iss.area, (areaCounts.get(iss.area) ?? 0) + 1);
+  }
+  for (const [area, count] of areaCounts) {
+    assert(count <= 2, `area "${area}" has ${count} issues but cap is 2`);
+  }
+  assert(issues.length <= 8, `issues must be capped at 8, got ${issues.length}`);
+});
+
+Deno.test("Issues - pending requests older than 24h generates issue", () => {
+  const now = new Date('2026-10-01T00:00:00Z');
+  // Create a pending request from >24h ago
+  const oldRequestTime = new Date(now.getTime() - 30 * 3600 * 1000).toISOString();
+  const data = makeData({
+    equipment: [{ id: 1, name: 'Monitor A', department_name: 'ICU', equip_type: 'monitor', equip_type_display: 'Monitor' }],
+    requests: [
+      { id: 1, equipment_id: 1, requested_by: 'user_a', priority: 'Normal', status: 'Pending', created_at: oldRequestTime },
+    ],
+  });
+  const m = computeWeeklyMetrics(data as any, now, 'UTC');
+  const oldPendingIssue = m.metrics.issues.find((i: any) => i.ref === 'old_pending');
+  assert(oldPendingIssue !== undefined, 'old_pending issue must be present for requests >24h old');
+  assertEquals(oldPendingIssue.severity, 'warning', 'old_pending must be warning severity');
+});
+
+// ──────────────────────────────────────────────────────────
+// 20. Type name normalization
+// ──────────────────────────────────────────────────────────
+Deno.test("Metrics - type normalization groups 'wheel chair' and 'Wheelchair' together", () => {
+  const now = new Date('2026-10-01T00:00:00Z');
+  const checkouts = [
+    { equipment_id: 1, ts: '2026-09-25T10:00:00Z', performed_by: 'user_a' },
+    { equipment_id: 2, ts: '2026-09-25T11:00:00Z', performed_by: 'user_b' },
+  ];
+  const data = makeData({
+    equipment: [
+      { id: 1, name: 'Wheelchair A', department_name: 'GW', equip_type: 'wheelchair', equip_type_display: 'Wheelchair' },
+      // 'wheel chair' (with space) should normalize to same group as 'wheelchair'
+      { id: 2, name: 'Wheel Chair B', department_name: 'GW', equip_type: 'wheel chair', equip_type_display: 'Wheel Chair' },
+    ],
+    checkouts,
+  });
+  const m = computeWeeklyMetrics(data as any, now, 'UTC');
+  // Both should appear in a single type bucket with 2 units and 2 checkouts
+  const types = m.metrics.by_type as any[];
+  const wheelTypes = types.filter(t => t.type.toLowerCase().replace(/\s+/g, '') === 'wheelchair');
+  // After normalization 'wheelchair' and 'wheel chair' both -> 'wheelchair' key
+  const grouped = types.find(t => t.units === 2);
+  assert(grouped !== undefined, 'wheelchair variants must be grouped into one type entry with 2 units');
+  assertEquals(grouped.checkouts, 2, 'grouped type must have 2 total checkouts');
+});
+
+// ──────────────────────────────────────────────────────────
+// 21. Payload key names — readable keys present
+// ──────────────────────────────────────────────────────────
+Deno.test("Payload - utilization section uses readable key names", () => {
+  const metrics: any = {
+    overall: { checkouts: 10, utilization_pct: 25, checkouts_delta_pct: 5, utilization_delta_pt: 2 },
+    by_dept: [{ department: 'ICU', checkouts: 10, utilization_pct: 25 }],
+    by_type: [{ type: 'Ventilator', checkouts: 10, utilization_pct: 25 }],
+    daily: [{ weekday: 'Mon', checkouts: 2, utilization_pct: 10 }],
+    peaks: [{ block: 'Mon 08:00-12:00', checkouts: 5 }],
+  };
+  const { payload } = toWeeklyPayload('utilization', metrics);
+  const p = payload as any;
+  // Old single-letter keys must be gone
+  assert(p.overall.checkouts !== undefined, 'must use "checkouts" not "chx"');
+  assert(p.overall.util_pct !== undefined, 'must use "util_pct" not "util"');
+  assert(p.dept[0].dept !== undefined, 'must use "dept" not "d"');
+  assert(p.dept[0].checkouts !== undefined, 'must use "checkouts" not "chx"');
+  assert(p.type[0].item !== undefined, 'must use "item" not "t"');
+});
+
+Deno.test("Payload - demand section med_ttd is formatted as duration string", () => {
+  const metrics: any = {
+    requests: {
+      submitted: 5, approved: 3, rejected: 1, pending_now: 1,
+      urgent_share_pct: 20, approval_rate_pct: 75,
+      median_ttd_hours: 1.083333, // ~1h 5m
+      top_requested_items: [{ name: 'Monitor A', count: 2 }],
+      demand_by_requester_dept: [{ department: 'ICU', requests: 3 }],
+    },
+  };
+  const { payload } = toWeeklyPayload('demand', metrics);
+  const p = payload as any;
+  assert(typeof p.med_ttd === 'string', 'med_ttd must be a pre-formatted string');
+  assert(p.med_ttd.includes('h') || p.med_ttd.includes('m'), 'med_ttd must look like a duration');
+  // Must not be a raw number
+  assert(isNaN(Number(p.med_ttd)), 'med_ttd must not be a raw number');
+});
+
+Deno.test("Payload - health section hours are formatted as duration strings", () => {
+  const metrics: any = {
+    health: {
+      non_usable: [{ name: 'Monitor A', department: 'ICU', condition: 'Out of Order' }],
+      condition_changes: 2,
+      maintenance_watch: [{ name: 'Ventilator A', hours_since_check: 90.5, checkouts_since_check: 30 }],
+      long_sessions_top: [{ name: 'Infusion Pump A', duration_hours: 19.083 }],
+      currently_flagged_open_sessions: 1,
+    },
+  };
+  const { payload } = toWeeklyPayload('health', metrics);
+  const p = payload as any;
+  assert(typeof p.maint[0].hours === 'string', 'maint hours must be pre-formatted string');
+  assert(p.maint[0].hours.includes('h') || p.maint[0].hours.includes('m'), 'maint hours must look like duration');
+  assert(typeof p.long_sess[0].duration === 'string', 'long_sess duration must be pre-formatted string');
+});
+
+// ──────────────────────────────────────────────────────────
+// 22. SECTION_KEY_LEGENDS exported and covers all sections
+// ──────────────────────────────────────────────────────────
+Deno.test("Config - SECTION_KEY_LEGENDS covers all sections", () => {
+  const sections = ['utilization', 'demand', 'health', 'handling', 'rebalancing', 'executive'];
+  for (const s of sections) {
+    assert(typeof SECTION_KEY_LEGENDS[s] === 'string' && SECTION_KEY_LEGENDS[s].length > 0,
+      `SECTION_KEY_LEGENDS must have a non-empty entry for section "${s}"`);
+  }
+});
+

@@ -3,12 +3,25 @@
 // ============================================================
 import { SYSTEM_PROMPT } from '../daily-insights/prompts.ts';
 
-export const WEEKLY_PROMPT_VERSION = 'w1';
+export const WEEKLY_PROMPT_VERSION = 'w2';
 
 export const WEEKLY_EXTRA_RULES = 
   `This is a weekly review for hospital managers. Compare this week (W) with the previous week (P) only where the data provides both. Describe observations and suggestions; never assign blame to individuals. If evidence is limited (thin_data, small counts), say so and keep conclusions modest. Reference only the supplied ids.`;
 
 export const WEEKLY_SYSTEM_PROMPT = `${SYSTEM_PROMPT}\n${WEEKLY_EXTRA_RULES}`;
+
+/**
+ * One-line key legends appended to each section's user prompt so the LLM
+ * understands the abbreviated field names in the compact JSON payload.
+ */
+export const SECTION_KEY_LEGENDS: Record<string, string> = {
+  utilization: 'Key: dept=department, item=equipment_type, checkouts=checkout_count, util_pct=utilization_percent, wd=weekday, block=time_block.',
+  demand: 'Key: item=equipment_name, dept=department, requests=request_count, med_ttd=median_hours_to_decision, urgent_pct=urgent_percent, approval_pct=approval_rate_percent.',
+  health: 'Key: item=equipment_name, dept=department, hours=hours_since_last_check, checkouts=checkouts_since_last_check, duration=session_duration, flagged_open=open_sessions_over_threshold.',
+  handling: 'Key: holder=user_name, checkouts=checkout_count, off_hrs=off_hours_checkouts, missed=missed_releases, rel_other=released_by_different_user.',
+  rebalancing: 'Key: item=equipment_name, type=equipment_type, from=from_department, from_util=from_util_pct, to=to_department, to_util=to_util_pct, to_req=to_demand_requests.',
+  executive: 'Key: area=section_area, severity=issue_severity, facts=text_facts, util_pct=utilization_percent, chx_diff=checkout_delta_pct, util_diff=utilization_delta_pt.',
+};
 
 // ──────────────────────────────────────────────────────────
 // Schemas
@@ -139,24 +152,24 @@ export function validateWeeklySection(section: string, obj: any, expectedIds?: s
 export function fallbackFor(section: string, facts: any): any {
   if (section === 'utilization') {
     return {
-      summary: `Utilization was ${facts.overall?.util ?? 0}% this week with ${facts.overall?.chx ?? 0} checkouts.`,
+      summary: `Utilization was ${facts.overall?.util_pct ?? 0}% this week with ${facts.overall?.checkouts ?? 0} checkouts.`,
       findings: [{ text: `Checkouts changed by ${facts.overall?.chx_diff ?? 0}%.`, severity: 'info' }]
     };
   }
   if (section === 'demand') {
     return {
-      summary: `There were ${facts.reqs?.sub ?? 0} requests submitted this week.`,
-      findings: [{ text: `Approval rate was ${facts.app_rate ?? 0}%.`, severity: 'info' }]
+      summary: `There were ${facts.reqs?.submitted ?? 0} requests submitted this week.`,
+      findings: [{ text: `Approval rate was ${facts.approval_pct ?? 0}%.`, severity: 'info' }]
     };
   }
   if (section === 'health') {
     const maintList = facts.maint || [];
     return {
       summary: `Health review completed.`,
-      findings: [{ text: `${facts.changes ?? 0} condition changes recorded.`, severity: 'info' }],
+      findings: [{ text: `${facts.cond_changes ?? 0} condition changes recorded.`, severity: 'info' }],
       maintenance: maintList.map((m: any) => ({
         id: m.id,
-        message: `${m.i} requires maintenance check.`,
+        message: `${m.item} requires maintenance check.`,
         action: `Review and schedule maintenance.`
       }))
     };
@@ -174,19 +187,19 @@ export function fallbackFor(section: string, facts: any): any {
       summary: `Rebalancing candidates identified.`,
       moves: moves.map((m: any) => ({
         id: m.id,
-        rationale: `Move ${m.i} from ${m.f} to ${m.t}.`,
+        rationale: `Move ${m.item} from ${m.from} to ${m.to}.`,
         caveat: ``
       })),
       purchasing: purch.map((p: any) => ({
         id: p.id,
-        text: `Consider purchasing ${p.t}.`
+        text: `Consider purchasing ${p.type}.`
       }))
     };
   }
   if (section === 'executive') {
     return {
       headline: `Weekly Review: ${facts.verdict === 'good' ? 'On Track' : 'Needs Attention'}`,
-      summary: `Utilization: ${facts.overall?.util ?? 0}%. Please review issues.`,
+      summary: `Utilization: ${facts.overall?.util_pct ?? 0}%. Please review issues.`,
       actions: [{ action: `Review flagged issues.`, reason: `Ensure smooth operations.`, priority: 1, owner: 'Manager' }]
     };
   }
