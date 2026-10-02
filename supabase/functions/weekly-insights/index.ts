@@ -23,7 +23,7 @@ import { getWeeklySchema, WEEKLY_SYSTEM_PROMPT, WEEKLY_PROMPT_VERSION, validateW
 import { BudgetCtx, AttemptRecord } from '../daily-insights/llm.ts';
 import { getDeepModelConfig, getWeeklyBackupConfig, WEEKLY_TOTAL_BUDGET_MS, WEEKLY_STEP_TIMEOUT_MS, WEEKLY_GAP_MS } from './config.ts';
 import { LLM_TIMEOUT_MS } from '../daily-insights/config.ts';
-import { callWeeklyLLM, deps } from './orchestration.ts';
+import { callWeeklyLLM, deps, buildIdMap, applySanitization } from './orchestration.ts';
 
 declare var EdgeRuntime: any;
 
@@ -429,6 +429,12 @@ async function runJob(reportId: number, body: any) {
       } else {
         modelsUsed.add(llmResult.model);
       }
+
+      if (!llmResult.usedFallback) {
+        const idMap = buildIdMap(s, fullPayloads[s] ?? metrics.metrics);
+        const fallbackData = fallbackFor(s, fullPayloads[s] ?? metrics.metrics, errorCategory);
+        secData = applySanitization(secData, fallbackData, idMap);
+      }
       
       secData = stripLimitedDataWording(secData, metrics.metrics.data_quality.is_thin);
 
@@ -493,6 +499,10 @@ async function runJob(reportId: number, body: any) {
           let secData = llmResult.data;
           modelsUsed.add(llmResult.model);
           
+          const idMap = buildIdMap(s, fullPayloads[s] ?? metrics.metrics);
+          const fallbackData = fallbackFor(s, fullPayloads[s] ?? metrics.metrics, llmResult.attempts.at(-1)?.error_category ?? undefined);
+          secData = applySanitization(secData, fallbackData, idMap);
+
           secData = stripLimitedDataWording(secData, metrics.metrics.data_quality.is_thin);
 
           if (!isGrounded(secData?.summary ?? '', pLoad)) {

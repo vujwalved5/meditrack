@@ -229,7 +229,9 @@ export function fallbackFor(section: string, facts: any, errorCategory?: string)
       })),
       purchasing: purch.map((p: any) => ({
         id: p.id ?? 'p?',
-        text: 'Consider purchasing more ' + (p.type ?? '?') + ' (' + (p.reason ?? '') + ').',
+        text: (p.reason === 'surplus') 
+          ? `Review ${p.type ?? '?'} for surplus.`
+          : `Consider adding a unit of ${p.type ?? '?'} (${p.reason ?? ''}).`,
       }))
     };
   }

@@ -149,3 +149,49 @@ Deno.test("Weekly orchestration - stops retry when remaining budget < WEEKLY_GAP
     else Deno.env.delete('WEEKLY_GAP_MS');
   }
 });
+
+import { sanitizeAIText } from "./orchestration.ts";
+
+Deno.test("Task 1: AI finding with mapped id replaces with real name", () => {
+  const map = { m1: "Ventilator A" };
+  const text = "Item m1 had 14 checkouts since last check";
+  const result = sanitizeAIText(text, map);
+  assertEquals(result, "Item Ventilator A had 14 checkouts since last check");
+});
+
+Deno.test("Task 1: AI finding with m1, m2, m3 replaces all in single pass", () => {
+  const map = { m1: "Ventilator", m2: "Pump", m3: "Bed" };
+  const text = "Check m1, then m2, and m3.";
+  const result = sanitizeAIText(text, map);
+  assertEquals(result, "Check Ventilator, then Pump, and Bed.");
+});
+
+Deno.test("Task 1: Unmappable id discards finding", () => {
+  const map = { m1: "Ventilator A" };
+  const text = "Item m9 had 14 checkouts";
+  const result = sanitizeAIText(text, map);
+  assertEquals(result, null);
+});
+
+Deno.test("Task 1: Real item name containing id stays untouched", () => {
+  const map = { m1: "Ventilator A" };
+  const text = "Item Pump C1 is fine, Monitor M1 is good, and m1 is bad.";
+  const result = sanitizeAIText(text, map);
+  assertEquals(result, "Item Pump C1 is fine, Monitor M1 is good, and Ventilator A is bad.");
+});
+
+Deno.test("Task 1: Id from another section discards finding", () => {
+  const map = { m1: "Ventilator A" };
+  // c1 is an id-like token but not in this section's map
+  const text = "Item c1 needs review.";
+  const result = sanitizeAIText(text, map);
+  assertEquals(result, null);
+});
+
+Deno.test("Task 1: No ids present keeps text unchanged", () => {
+  const map = { m1: "Ventilator A" };
+  const text = "All items are working normally.";
+  const result = sanitizeAIText(text, map);
+  assertEquals(result, "All items are working normally.");
+});
+

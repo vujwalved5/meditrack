@@ -486,7 +486,7 @@ export const OWNER_MAP: Record<string, { owner: string; priority: number }> = {
   out_of_order:       { owner: 'Manager',       priority: 1 },
   needs_maint:        { owner: 'Manager',       priority: 2 },
   maintenance:        { owner: 'Manager',       priority: 2 },
-  maint_watch:        { owner: 'Staff',         priority: 3 },
+  maint_watch:        { owner: 'Manager',       priority: 3 },
   flagged_open:       { owner: 'Staff',         priority: 3 },
   old_pending:        { owner: 'Senior Doctor', priority: 2 },
   req_slow:           { owner: 'Senior Doctor', priority: 3 },

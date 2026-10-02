@@ -153,3 +153,104 @@ export async function callWeeklyLLM<T>(
   console.warn(`[weekly] All LLM attempts failed for ${feature}. Using fallback.`);
   return { data: fallback(), model: 'fallback', usedFallback: true, attempts };
 }
+
+export function buildIdMap(section: string, payload: any): Record<string, string> {
+  const map: Record<string, string> = {};
+  if (!payload || typeof payload !== 'object') return map;
+  if (section === 'health' && Array.isArray(payload.usage_review_candidates)) {
+    for (const m of payload.usage_review_candidates) {
+      if (m.id && m.item) map[m.id] = m.item;
+    }
+  } else if (section === 'rebalancing') {
+    if (Array.isArray(payload.moves)) {
+      for (const m of payload.moves) {
+        if (m.id && m.item) map[m.id] = m.item;
+      }
+    }
+    if (Array.isArray(payload.purchasing_signals)) {
+      for (const p of payload.purchasing_signals) {
+        if (p.id && p.type) map[p.id] = p.type;
+      }
+    }
+  }
+  return map;
+}
+
+export function sanitizeAIText(text: string | null | undefined, idMap: Record<string, string>): string | null {
+  if (typeof text !== 'string' || text === '') return text ?? null;
+  const knownIds = Object.keys(idMap);
+  let replaced = text;
+  if (knownIds.length > 0) {
+    // Sort descending by length so longer IDs replace first (not strictly needed since IDs are same length, but good practice)
+    const sorted = [...knownIds].sort((a, b) => b.length - a.length);
+    const regex = new RegExp(`\\b(${sorted.join('|')})\\b`, 'g');
+    replaced = text.replace(regex, match => idMap[match]);
+  }
+  const idLikeRegex = /\b([mcpf]\d+)\b/g;
+  let m;
+  const realNames = Object.values(idMap);
+  while ((m = idLikeRegex.exec(replaced)) !== null) {
+    const token = m[1];
+    let covered = false;
+    for (const name of realNames) {
+      let idx = replaced.indexOf(name);
+      while (idx !== -1) {
+        if (m.index >= idx && m.index < idx + name.length) {
+          covered = true; break;
+        }
+        idx = replaced.indexOf(name, idx + 1);
+      }
+      if (covered) break;
+    }
+    if (!covered) return null;
+  }
+  return replaced;
+}
+
+export function applySanitization(secData: any, fallbackData: any, idMap: Record<string, string>): any {
+  if (!secData || typeof secData !== 'object') return secData;
+  const result = { ...secData };
+
+  const check = (str: string | undefined): string | null => {
+     if (typeof str !== 'string') return str as any;
+     return sanitizeAIText(str, idMap);
+  };
+
+  if (result.summary) {
+    const s = check(result.summary);
+    if (s === null) result.summary = fallbackData.summary;
+    else result.summary = s;
+  }
+  if (result.headline) {
+    const s = check(result.headline);
+    if (s === null) result.headline = fallbackData.headline || 'Summary';
+    else result.headline = s;
+  }
+
+  const arrays = ['findings', 'maintenance', 'moves', 'purchasing', 'actions'];
+  for (const arrName of arrays) {
+    if (Array.isArray(result[arrName])) {
+      const cleanArr = [];
+      const fallbacks = fallbackData[arrName] || [];
+      for (let i = 0; i < result[arrName].length; i++) {
+        const item = { ...result[arrName][i] };
+        let failed = false;
+        for (const k of Object.keys(item)) {
+          if (typeof item[k] === 'string') {
+            const s = check(item[k]);
+            if (s === null) { failed = true; break; }
+            item[k] = s;
+          }
+        }
+        if (failed) {
+           if (i < fallbacks.length) cleanArr.push(fallbacks[i]);
+        } else {
+           cleanArr.push(item);
+        }
+      }
+      result[arrName] = cleanArr;
+    }
+  }
+
+  return result;
+}

@@ -3852,17 +3852,32 @@
           html += `<div style="margin-top:10px;">`;
           sec.moves.forEach(m => {
             const title = m.title || m.rationale || '—';
-            // If AI summary doesn't name the move, use deterministic title (item 6)
+            // The title is already visible when collapsed in the section header,
+            // so we don't render it bolded in the card again.
             const rationale = (m.rationale && m.rationale.length > 20) ? m.rationale : title;
             html += `<div style="padding:8px; border:1px solid var(--border); border-radius:6px; margin-bottom:6px; font-size:12px;">
-              <strong>${esc(m.title || title)}</strong>
-              ${rationale !== title ? `<div style="color:var(--text-secondary); margin-top:4px;">${esc(rationale)}</div>` : ''}
+              ${rationale ? `<div style="color:var(--text-secondary);">${esc(rationale)}</div>` : ''}
               ${m.caveat ? `<div style="color:var(--text-muted); font-style:italic; margin-top:2px;">${esc(m.caveat)}</div>` : ''}
             </div>`;
           });
           html += `</div>`;
+        }
+
           if (sec.purchasing && sec.purchasing.length > 0) {
-            html += `<div style="font-size:12px; color:var(--text-muted); margin-top:6px;"><strong>Purchasing signals:</strong> `;
+            let label = 'Purchasing signals:';
+            // Need to check reasons from the original payload if available in window.currentWeeklyData
+            const allSignals = window.currentWeeklyData?.metrics?.rebalancing?.purchasing || [];
+            let hasAddUnit = false;
+            let hasSurplus = false;
+            sec.purchasing.forEach(p => {
+              const orig = allSignals.find(s => s.id === p.id);
+              if (orig && orig.reason === 'add_unit') hasAddUnit = true;
+              if (orig && orig.reason === 'surplus') hasSurplus = true;
+            });
+            if (!hasAddUnit && hasSurplus) {
+              label = 'Signals:';
+            }
+            html += `<div style="font-size:12px; color:var(--text-muted); margin-top:6px;"><strong>${label}</strong> `;
             html += sec.purchasing.map(p => esc(p.text || p.type || '')).join('; ');
             html += `</div>`;
           }
