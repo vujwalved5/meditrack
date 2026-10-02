@@ -17,7 +17,7 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { loadAppData } from '../daily-insights/data.ts';
-import { computeWeeklyMetrics } from './weeklyMetrics.ts';
+import { computeWeeklyMetrics, attachOwners, processExecutiveActions, stripLimitedDataWording } from './weeklyMetrics.ts';
 import { toWeeklyPayload } from './weeklyCompact.ts';
 import { getWeeklySchema, WEEKLY_SYSTEM_PROMPT, WEEKLY_PROMPT_VERSION, validateWeeklySection, fallbackFor } from './weeklyPrompts.ts';
 import { BudgetCtx, AttemptRecord } from '../daily-insights/llm.ts';
@@ -53,35 +53,6 @@ async function waitForRunLogGap(db: any, gapMs: number): Promise<void> {
   }
 }
 
-/**
- * Item 3: Code-owned owner/priority mapping.
- * The LLM returns [{ref, action, reason}]; we attach owner and priority.
- * Unknown refs are dropped.
- */
-const OWNER_MAP: Record<string, { owner: string; priority: number }> = {
-  out_of_order:       { owner: 'Manager',       priority: 1 },
-  needs_maint:        { owner: 'Manager',       priority: 2 },
-  maintenance:        { owner: 'Manager',       priority: 2 },
-  maint_watch:        { owner: 'Staff',         priority: 3 },
-  flagged_open:       { owner: 'Staff',         priority: 3 },
-  old_pending:        { owner: 'Senior Doctor', priority: 2 },
-  req_slow:           { owner: 'Senior Doctor', priority: 3 },
-  rebalance:          { owner: 'Manager',       priority: 2 },
-  non_usable_pending: { owner: 'Manager',       priority: 1 },
-  util_drop:          { owner: 'Manager',       priority: 4 },
-  idle:               { owner: 'Manager',       priority: 5 },
-  general:            { owner: 'Manager',       priority: 9 },
-};
-
-function attachOwners(actions: Array<{ ref: string; action: string; reason: string }>): Array<{ ref: string; action: string; reason: string; priority: number; owner: string }> {
-  return actions
-    .filter(a => a.ref in OWNER_MAP || a.ref === 'general')
-    .map(a => {
-      const mapping = OWNER_MAP[a.ref] ?? { owner: 'Manager', priority: 9 };
-      return { ...a, owner: mapping.owner as any, priority: mapping.priority };
-    })
-    .sort((a, b) => a.priority - b.priority);
-}
 
 /**
  * Item 4: Number grounding.
@@ -90,6 +61,7 @@ function attachOwners(actions: Array<{ ref: string; action: string; reason: stri
  * Returns true if grounded, false if ungrounded numbers found.
  */
 const GROUNDING_WHITELIST = new Set([7, 14, 24, 168]);
+
 
 function isGrounded(text: string, payloadJson: string): boolean {
   // Extract all standalone numbers (integers and decimals) from the text
@@ -399,10 +371,12 @@ async function runJob(reportId: number, body: any) {
         budgetExhausted = true;
         resultJson.meta.budget_exhausted = true;
         console.warn(`[weekly] Budget exhausted before section ${s}. Using fallback.`);
-        const fd = fallbackFor(s, fullPayloads[s] ?? metrics.metrics, 'budget_exhausted');
+        let fd = fallbackFor(s, fullPayloads[s] ?? metrics.metrics, 'budget_exhausted');
+        fd = stripLimitedDataWording(fd, metrics.metrics.data_quality.is_thin);
         if (s === 'executive') {
           const rawA = (fd?.actions ?? []) as Array<{ ref: string; action: string; reason: string }>;
-          resultJson.executive = { ...fd, actions: attachOwners(rawA), source: 'fallback', verdict: metrics.verdict };
+          const cleanedActions = processExecutiveActions(rawA, metrics.metrics.issues || []);
+          resultJson.executive = { ...fd, actions: cleanedActions, source: 'fallback', verdict: metrics.verdict };
         } else {
           resultJson.sections[s] = { ...fd, source: 'fallback' };
           if (fd.summary) sectionSummaries.push(s + ': ' + fd.summary);
@@ -455,6 +429,8 @@ async function runJob(reportId: number, body: any) {
       } else {
         modelsUsed.add(llmResult.model);
       }
+      
+      secData = stripLimitedDataWording(secData, metrics.metrics.data_quality.is_thin);
 
       // Item 4: number grounding check
       const textToCheck = secData?.summary ?? '';
@@ -471,12 +447,7 @@ async function runJob(reportId: number, body: any) {
       if (s === 'executive') {
         // Item 3: attach owner/priority from code mapping
         const rawActions = (secData?.actions ?? []) as Array<{ ref: string; action: string; reason: string }>;
-        const enrichedActions = attachOwners(rawActions);
-        // Strip trailing punctuation from action and keep reason separate
-        const cleanedActions = enrichedActions.map(a => ({
-          ...a,
-          action: a.action.replace(/[.:\s]+$/, ''),
-        }));
+        const cleanedActions = processExecutiveActions(rawActions, metrics.metrics.issues || []);
         resultJson.executive = { ...secData, actions: cleanedActions, source, verdict: metrics.verdict };
       } else {
         resultJson.sections[s] = { ...secData, source };
@@ -522,14 +493,15 @@ async function runJob(reportId: number, body: any) {
           let secData = llmResult.data;
           modelsUsed.add(llmResult.model);
           
+          secData = stripLimitedDataWording(secData, metrics.metrics.data_quality.is_thin);
+
           if (!isGrounded(secData?.summary ?? '', pLoad)) {
              continue; // Grounding failed, keep fallback
           }
 
           if (s === 'executive') {
             const rawActions = (secData?.actions ?? []) as Array<{ ref: string; action: string; reason: string }>;
-            const enrichedActions = attachOwners(rawActions);
-            const cleanedActions = enrichedActions.map(a => ({ ...a, action: a.action.replace(/[.:\s]+$/, '') }));
+            const cleanedActions = processExecutiveActions(rawActions, metrics.metrics.issues || []);
             resultJson.executive = { ...secData, actions: cleanedActions, source: 'ai', verdict: metrics.verdict };
           } else {
             resultJson.sections[s] = { ...secData, source: 'ai' };
@@ -544,13 +516,17 @@ async function runJob(reportId: number, body: any) {
     // Fill skipped sections with rule-based fallback
     for (const s of allSections) {
       if (!activeSections.includes(s)) {
-        resultJson.sections[s] = { ...fallbackFor(s, {}, 'no_data'), source: 'rule' };
+        let fd = fallbackFor(s, {}, 'no_data');
+        fd = stripLimitedDataWording(fd, metrics.metrics.data_quality.is_thin);
+        resultJson.sections[s] = { ...fd, source: 'rule' };
       }
     }
     if (!resultJson.executive) {
-      const fd = fallbackFor('executive', { ...(metrics.metrics as any), verdict: metrics.verdict }, 'no_data');
+      let fd = fallbackFor('executive', { ...(metrics.metrics as any), verdict: metrics.verdict }, 'no_data');
+      fd = stripLimitedDataWording(fd, metrics.metrics.data_quality.is_thin);
       const rawA = (fd?.actions ?? []) as Array<{ ref: string; action: string; reason: string }>;
-      resultJson.executive = { ...fd, actions: attachOwners(rawA), source: 'rule', verdict: metrics.verdict };
+      const cleanedActions = processExecutiveActions(rawA, metrics.metrics.issues || []);
+      resultJson.executive = { ...fd, actions: cleanedActions, source: 'rule', verdict: metrics.verdict };
       anyFallback = true;
     }
 
@@ -583,11 +559,23 @@ async function runJob(reportId: number, body: any) {
   } catch (e) {
     // ── Final catch: always mark failed ──
     console.error(`[weekly] Fatal error in job ${reportId}:`, e);
+    const errStr = 'Internal error: ' + ((e as Error).message ?? String(e));
     await db.from('ai_weekly_reports').update({
       status: 'failed',
-      error: 'Internal error: ' + ((e as Error).message ?? String(e)),
+      error: errStr,
       finished_at: new Date().toISOString(),
       current_step: null,
     }).eq('id', reportId);
+
+    try {
+      await db.from('ai_run_log').insert({
+        type: 'weekly_insights',
+        outcome: 'failure',
+        error_category: 'internal_error',
+        error_message: errStr
+      });
+    } catch (err: any) {
+      console.error('[weekly] Failed to insert run log', err);
+    }
   }
 }

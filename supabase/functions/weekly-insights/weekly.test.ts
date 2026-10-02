@@ -3,7 +3,7 @@
 import { assertEquals, assert } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { getDeepModelConfig, WEEKLY_TOTAL_BUDGET_MS, WEEKLY_STEP_TIMEOUT_MS } from "./config.ts";
 import { getMaintThreshold, MAINT_REVIEW_THRESHOLDS } from "./config.ts";
-import { computeWeeklyMetrics } from "./weeklyMetrics.ts";
+import { computeWeeklyMetrics, attachOwners, OWNER_MAP } from "./weeklyMetrics.ts";
 import { toWeeklyPayload } from "./weeklyCompact.ts";
 import { validateWeeklySection, fallbackFor, WEEKLY_PROMPT_VERSION, SECTION_KEY_LEGENDS } from "./weeklyPrompts.ts";
 
@@ -639,30 +639,6 @@ Deno.test("Config - SECTION_KEY_LEGENDS covers all sections", () => {
 // ──────────────────────────────────────────────────────────
 // 23. Owner mapping
 // ──────────────────────────────────────────────────────────
-const OWNER_MAP: Record<string, { owner: string; priority: number }> = {
-  out_of_order:       { owner: 'Manager',       priority: 1 },
-  needs_maint:        { owner: 'Manager',       priority: 2 },
-  maintenance:        { owner: 'Manager',       priority: 2 },
-  maint_watch:        { owner: 'Staff',         priority: 3 },
-  flagged_open:       { owner: 'Staff',         priority: 3 },
-  old_pending:        { owner: 'Senior Doctor', priority: 2 },
-  req_slow:           { owner: 'Senior Doctor', priority: 3 },
-  rebalance:          { owner: 'Manager',       priority: 2 },
-  non_usable_pending: { owner: 'Manager',       priority: 1 },
-  util_drop:          { owner: 'Manager',       priority: 4 },
-  idle:               { owner: 'Manager',       priority: 5 },
-  general:            { owner: 'Manager',       priority: 9 },
-};
-
-function attachOwners(actions: Array<{ ref: string; action: string; reason: string }>): Array<{ ref: string; action: string; reason: string; priority: number; owner: string }> {
-  return actions
-    .filter(a => a.ref in OWNER_MAP || a.ref === 'general')
-    .map(a => {
-      const mapping = OWNER_MAP[a.ref] ?? { owner: 'Manager', priority: 9 };
-      return { ...a, owner: mapping.owner as any, priority: mapping.priority };
-    })
-    .sort((a, b) => a.priority - b.priority);
-}
 
 const GROUNDING_WHITELIST = new Set([7, 14, 24, 168]);
 
@@ -765,10 +741,12 @@ Deno.test("Task 4e: fallbackFor executive correctly computes checkouts, utilizat
     verdict: {
       verdict: "mixed",
       issues: [
-        { area: "health", text: "Some health issue" },
-        { area: "demand", text: "Some demand issue" },
-        { area: "handling", text: "Some handling issue" },
-        { area: "rebalancing", text: "Should be ignored" }
+        { ref: "out_of_order", area: "health", facts: "Some health issue" },
+        { ref: "req_slow", area: "demand", facts: "Some demand issue" },
+        { ref: "idle", area: "handling", facts: "Some handling issue" },
+        { ref: "rebalance", area: "rebalancing", facts: "Some rebalancing issue" },
+        { ref: "needs_maint", area: "health", facts: "Another health issue" },
+        { ref: "util_drop", area: "utilization", facts: "Should be ignored" }
       ]
     }
   };
@@ -776,16 +754,99 @@ Deno.test("Task 4e: fallbackFor executive correctly computes checkouts, utilizat
   const result = fallbackFor('executive', fakeMetrics);
   assertEquals(result.headline, 'Weekly Review: Mixed Results');
   assertEquals(result.summary, 'This week saw 42 checkouts at 35% utilization. Review prioritized actions below.');
-  assertEquals(result.actions.length, 3);
-  assertEquals(result.actions[0].ref, 'health');
+  assertEquals(result.actions.length, 5);
+  assertEquals(result.actions[0].ref, 'out_of_order');
   assertEquals(result.actions[0].action, 'Some health issue');
   assertEquals(result.actions[0].reason, 'Fallback triggered');
-  assertEquals(result.actions[2].ref, 'handling');
+  assertEquals(result.actions[4].ref, 'needs_maint');
   
   const emptyMetrics = {};
   // @ts-ignore
   const emptyResult = fallbackFor('executive', emptyMetrics);
-  assertEquals(emptyResult.summary, 'This week saw Insufficient data checkouts at Insufficient data utilization. Review prioritized actions below.');
-  assertEquals(emptyResult.actions.length, 1);
-  assertEquals(emptyResult.actions[0].ref, 'general');
+  assertEquals(emptyResult.summary, 'Insufficient data to compute overall checkouts and utilization. Review prioritized actions below.');
+  assertEquals(emptyResult.actions.length, 0);
 });
+
+import { processExecutiveActions } from "./weeklyMetrics.ts";
+
+Deno.test("Task 1: AI output with zero valid refs -> actions non-empty, <= 5, owner/priority from mapping", () => {
+  const issues = [
+    { ref: "out_of_order", text_facts: "Device is broken" },
+    { ref: "needs_maint", text_facts: "Needs maintenance" },
+  ];
+  const aiOutput = [{ ref: "invalid_ref", action: "Test", reason: "AI" }]; // zero valid refs
+  
+  const result = processExecutiveActions(aiOutput, issues);
+  
+  assertEquals(result.length, 2, "Should fallback to issues");
+  assertEquals(result[0].ref, "out_of_order");
+  assertEquals(result[0].owner, OWNER_MAP["out_of_order"].owner);
+  assertEquals(result[1].ref, "needs_maint");
+  assertEquals(result[1].owner, OWNER_MAP["needs_maint"].owner);
+});
+
+Deno.test("Task 1: valid AI refs -> those actions kept with mapped owner/priority", () => {
+  const issues = [{ ref: "req_slow", text_facts: "Slow requests" }];
+  const aiOutput = [{ ref: "req_slow", action: "Fix speed.", reason: "AI" }];
+  
+  const result = processExecutiveActions(aiOutput, issues);
+  
+  assertEquals(result.length, 1, "Should keep valid AI action");
+  assertEquals(result[0].ref, "req_slow");
+  assertEquals(result[0].action, "Fix speed", "Should strip punctuation");
+  assertEquals(result[0].owner, OWNER_MAP["req_slow"].owner);
+});
+
+Deno.test("Task 1: fixture with NO issues -> actions may be empty and nothing crashes", () => {
+  const aiOutput = [{ ref: "invalid_ref", action: "Test", reason: "AI" }];
+  const result = processExecutiveActions(aiOutput, []);
+  
+  assertEquals(result.length, 0, "Empty issues means empty actions");
+});
+
+Deno.test("Task 1: Contract - UI reads owner, action, reason on every stored action", () => {
+  const issues = [{ ref: "out_of_order", text_facts: "Device is broken" }];
+  const result = processExecutiveActions([], issues);
+  assertEquals(result.length, 1);
+  assert("owner" in result[0]);
+  assert("action" in result[0]);
+  assert("reason" in result[0]);
+});
+
+import { stripLimitedDataWording } from "./weeklyMetrics.ts";
+import { WEEKLY_SYSTEM_PROMPT } from "./weeklyPrompts.ts";
+
+Deno.test("Task 2: is_thin false + caveat history is limited -> caveat stripped", () => {
+  const caveat = "This is a finding. History is limited, so conclusions are modest. Something else.";
+  const result = stripLimitedDataWording(caveat, false);
+  assertEquals(result, "This is a finding. Something else.");
+});
+
+Deno.test("Task 2: is_thin true + same caveat -> kept", () => {
+  const caveat = "This is a finding. History is limited, so conclusions are modest. Something else.";
+  const result = stripLimitedDataWording(caveat, true);
+  assertEquals(result, caveat);
+});
+
+Deno.test("Task 2: caveat without history wording -> untouched", () => {
+  const caveat = "This is a finding. There are some other caveats. Something else.";
+  const result = stripLimitedDataWording(caveat, false);
+  assertEquals(result, caveat);
+});
+
+Deno.test("Task 2: system prompt string contains new rule", () => {
+  assert(WEEKLY_SYSTEM_PROMPT.includes("Mention limited history or limited data ONLY when thin_data is present"));
+});
+
+Deno.test("Task 2: payload builder omits thin_data when not thin", () => {
+  const payload1 = toWeeklyPayload("test", { data_quality: { is_thin: true } });
+  assert("thin_data" in payload1.payload, "thin_data should be present when is_thin is true");
+  
+  const payload2 = toWeeklyPayload("test", { data_quality: { is_thin: false } });
+  assert(!("thin_data" in payload2.payload), "thin_data should be omitted when is_thin is false");
+});
+
+Deno.test("Task 2: WEEKLY_PROMPT_VERSION changed", () => {
+  assertEquals(WEEKLY_PROMPT_VERSION, "w4");
+});
+

@@ -3,13 +3,14 @@
 // ============================================================
 import { SYSTEM_PROMPT } from '../daily-insights/prompts.ts';
 
-export const WEEKLY_PROMPT_VERSION = 'w3';
+export const WEEKLY_PROMPT_VERSION = 'w4';
 
 export const WEEKLY_EXTRA_RULES = [
   'This is a weekly review for hospital managers.',
   'Compare this week (W) with the previous week (P) only where the data provides both. If no previous data, omit comparisons.',
   'Describe observations and suggestions; never assign blame to individuals.',
   'If evidence is limited (thin_data, small counts), say so and keep conclusions modest.',
+  'Mention limited history or limited data ONLY when thin_data is present in the payload.',
   'Reference only the supplied ids (m1, m2, c1 etc). Do NOT invent names or numbers not in the payload.',
   'NEVER use the word "scheduled" — nothing in this system is scheduled. Use "flagged by usage" or "high-usage item".',
   'NEVER generalize a finding for one item to the whole type or fleet (e.g. do not say "all ventilators").',
@@ -32,7 +33,7 @@ export const SECTION_KEY_LEGENDS: Record<string, string> = {
   health: 'Keys: condition_issues=[items_not_fully_usable], usage_review_candidates=[high_usage_items_flagged_by_hours_or_checkouts_NOT_manufacturer_schedules], open_sessions_held_unusually_long=count_of_open_sessions_over_threshold, condition_changes_this_week=count.',
   handling: 'Keys: holder=user_name, checkouts_per_week=checkout_count, off_hours_checkouts=count_outside_06:00-22:00, off_hours_share_pct=percent_of_total, checkouts_without_recorded_release=inferred_sessions, releases_by_non_holder=count.',
   rebalancing: 'Keys: title=code_built_summary, from_dept=from_department, from_util_pct=source_util_percent, to_dept=destination_department, to_util_pct=dest_util_percent, to_demand_requests=pending_requests_at_destination.',
-  executive: 'Keys: area=section_area, severity=issue_severity(critical|warning), facts=text_facts, checkouts_per_week=total_checkouts, util_pct=utilization_percent, checkouts_change=formatted_delta, util_change=formatted_pt_delta.',
+  executive: 'Keys: ref=issue_reference, area=section_area, severity=issue_severity(critical|warning), facts=text_facts, checkouts_per_week=total_checkouts, util_pct=utilization_percent, checkouts_change=formatted_delta, util_change=formatted_pt_delta.',
 };
 
 // ──────────────────────────────────────────────────────────
@@ -167,6 +168,7 @@ export function fallbackFor(section: string, facts: any, errorCategory?: string)
   if (section === 'utilization') {
     // Richer deterministic text using actual metric values
     const ov = facts.overall ?? {};
+    const hasData = typeof ov.checkouts_per_week === 'number' || typeof ov.checkouts === 'number';
     const checkouts = ov.checkouts_per_week ?? ov.checkouts ?? 0;
     const util = ov.util_pct ?? 0;
     const chxChange = ov.checkouts_change ?? '';
@@ -179,7 +181,9 @@ export function fallbackFor(section: string, facts: any, errorCategory?: string)
     // Peak slot
     const peaks: any[] = facts.peaks ?? [];
     const topPeak = peaks[0];
-    let summary = `This week saw ${checkouts} total checkouts and ${util}% overall utilization.`;
+    let summary = hasData && typeof ov.util_pct === 'number'
+      ? `This week saw ${checkouts} total checkouts and ${util}% overall utilization.`
+      : `Insufficient data to compute overall checkouts and utilization.`;
     if (chxChange) summary += ` Checkouts changed by ${chxChange}.`;
     if (utilChange) summary += ` Utilization changed ${utilChange} vs the previous week.`;
     if (busiest) summary += ` Highest utilization: ${busiest.dept} at ${busiest.util_pct ?? 0}% with ${busiest.checkouts ?? 0} checkouts.`;
@@ -235,20 +239,19 @@ export function fallbackFor(section: string, facts: any, errorCategory?: string)
     const util = typeof ov.util_pct === 'number' ? ov.util_pct + '%' : 'Insufficient data';
     const checkouts = hasData ? (ov.checkouts_per_week ?? ov.checkouts) : 'Insufficient data';
     
-    const actions = [];
-    const issues = facts.verdict?.issues ?? [];
-    for (let i = 0; i < Math.min(3, issues.length); i++) {
-      actions.push({ ref: issues[i].area, action: issues[i].text, reason: 'Fallback triggered' });
-    }
-    if (actions.length === 0) {
-      actions.push({ ref: 'general', action: 'Review flagged issues', reason: 'See section details for specifics.' });
+    const actions: any[] = [];
+    const issues = facts.issues ?? facts.verdict?.issues ?? [];
+    for (let i = 0; i < Math.min(5, issues.length); i++) {
+      actions.push({ ref: issues[i].ref, action: issues[i].text_facts ?? issues[i].facts, reason: 'Fallback triggered' });
     }
     
     const verdictLabel = facts.verdict?.verdict === 'good' ? 'On Track' : facts.verdict?.verdict === 'mixed' ? 'Mixed Results' : 'Needs Attention';
 
     return { ...meta,
       headline: 'Weekly Review: ' + verdictLabel,
-      summary: `This week saw ${checkouts} checkouts at ${util} utilization. Review prioritized actions below.`,
+      summary: (hasData && typeof ov.util_pct === 'number')
+        ? `This week saw ${checkouts} checkouts at ${util} utilization. Review prioritized actions below.`
+        : `Insufficient data to compute overall checkouts and utilization. Review prioritized actions below.`,
       actions
     };
   }

@@ -153,9 +153,13 @@ export function toWeeklyPayload(section: string, metrics: any): WeeklyPayloadRes
         checkouts_change: fmtChxDelta(metrics.overall.checkouts_delta_pct),
         util_change: fmtUtilDelta(metrics.overall.utilization_delta_pt),
       },
-      top_issues: (metrics.issues || []).map((i: any) => ({ area: i.area, severity: i.severity, facts: i.text_facts })),
+      top_issues: (metrics.issues || []).map((i: any) => ({ ref: i.ref, area: i.area, severity: i.severity, facts: i.text_facts })),
       section_summaries: metrics.section_summaries ?? [],
     };
+  }
+
+  if (metrics.data_quality?.is_thin) {
+    payload.thin_data = true;
   }
 
   return { payloadJson: JSON.stringify(payload), payload, trimmed };

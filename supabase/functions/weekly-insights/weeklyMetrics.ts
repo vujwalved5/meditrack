@@ -481,3 +481,69 @@ export function computeWeeklyMetrics(
     }
   };
 }
+
+export const OWNER_MAP: Record<string, { owner: string; priority: number }> = {
+  out_of_order:       { owner: 'Manager',       priority: 1 },
+  needs_maint:        { owner: 'Manager',       priority: 2 },
+  maintenance:        { owner: 'Manager',       priority: 2 },
+  maint_watch:        { owner: 'Staff',         priority: 3 },
+  flagged_open:       { owner: 'Staff',         priority: 3 },
+  old_pending:        { owner: 'Senior Doctor', priority: 2 },
+  req_slow:           { owner: 'Senior Doctor', priority: 3 },
+  rebalance:          { owner: 'Manager',       priority: 2 },
+  non_usable_pending: { owner: 'Manager',       priority: 1 },
+  util_drop:          { owner: 'Manager',       priority: 4 },
+  idle:               { owner: 'Manager',       priority: 5 },
+  general:            { owner: 'Manager',       priority: 9 },
+};
+
+export function attachOwners(actions: Array<{ ref: string; action: string; reason: string }>): Array<{ ref: string; action: string; reason: string; priority: number; owner: string }> {
+  return actions
+    .filter(a => a.ref in OWNER_MAP || a.ref === 'general')
+    .map(a => {
+      const mapping = OWNER_MAP[a.ref] ?? { owner: 'Manager', priority: 9 };
+      return { ...a, owner: mapping.owner as any, priority: mapping.priority };
+    })
+    .sort((a, b) => a.priority - b.priority);
+}
+
+export function processExecutiveActions(rawActions: Array<{ ref: string; action: string; reason: string }>, issues: Array<any>): Array<{ ref: string; action: string; reason: string; priority: number; owner: string }> {
+  let enrichedActions = attachOwners(rawActions);
+  
+  // Deterministic fallback if AI returned no valid actions but issues exist
+  if (enrichedActions.length === 0 && issues && issues.length > 0) {
+    const fallbackRaw = issues.slice(0, 5).map(iss => ({
+      ref: iss.ref,
+      action: iss.text_facts ?? iss.facts ?? 'Issue identified',
+      reason: 'System generated from active issues'
+    }));
+    enrichedActions = attachOwners(fallbackRaw);
+  }
+
+  // Strip trailing punctuation from action and keep reason separate
+  return enrichedActions.map(a => ({
+    ...a,
+    action: a.action.replace(/[.:\s]+$/, ''),
+  }));
+}
+
+export function stripLimitedDataWording(obj: any, isThin: boolean): any {
+  if (isThin || !obj) return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(item => stripLimitedDataWording(item, isThin));
+  } else if (typeof obj === 'object') {
+    const newObj: any = {};
+    for (const [key, val] of Object.entries(obj)) {
+      newObj[key] = stripLimitedDataWording(val, isThin);
+    }
+    return newObj;
+  } else if (typeof obj === 'string') {
+    const rx = /\b(history|limited history|limited data|short history|insufficient data)\b/i;
+    if (rx.test(obj)) {
+      const sentences = obj.split(/(?<=[.!?])\s+/);
+      return sentences.filter(s => !rx.test(s)).join(' ').trim();
+    }
+  }
+  return obj;
+}
+

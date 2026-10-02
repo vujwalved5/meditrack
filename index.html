@@ -3690,7 +3690,7 @@
       </div>`;
 
       // ── Executive Summary ──
-      html += `<div class="ai-card" style="margin-bottom:20px;">
+      html += `<div class="ai-card" style="margin-bottom:20px; padding: 14px 16px;">
         <div class="ai-card-title">Executive Summary</div>
         <div style="font-size:14px; margin-bottom:16px; line-height:1.6;">${esc(ex.summary || '')}</div>
         <h4 style="margin:0 0 8px 0; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-secondary);">PRIORITIZED ACTIONS</h4>
@@ -3717,8 +3717,8 @@
       const utilDelta      = ov.utilization_delta_pt;
       const chxDelta       = ov.checkouts_delta_pct;
 
-      const chxDisplay  = (totalCheckouts !== undefined && totalCheckouts !== null) ? totalCheckouts : '\u2014';
-      const utilDisplay = (utilPct !== undefined && utilPct !== null) ? num(utilPct, 1) + '%' : '\u2014';
+      const chxDisplay  = (totalCheckouts === undefined || totalCheckouts === null || Number.isNaN(Number(totalCheckouts))) ? '\u2014' : totalCheckouts;
+      const utilDisplay = (utilPct === undefined || utilPct === null || Number.isNaN(Number(utilPct))) ? '\u2014' : num(utilPct, 1) + '%';
 
       let utilDeltaHtml = '';
       if (utilDelta !== undefined && utilDelta !== null && !isNaN(Number(utilDelta))) {
@@ -3749,7 +3749,7 @@
       html += `<div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">`;
 
       // Checkouts by Day chart
-      html += `<div class="ai-card" style="flex:1; min-width:180px;">
+      html += `<div class="ai-card" style="flex:1; min-width:180px; padding: 14px 16px;">
         <div class="ai-card-title" style="margin-bottom:12px;">Checkouts by Day</div>`;
       if (byDay.length === 0) {
         html += `<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:16px 0;">No data for this period</div>`;
@@ -3769,7 +3769,7 @@
       html += `</div>`;
 
       // Utilization by Dept chart
-      html += `<div class="ai-card" style="flex:1; min-width:180px;">
+      html += `<div class="ai-card" style="flex:1; min-width:180px; padding: 14px 16px;">
         <div class="ai-card-title" style="margin-bottom:12px;">Utilization by Dept</div>
         <div style="display:flex; flex-direction:column; gap:6px;">`;
       if (byDept.length === 0) {
