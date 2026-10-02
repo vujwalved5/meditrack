@@ -21,7 +21,7 @@ import { computeWeeklyMetrics } from './weeklyMetrics.ts';
 import { toWeeklyPayload } from './weeklyCompact.ts';
 import { getWeeklySchema, WEEKLY_SYSTEM_PROMPT, WEEKLY_PROMPT_VERSION, validateWeeklySection, fallbackFor } from './weeklyPrompts.ts';
 import { BudgetCtx, AttemptRecord } from '../daily-insights/llm.ts';
-import { getDeepModelConfig, getWeeklyBackupConfig, WEEKLY_TOTAL_BUDGET_MS, WEEKLY_STEP_TIMEOUT_MS } from './config.ts';
+import { getDeepModelConfig, getWeeklyBackupConfig, WEEKLY_TOTAL_BUDGET_MS, WEEKLY_STEP_TIMEOUT_MS, WEEKLY_GAP_MS } from './config.ts';
 import { LLM_TIMEOUT_MS } from '../daily-insights/config.ts';
 import { callWeeklyLLM, deps } from './orchestration.ts';
 

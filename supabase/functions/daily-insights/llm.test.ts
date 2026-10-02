@@ -1,8 +1,8 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import { callLLM } from "./llm.ts";
 
-const goldenStr = Deno.readTextFileSync('./t_golden.json');
-const golden = JSON.parse(goldenStr);
+// @ts-ignore: TS json module resolution requires config
+import golden from "../../../t_golden.json" with { type: "json" };
 
 Deno.test("Daily request body for gemini-3.5-flash-lite matches golden exactly", async () => {
   let capturedBody = null;
