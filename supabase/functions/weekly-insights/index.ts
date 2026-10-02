@@ -20,9 +20,10 @@ import { loadAppData } from '../daily-insights/data.ts';
 import { computeWeeklyMetrics } from './weeklyMetrics.ts';
 import { toWeeklyPayload } from './weeklyCompact.ts';
 import { getWeeklySchema, WEEKLY_SYSTEM_PROMPT, WEEKLY_PROMPT_VERSION, validateWeeklySection, fallbackFor } from './weeklyPrompts.ts';
-import { callLLM, BudgetCtx, AttemptRecord } from '../daily-insights/llm.ts';
+import { BudgetCtx, AttemptRecord } from '../daily-insights/llm.ts';
 import { getDeepModelConfig, getWeeklyBackupConfig, WEEKLY_TOTAL_BUDGET_MS, WEEKLY_STEP_TIMEOUT_MS } from './config.ts';
-import { LLM_GAP_MS, LLM_TIMEOUT_MS } from '../daily-insights/config.ts';
+import { LLM_TIMEOUT_MS } from '../daily-insights/config.ts';
+import { callWeeklyLLM, deps } from './orchestration.ts';
 
 declare var EdgeRuntime: any;
 
@@ -36,7 +37,8 @@ async function sha256Hex(text: string): Promise<string> {
   return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
+// use injected sleep
+const sleep = deps.sleep;
 
 /** Rate guard: wait until gap ms have passed since the last ai_run_log entry */
 async function waitForRunLogGap(db: any, gapMs: number): Promise<void> {
@@ -334,9 +336,8 @@ async function runJob(reportId: number, body: any) {
 
     // ── LLM configs ──
     const deepPrimary = getDeepModelConfig();
-    const deepBackup = getWeeklyBackupConfig();
     const budgetCtx: BudgetCtx = { totalBudgetMs: WEEKLY_TOTAL_BUDGET_MS(), usedMs: 0 };
-    const gap = LLM_GAP_MS();
+    const gap = WEEKLY_GAP_MS();
     const stepTimeout = WEEKLY_STEP_TIMEOUT_MS();
 
     const resultJson: any = {
@@ -361,6 +362,8 @@ async function runJob(reportId: number, body: any) {
     let anyFallback = false;
     let budgetExhausted = false;
     const sectionSummaries: string[] = [];
+    const runState = { primaryAuthFailed: false, authFailureLogged: false };
+    const fallbacksToRetry: string[] = [];
 
     // ── Sequential LLM loop ──
     for (let i = 0; i < activeSections.length; i++) {
@@ -412,11 +415,10 @@ async function runJob(reportId: number, body: any) {
       // ── ai_run_log rate guard: wait gap since last run log entry ──
       await waitForRunLogGap(db, gap);
 
-      // ── Call LLM via callLLM (reusing daily retry chain) ──
-      const llmResult = await callLLM<any>(
+      // ── Call LLM via callWeeklyLLM ──
+      const llmResult = await callWeeklyLLM<any>(
         s,
         userPrompt,
-        0, // itemCount — not used for weekly; tokenBudget fallback applies
         (obj): obj is any => validateWeeklySection(s, obj),
         (obj) => {
           // Coerce: if summary is present, accept as-is
@@ -429,13 +431,14 @@ async function runJob(reportId: number, body: any) {
         {
           maxOutputTokens: 1200,
           timeoutMs: stepTimeout,
-          modelOverride: { primary: deepPrimary, backup: deepBackup },
+          primary: deepPrimary,
           schema,
           toolName: `write_${s}`,
           logType: `weekly_${s}`,
           systemPrompt: WEEKLY_SYSTEM_PROMPT,
           thinkingBudget: 0,
         },
+        runState
       );
 
       resultJson.meta.attempts.push(...llmResult.attempts);
@@ -445,6 +448,7 @@ async function runJob(reportId: number, body: any) {
       const errorCategory = llmResult.attempts.at(-1)?.error_category ?? undefined;
       if (llmResult.usedFallback) {
         anyFallback = true;
+        fallbacksToRetry.push(s);
         // Re-run fallbackFor so we get the richer text with fallback_reason attached
         secData = fallbackFor(s, fullPayloads[s] ?? metrics.metrics, errorCategory);
         source = 'fallback';
@@ -484,6 +488,57 @@ async function runJob(reportId: number, body: any) {
       await db.from('ai_weekly_reports')
         .update({ steps_done: stepDone, result: resultJson })
         .eq('id', reportId);
+    }
+
+    // ── Retry Fallbacks (10s delay if budget remains) ──
+    if (fallbacksToRetry.length > 0 && budgetCtx.totalBudgetMs - budgetCtx.usedMs > stepTimeout + 10000) {
+      console.log(`[weekly] Budget remains, waiting 10s then retrying ${fallbacksToRetry.length} failed sections sequentially.`);
+      await deps.sleep(10000);
+      
+      for (const s of fallbacksToRetry) {
+        if (budgetCtx.totalBudgetMs - budgetCtx.usedMs < stepTimeout) break;
+        
+        let pLoad = s === 'executive' ? toWeeklyPayload('executive', { ...(metrics.metrics as any), verdict: metrics.verdict, section_summaries: sectionSummaries }).payloadJson : payloads[s];
+        const userPrompt = `Section: ${s}\n\nFacts (JSON):\n${pLoad}`;
+        const schema = getWeeklySchema(s);
+
+        const llmResult = await callWeeklyLLM<any>(
+          s,
+          userPrompt,
+          (obj): obj is any => validateWeeklySection(s, obj),
+          (obj) => {
+            if (obj && typeof (obj as any).summary === 'string') return obj as any;
+            return null;
+          },
+          () => fallbackFor(s, fullPayloads[s] ?? metrics.metrics),
+          db,
+          budgetCtx,
+          { maxOutputTokens: 1200, timeoutMs: stepTimeout, primary: deepPrimary, schema, toolName: `write_${s}`, logType: `weekly_retry_${s}`, systemPrompt: WEEKLY_SYSTEM_PROMPT, thinkingBudget: 0 },
+          runState
+        );
+        resultJson.meta.attempts.push(...llmResult.attempts);
+
+        if (!llmResult.usedFallback) {
+          let secData = llmResult.data;
+          modelsUsed.add(llmResult.model);
+          
+          if (!isGrounded(secData?.summary ?? '', pLoad)) {
+             continue; // Grounding failed, keep fallback
+          }
+
+          if (s === 'executive') {
+            const rawActions = (secData?.actions ?? []) as Array<{ ref: string; action: string; reason: string }>;
+            const enrichedActions = attachOwners(rawActions);
+            const cleanedActions = enrichedActions.map(a => ({ ...a, action: a.action.replace(/[.:\s]+$/, '') }));
+            resultJson.executive = { ...secData, actions: cleanedActions, source: 'ai', verdict: metrics.verdict };
+          } else {
+            resultJson.sections[s] = { ...secData, source: 'ai' };
+          }
+          
+          // Persist incremental progress for retry
+          await db.from('ai_weekly_reports').update({ result: resultJson }).eq('id', reportId);
+        }
+      }
     }
 
     // Fill skipped sections with rule-based fallback

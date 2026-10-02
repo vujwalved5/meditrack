@@ -21,6 +21,18 @@ import {
 } from './config.ts';
 
 // ──────────────────────────────────────────────────────────
+// Capabilities table
+// ──────────────────────────────────────────────────────────
+
+export const MODEL_CAPABILITIES: Record<string, { supportsThinkingBudget: boolean }> = {
+  'gemini-3.5-flash-lite': { supportsThinkingBudget: false },
+};
+
+export function getCapabilities(model: string) {
+  return MODEL_CAPABILITIES[model] ?? { supportsThinkingBudget: true };
+}
+
+// ──────────────────────────────────────────────────────────
 // Error categories
 // ──────────────────────────────────────────────────────────
 
@@ -87,6 +99,7 @@ export interface AttemptRecord {
   prompt_chars: number;
   est_tokens: number;
   retry_after_ms?: number; // from Retry-After header
+  error_message?: string;
 }
 
 // ──────────────────────────────────────────────────────────
@@ -120,16 +133,17 @@ function getToolName(feature: string, override?: string): string {
 // Single attempt
 // ──────────────────────────────────────────────────────────
 
-interface OneAttemptResult {
+export interface OneAttemptResult {
   raw: unknown;
   httpStatus: number;
   finishReason?: string;
   errorCategory?: ErrorCategory;
   retryAfterMs?: number;
   latencyMs: number;
+  errorMessage?: string;
 }
 
-async function callProviderOnce(
+export async function callProviderOnce(
   cfg: ProviderConfig,
   userPrompt: string,
   maxTokens: number,
@@ -175,7 +189,7 @@ async function callProviderOnce(
         const body = await response.text().catch(() => '(no body)');
         const retryAfterMs = parseRetryAfter(response.headers.get('Retry-After'));
         const cat = classifyError(httpStatus, body);
-        return { raw: null, httpStatus, finishReason, errorCategory: cat, retryAfterMs, latencyMs: Date.now() - t0 };
+        return { raw: null, httpStatus, finishReason, errorCategory: cat, retryAfterMs, latencyMs: Date.now() - t0, errorMessage: body.substring(0, 300) };
       }
 
       const data = await response.json();
@@ -194,8 +208,10 @@ async function callProviderOnce(
 
     } else {
       // Gemini — use responseSchema for native structured output
+      const caps = getCapabilities(cfg.model);
       const is25Flash = cfg.model.includes('2.5') && cfg.model.toLowerCase().includes('flash');
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${cfg.model}:generateContent`;
+      const includeThinking = caps.supportsThinkingBudget && (is25Flash || (opts?.thinkingBudget !== undefined && opts.thinkingBudget >= 0));
 
       const body: Record<string, unknown> = {
         systemInstruction: { parts: [{ text: opts?.systemPrompt ?? SYSTEM_PROMPT }] },
@@ -205,7 +221,7 @@ async function callProviderOnce(
           maxOutputTokens: maxTokens,
           responseMimeType: 'application/json',
           responseSchema: getSchema(feature, opts?.schema),
-          ...(is25Flash || (opts?.thinkingBudget !== undefined && opts.thinkingBudget >= 0) ? { thinkingConfig: { thinkingBudget: opts?.thinkingBudget ?? 0 } } : {}),
+          ...(includeThinking ? { thinkingConfig: { thinkingBudget: opts?.thinkingBudget ?? 0 } } : {}),
         },
       };
 
@@ -224,7 +240,7 @@ async function callProviderOnce(
         const bodyText = await response.text().catch(() => '(no body)');
         const retryAfterMs = parseRetryAfter(response.headers.get('Retry-After'));
         const cat = classifyError(httpStatus, bodyText);
-        return { raw: null, httpStatus, finishReason, errorCategory: cat, retryAfterMs, latencyMs: Date.now() - t0 };
+        return { raw: null, httpStatus, finishReason, errorCategory: cat, retryAfterMs, latencyMs: Date.now() - t0, errorMessage: bodyText.substring(0, 300) };
       }
 
       const data = await response.json();
@@ -268,9 +284,9 @@ async function callProviderOnce(
     const latencyMs = Date.now() - t0;
     const msg = (err as Error).message ?? '';
     if (msg.includes('AbortError') || (err as any)?.name === 'AbortError') {
-      return { raw: null, httpStatus: 0, finishReason, errorCategory: 'timeout', latencyMs };
+      return { raw: null, httpStatus: 0, finishReason, errorCategory: 'timeout', latencyMs, errorMessage: msg.substring(0, 300) };
     }
-    return { raw: null, httpStatus: 0, finishReason, errorCategory: 'network', latencyMs };
+    return { raw: null, httpStatus: 0, finishReason, errorCategory: 'network', latencyMs, errorMessage: msg.substring(0, 300) };
   }
 }
 
@@ -292,6 +308,7 @@ export async function writeRunLog(
     type: string; provider: string; model: string; attempt: number;
     outcome: string; http_status: number; error_category: string | null;
     latency_ms: number; prompt_chars: number; est_tokens: number;
+    error_message?: string;
   },
 ): Promise<void> {
   try {
@@ -306,6 +323,7 @@ export async function writeRunLog(
       latency_ms: row.latency_ms,
       prompt_chars: row.prompt_chars,
       est_tokens: row.est_tokens,
+      error_message: row.error_message,
     }]);
   } catch {
     // Log write failure must never break the run
@@ -316,13 +334,13 @@ export async function writeRunLog(
 // Retry policy helpers
 // ──────────────────────────────────────────────────────────
 
-const RETRYABLE_CATS: ErrorCategory[] = [
+export const RETRYABLE_CATS: ErrorCategory[] = [
   'timeout', 'overloaded', 'network', 'blocked_or_empty', 'bad_json', 'truncated',
 ];
 
-const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
+export const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 
-function jitter(ms: number) { return ms + Math.random() * 500; }
+export function jitter(ms: number) { return ms + Math.random() * 500; }
 
 // ──────────────────────────────────────────────────────────
 // Budget context (shared across all features)
@@ -417,6 +435,7 @@ export async function callLLM<T>(
       prompt_chars: promptChars,
       est_tokens: estTokens,
       ...(res.retryAfterMs ? { retry_after_ms: res.retryAfterMs } : {}),
+      ...(res.errorMessage ? { error_message: res.errorMessage } : {}),
     };
 
     // Compact log line (no keys, no full prompts)

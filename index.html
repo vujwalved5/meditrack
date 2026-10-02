@@ -2344,7 +2344,7 @@
                 <div id="weekly-actions" style="display:flex; align-items:center;">
                   <span id="weekly-countdown" style="font-size:12px; color:var(--urgent); margin-right:8px; font-weight:600;"></span>
                   <button type="button" id="btn-run-weekly" class="btn-primary" style="padding: 6px 12px; font-size: 13px; border-radius:var(--radius-sm);" onclick="requestWeeklyAnalysis()" aria-label="Run Weekly Analysis">Run Weekly Analysis</button>
-                  <button type="button" id="btn-view-weekly" class="btn-secondary" style="display:none; padding: 6px 12px; font-size: 13px; margin-left: 8px; border-radius:var(--radius-sm);" onclick="openWeeklyModal()" aria-label="View Report">View report</button>
+                  <button type="button" id="btn-view-weekly" class="btn-secondary" style="display:none; padding: 6px 12px; font-size: 13px; margin-left: 8px; border-radius:var(--radius-sm);" onclick="openWeeklyModal()" aria-label="View Report">View report &rsaquo;</button>
                 </div>
               </div>
               
@@ -3574,12 +3574,23 @@
           if (latest.result && latest.result.executive) {
             title = latest.result.executive.headline || 'Weekly Report';
           }
+          
+          const verdict = latest.result?.verdict || (latest.result?.executive && latest.result.executive.verdict) || latest.status;
+          const verdictStyle = {
+            good:            'background:#22c55e20; color:#16a34a; border:1px solid #22c55e40;',
+            mixed:           'background:#f59e0b20; color:#b45309; border:1px solid #f59e0b40;',
+            needs_attention: 'background:#ef444420; color:#dc2626; border:1px solid #ef444440;',
+          }[verdict] || 'background:var(--gray-bg); color:var(--text-secondary);';
+          
+          let verdictPill = `<span style="${verdictStyle} padding:2px 8px; border-radius:12px; font-size:11px; margin-left: 8px;">${esc(verdict)}</span>`;
+
           const range = `(${latest.week_start || ''} to ${latest.week_end || ''})`;
-          idleInfo.innerHTML = `<strong>${esc(title)}</strong> <span style="color:var(--text-muted); font-size:12px;">${esc(range)}</span>`;
+          idleInfo.innerHTML = `<div style="display:flex; align-items:center; margin-bottom:4px;"><strong>${esc(title)}</strong>${verdictPill}</div> <span style="color:var(--text-muted); font-size:12px;">${esc(range)}</span>`;
           if (latest.status === 'partial') {
-            idleInfo.innerHTML += `<div style="color:var(--inuse); margin-top:4px; font-size:12px;">Some sections use rule-based text because the AI service was busy.</div>`;
+            idleInfo.innerHTML += `<div style="color:var(--inuse); margin-top:6px; font-size:12px;">Some sections use rule-based text because the AI service was busy.</div>`;
           }
-          if (btnView) btnView.style.display = 'inline-block';
+          if (btnView) btnView.style.display = 'inline-flex';
+          if (btnView) btnView.style.alignItems = 'center';
         }
       }
 

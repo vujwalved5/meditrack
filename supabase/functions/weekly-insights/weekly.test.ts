@@ -758,3 +758,34 @@ Deno.test("Contract - UI_READS paths exist in canonical result", () => {
     }
   }
 });
+Deno.test("Task 4e: fallbackFor executive correctly computes checkouts, utilization, and actions", () => {
+  const fakeMetrics = {
+    overall: { checkouts: 42, util_pct: 35 },
+    utilization: [{ checkouts: 20, util_pct: 30 }, { checkouts: 22, util_pct: 40 }],
+    verdict: {
+      verdict: "mixed",
+      issues: [
+        { area: "health", text: "Some health issue" },
+        { area: "demand", text: "Some demand issue" },
+        { area: "handling", text: "Some handling issue" },
+        { area: "rebalancing", text: "Should be ignored" }
+      ]
+    }
+  };
+  // @ts-ignore
+  const result = fallbackFor('executive', fakeMetrics);
+  assertEquals(result.headline, 'Weekly Review: Mixed Results');
+  assertEquals(result.summary, 'This week saw 42 checkouts at 35% utilization. Review prioritized actions below.');
+  assertEquals(result.actions.length, 3);
+  assertEquals(result.actions[0].ref, 'health');
+  assertEquals(result.actions[0].action, 'Some health issue');
+  assertEquals(result.actions[0].reason, 'Fallback triggered');
+  assertEquals(result.actions[2].ref, 'handling');
+  
+  const emptyMetrics = {};
+  // @ts-ignore
+  const emptyResult = fallbackFor('executive', emptyMetrics);
+  assertEquals(emptyResult.summary, 'This week saw Insufficient data checkouts at Insufficient data utilization. Review prioritized actions below.');
+  assertEquals(emptyResult.actions.length, 1);
+  assertEquals(emptyResult.actions[0].ref, 'general');
+});

@@ -231,12 +231,25 @@ export function fallbackFor(section: string, facts: any, errorCategory?: string)
   }
   if (section === 'executive') {
     const ov = facts.overall ?? {};
-    const util = ov.util_pct ?? 0;
-    const checkouts = ov.checkouts_per_week ?? ov.checkouts ?? 0;
+    const hasData = typeof ov.checkouts_per_week === 'number' || typeof ov.checkouts === 'number';
+    const util = typeof ov.util_pct === 'number' ? ov.util_pct + '%' : 'Insufficient data';
+    const checkouts = hasData ? (ov.checkouts_per_week ?? ov.checkouts) : 'Insufficient data';
+    
+    const actions = [];
+    const issues = facts.verdict?.issues ?? [];
+    for (let i = 0; i < Math.min(3, issues.length); i++) {
+      actions.push({ ref: issues[i].area, action: issues[i].text, reason: 'Fallback triggered' });
+    }
+    if (actions.length === 0) {
+      actions.push({ ref: 'general', action: 'Review flagged issues', reason: 'See section details for specifics.' });
+    }
+    
+    const verdictLabel = facts.verdict?.verdict === 'good' ? 'On Track' : facts.verdict?.verdict === 'mixed' ? 'Mixed Results' : 'Needs Attention';
+
     return { ...meta,
-      headline: 'Weekly Review: ' + (facts.verdict === 'good' ? 'On Track' : facts.verdict === 'mixed' ? 'Mixed Results' : 'Needs Attention'),
-      summary: `This week saw ${checkouts} checkouts at ${util}% utilization. Review prioritized actions below.`,
-      actions: [{ ref: 'general', action: 'Review flagged issues', reason: 'See section details for specifics.', priority: 1, owner: 'Manager' }]
+      headline: 'Weekly Review: ' + verdictLabel,
+      summary: `This week saw ${checkouts} checkouts at ${util} utilization. Review prioritized actions below.`,
+      actions
     };
   }
   return { ...meta, summary: 'No data available.', findings: [] };

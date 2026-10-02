@@ -19,6 +19,9 @@ export const WEEKLY_TOTAL_BUDGET_MS = (): number =>
 export const WEEKLY_STEP_TIMEOUT_MS = (): number =>
   parseInt(Deno.env.get('WEEKLY_STEP_TIMEOUT_MS') ?? '25000', 10);
 
+export const WEEKLY_GAP_MS = (): number =>
+  parseInt(Deno.env.get('WEEKLY_GAP_MS') ?? '4000', 10);
+
 export function getDeepModelConfig(): ProviderConfig {
   const provider = ((Deno.env.get('AI_DEEP_PROVIDER') ?? Deno.env.get('AI_PROVIDER') ?? 'gemini').toLowerCase()) as 'gemini' | 'anthropic';
   
