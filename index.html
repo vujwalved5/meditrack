@@ -68,7 +68,13 @@
       --transition: 200ms ease;
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      /* CRITICAL: overflow-x on html (not just body) is needed to prevent
+         the browser using html as the scroll container when body overflows.
+         Without this, body { overflow-x:hidden } has no effect on mobile. */
+      overflow-x: hidden;
+    }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -2009,6 +2015,80 @@
       }
     }
 
+    /* ===================================================================
+       MOBILE OVERFLOW FIX — AI INSIGHTS SECTION (max-width: 768px)
+
+       Root cause: The AI Insights panel's content (cards, metric strips,
+       chart rows) can be wider than the viewport on phones. The panel's
+       outer elements (.ai-insights-section, #ai-insights-body) have no
+       overflow or width constraint, so overflowing children push the
+       entire page body sideways when the panel is expanded.
+
+       Fix: Contain ALL overflow at the section level so nothing inside
+       the Insights panel can push content past 100vw. Each sub-element
+       that may itself need to scroll (like charts) uses overflow-x:auto
+       to scroll INTERNALLY rather than forcing the page to scroll.
+    =================================================================== */
+    @media (max-width: 768px) {
+      /* The insights section and its body are the outermost containers.
+         Clipping here means NOTHING inside can cause page-level overflow,
+         regardless of what JS renders into the cards. */
+      .ai-insights-section {
+        overflow-x: hidden;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      #ai-insights-body {
+        overflow-x: hidden;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* ai-cards-grid must not exceed its parent */
+      .ai-cards-grid {
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* The card header is a flex row. Without min-width:0 on the name
+         span, a long flex item prevents shrinking and overflows the card. */
+      .ai-card-header {
+        min-width: 0;
+        overflow: hidden;
+      }
+      .ai-card-name { min-width: 0; }
+
+      /* Metrics strip: let chips wrap so they never overflow horizontally */
+      .ai-metrics-strip {
+        flex-wrap: wrap;
+      }
+
+      /* The bar chart row inside the weekly overview is a fixed-height
+         flex row. If there are many days it can exceed viewport width.
+         Wrap it in a scroll container by making its wrapper scroll. */
+      .ai-card-body {
+        overflow-x: hidden;
+        box-sizing: border-box;
+      }
+
+      /* Weekly overview card sits in the insights body as a flex item.
+         Without min-width:0 it won't shrink below its natural content width. */
+      #weekly-overview-card {
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+      }
+
+      /* The stat cards row and chart row inside the weekly modal use
+         flex with min-width — they must wrap on mobile. */
+      #weekly-modal-body {
+        overflow-x: hidden;
+        box-sizing: border-box;
+      }
+    }
+
     /* --- Respect reduced-motion preferences --- */
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -2092,6 +2172,10 @@
       box-shadow: var(--shadow);
       overflow: hidden;
       animation: card-in 280ms ease both;
+      /* Prevent any individual card from exceeding its grid/flex cell width */
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     .ai-card-header {
@@ -2116,6 +2200,11 @@
       font-size: 10px;
       color: var(--text-muted);
       white-space: nowrap;
+      /* Prevent long model names (e.g. gemini-1.5-flash-exp-0827) from
+         stretching the card header wider than the viewport on mobile. */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
     }
 
     .ai-card-body { padding: 14px 16px; }
@@ -2402,7 +2491,7 @@
             <div class="ai-empty-state" id="ai-insights-loading">Loading insights&#8230;</div>
             
             <!-- WEEKLY CARD -->
-            <div class="ai-card" id="weekly-overview-card" style="display:none; grid-column: 1 / -1; margin-bottom: 16px; border-left: 4px solid var(--manager-color); flex-direction: column;">
+            <div class="ai-card" id="weekly-overview-card" style="display:none; margin-bottom: 16px; border-left: 4px solid var(--manager-color); flex-direction: column;">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                 <div class="ai-card-title" style="margin-bottom:0;">
                   &#128202; Weekly Deep Analysis
@@ -3908,11 +3997,11 @@
         html += `<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:16px 0;">No data for this period</div>`;
       } else {
         let maxCheck = Math.max(...byDay.map(d => d.checkouts || 0), 1);
-        html += `<div style="display:flex; height:90px; align-items:flex-end; gap:4px; padding-bottom:18px; border-bottom:1px solid var(--border); position:relative;">`;
+        html += `<div style="display:flex; height:90px; align-items:flex-end; gap:4px; padding-bottom:18px; border-bottom:1px solid var(--border); position:relative; overflow-x:auto; min-width:0;">`;
         byDay.forEach(d => {
           const h = Math.max(2, (d.checkouts || 0) / maxCheck * 90);
           const label = (d.weekday || d.date || '').substring(0, 2);
-          html += `<div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;">
+          html += `<div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:24px;">
             <div style="width:100%; max-width:22px; height:${h}px; background:var(--primary); border-radius:2px 2px 0 0; transition:.2s;" title="${esc(d.weekday||d.date||'')}: ${d.checkouts||0} checkouts"></div>
             <div style="position:absolute; bottom:0; font-size:10px; color:var(--text-muted);">${esc(label)}</div>
           </div>`;
