@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MediTrack &mdash; Hospital Equipment Tracking</title>
   <meta name="description" content="Real-time hospital equipment visibility with role-based access control." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -77,6 +77,10 @@
       min-height: 100vh;
       font-size: 14px;
       line-height: 1.5;
+      /* Safety net: prevents any overflow source from causing page-level
+         horizontal scroll. The real overflow sources are fixed below in
+         the mobile media query (filter chip rows, toolbar). */
+      overflow-x: hidden;
     }
 
     /* ===== LOGIN SCREEN ===== */
@@ -1944,6 +1948,67 @@
       .modal-footer .btn-primary, .modal-footer .btn-cancel { flex: 1 1 140px; }
     }
 
+    /* ===================================================================
+       MOBILE OVERFLOW FIX (max-width: 768px)
+       Prevents filter-chip rows from bleeding past the viewport edge.
+
+       Root cause of Bug 2:
+       - .toolbar is a flex row that wraps, but each .filter-group inside
+         it uses flex-wrap:wrap and white-space:nowrap on buttons, meaning
+         the combined button widths can exceed the viewport and push the
+         flex container wider than 100vw.
+       - Fix: on mobile, switch each filter-group to a contained
+         horizontal scroller (overflow-x:auto; flex-wrap:nowrap) and give
+         the toolbar itself width:100% with overflow-x:hidden so it never
+         extends past its parent.
+    =================================================================== */
+    @media (max-width: 768px) {
+      /* Constrain the toolbar to its parent width */
+      .toolbar {
+        width: 100%;
+        overflow-x: hidden;
+        gap: 8px;
+      }
+
+      /* Each filter chip row becomes a contained horizontal scroller.
+         Chips no longer wrap — they scroll inline instead of overflowing
+         the page. -webkit-overflow-scrolling for momentum on iOS. */
+      .toolbar .filter-group {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        /* Hide the scrollbar visually while keeping it functional */
+        scrollbar-width: none;        /* Firefox */
+        -ms-overflow-style: none;     /* IE/Edge */
+        width: 100%;
+        padding-bottom: 2px;          /* room for focus rings */
+        gap: 6px;
+      }
+      .toolbar .filter-group::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+      /* Keep the right-hand action buttons (Scan QR, Add, Print All)
+         wrapping naturally — they are already inside their own div. */
+      .toolbar > div[style*="margin-left:auto"] {
+        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      /* product-tiles-grid (collapsed strip) already has overflow-x:auto.
+         Ensure its outer section also doesn't bleed. */
+      .product-tiles-section {
+        overflow-x: hidden;
+        width: 100%;
+      }
+
+      /* Stat cards: the 3-column grid is already responsive (1fr each),
+         but ensure it never overflows its container. */
+      .stats-bar {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+
     /* --- Respect reduced-motion preferences --- */
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -3192,7 +3257,9 @@
     // ==========================================
     // AI INSIGHTS (v4)
     // ==========================================
-    let aiInsightsCollapsed = false;
+    // v4: AI Insights starts collapsed on mobile (< 768px) to keep stats
+    // visible above the fold. On desktop it starts expanded (existing behaviour).
+    let aiInsightsCollapsed = window.innerWidth < 768;
     let aiInsightsDebounceTimer = null;
 
     // parseUtc for the frontend — appends 'Z' when no timezone offset is present
@@ -3248,6 +3315,19 @@
 
       const section = document.getElementById('ai-insights-section');
       if (section) section.style.display = 'block';
+
+      // Apply the correct initial collapsed/expanded state.
+      // On mobile the section defaults to collapsed (see aiInsightsCollapsed init above)
+      // so that stats cards are visible without scrolling.
+      // IDs match the existing toggleAiInsights() function exactly.
+      const body = document.getElementById('ai-insights-body');
+      const btn  = document.getElementById('ai-collapse-btn');
+      const icon = document.getElementById('ai-collapse-icon');
+      const text = document.getElementById('ai-collapse-text');
+      if (body) body.style.display = aiInsightsCollapsed ? 'none' : 'block';
+      if (btn)  btn.setAttribute('aria-expanded', aiInsightsCollapsed ? 'false' : 'true');
+      if (icon) icon.textContent = aiInsightsCollapsed ? '\u25bc' : '\u25b2';
+      if (text) text.textContent = aiInsightsCollapsed ? 'Expand' : 'Collapse';
 
       try {
         const { data, error } = await db
