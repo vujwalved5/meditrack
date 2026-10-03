@@ -1316,6 +1316,8 @@
     .timeline-user { font-size: 12px; color: var(--text-secondary); }
     .timeline-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
     .timeline-duration { font-size: 11px; color: var(--available); font-weight: 500; margin-top: 1px; }
+    /* v4: room/location label on Checked Out timeline entries */
+    .timeline-room { font-size: 12px; color: var(--primary); font-weight: 500; margin-top: 2px; }
 
     .audit-empty { padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px; font-style: italic; }
 
@@ -2603,6 +2605,29 @@
   </div>
 
   <!-- ============================================================
+       ROOM PICKER MODAL  (v4 — shown before any 'In Use' checkout)
+  ============================================================ -->
+  <div id="room-picker-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="room-picker-title">
+    <div class="modal" style="max-width:380px;">
+      <div class="modal-header">
+        <div class="modal-title" id="room-picker-title">&#128205; Select Room / Location</div>
+        <button class="modal-close" onclick="cancelRoomPicker()" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div id="room-picker-eq-info" style="padding:10px 12px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px;font-size:13px;color:var(--text-secondary);"></div>
+        <div class="form-group">
+          <label class="form-label" for="room-picker-select">Where is this equipment being used?</label>
+          <select id="room-picker-select" class="form-select"></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="cancelRoomPicker()">Cancel</button>
+        <button class="btn-primary" id="room-picker-confirm" onclick="confirmRoomPicker()">&#10003; Confirm Check-Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
        REQUEST MODAL
   ============================================================ -->
   <div id="request-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
@@ -3009,10 +3034,31 @@
     let scanCooldown = false;
     let openEqRowId = null; // Currently open accordion row id
 
+    // v4 — Room/location tracking
+    // Maps equipment_id → room string from the most recent 'Checked Out' audit entry.
+    // Populated on load by loadLatestCheckoutRooms() and updated immediately in doToggle().
+    // NOTE: At current scale (~58 items) this is loaded as a full JS-side groupBy.
+    // If the audit_log grows significantly, replace with a DISTINCT ON (equipment_id)
+    // query at the DB level (e.g. a view or RPC) rather than a full table fetch + JS filter.
+    let latestCheckoutRoom = {}; // { equipment_id: room_string }
+    let roomPickerCallback = null; // pending room-selection callback
+
+    // Department → ordered room list for the room-picker dropdown.
+    // 'Other / Unspecified' is always the last fallback option.
+    const DEPT_ROOMS = {
+      'ICU':               ['Bed 1','Bed 2','Bed 3','Bed 4','Bed 5','Bed 6','Bed 7','Bed 8',"Nurses' Station",'Other / Unspecified'],
+      'General Ward':      ['Room 101','Room 102','Room 103','Room 104','Room 105','Corridor',"Nurses' Station",'Other / Unspecified'],
+      'Emergency':         ['Bay 1','Bay 2','Bay 3','Bay 4','Resus Bay','Triage','Trauma Room','Other / Unspecified'],
+      'Operation Theatre': ['Theatre 1','Theatre 2','Theatre 3','Recovery Room','Scrub Area','Other / Unspecified'],
+      'Maternity Ward':    ['Labour Room 1','Labour Room 2','Delivery Room 1','Delivery Room 2','Post-natal Bay','NICU','Other / Unspecified'],
+      'Radiology':         ['X-Ray Room','CT Suite','Ultrasound Room','Reporting Room','Other / Unspecified']
+    };
+
     async function appInit() {
       await loadDepartments();
       await loadProductTypes();   // v3: must run before loadEquipment so tiles render with data
       await loadEquipment();
+      await loadLatestCheckoutRooms(); // v4: room tracking — load after equipment so cache aligns
       await loadRequests();
       await loadInsights();       // v4: AI insights
       await loadWeeklyInsights(); // v4: AI weekly insights
@@ -3106,6 +3152,33 @@
       renderEquipment();
       updateStats();
       renderProductTiles(); // v3 — safe: renderProductTiles has its own try/catch
+    }
+
+    // v4 — Room tracking: fetch the most recent 'Checked Out' audit entry per equipment
+    // and cache the room value so status pills and detail views can display it instantly
+    // without additional per-item queries.
+    // NOTE: This performs a full fetch + JS groupBy at current scale (~58 items).
+    // If audit_log data volume grows significantly, replace with a DB-level
+    // DISTINCT ON (equipment_id) query or a materialised view instead.
+    async function loadLatestCheckoutRooms() {
+      const { data, error } = await db.from('audit_log')
+        .select('equipment_id, room, timestamp')
+        .eq('action', 'Checked Out')
+        .order('timestamp', { ascending: false });
+      if (error) { console.warn('loadLatestCheckoutRooms failed:', error.message); return; }
+
+      // Group by equipment_id — keep only the most-recent (first) entry per item
+      // because results are sorted descending by timestamp.
+      const map = {};
+      (data || []).forEach(row => {
+        if (!(row.equipment_id in map) && row.room) {
+          map[row.equipment_id] = row.room;
+        }
+      });
+      latestCheckoutRoom = map;
+
+      // Re-render so room appears in pills right away
+      renderEquipment();
     }
 
     async function loadRequests() {
@@ -4283,7 +4356,9 @@
     function buildEqRow(eq, isOpen) {
       const isAvail = eq.status === 'Available';
       const pillClass = isAvail ? 'available' : 'inuse';
-      const pillText = eq.status;
+      // v4: show room in the pill when In Use (e.g. "In Use — ICU, Bed 4")
+      const currentRoom = !isAvail ? (latestCheckoutRoom[eq.id] || null) : null;
+      const pillText = (!isAvail && currentRoom) ? 'In Use — ' + currentRoom : eq.status;
       const deptName = eq.departments ? eq.departments.name : 'Unknown';
 
       const row = document.createElement('div');
@@ -4334,8 +4409,11 @@
       if (!isAvail) {
         const heldBy = eq.held_by || 'Unknown';
         const sinceStr = eq.in_use_since ? fmtTime(eq.in_use_since) : '';
+        // v4: show room alongside status (e.g. "In Use — ICU, Bed 4 — since 14:32")
+        const currentRoom = latestCheckoutRoom[eq.id] || null;
         statusInfo =
           '<span style="color:var(--inuse);font-weight:600;">In Use</span>' +
+          (currentRoom ? ' &mdash; <span style="color:var(--inuse);">' + esc(currentRoom) + '</span>' : '') +
           (sinceStr ? ' &mdash; since ' + sinceStr : '') +
           ' <span class="duration-live" id="dur-' + eq.id + '"></span>';
       } else {
@@ -4519,10 +4597,19 @@
          showToast('Cannot check out an item that is Out of Order', 'error');
          return;
       }
-      await doToggle(eq, currentUser.username);
+      if (eq.status === 'Available') {
+        // v4: Available → In Use — prompt for room before toggling
+        showRoomPicker(eq, async (room) => {
+          await doToggle(eq, currentUser.username, room);
+        });
+      } else {
+        // In Use → Available (release) — no room prompt needed
+        await doToggle(eq, currentUser.username, null);
+      }
     }
 
-    async function doToggle(eq, performedBy) {
+    // v4: room param is the selected room string (non-null for checkouts, null for releases)
+    async function doToggle(eq, performedBy, room) {
       const newStatus = eq.status === 'Available' ? 'In Use' : 'Available';
       const action = newStatus === 'In Use' ? 'Checked Out' : 'Released';
 
@@ -4536,7 +4623,7 @@
         updateData.in_use_since = null;
       }
 
-      // Atomic update
+      // Atomic update — optimistic lock on current status prevents double-checkout
       const { data, error: ue } = await db.from('equipment')
         .update(updateData)
         .eq('id', eq.id)
@@ -4546,14 +4633,60 @@
       if (ue) { showToast('Failed: ' + ue.message, 'error'); return false; }
       if (!data || data.length === 0) { showToast('Conflict: Equipment state changed.', 'error'); return false; }
 
-      const { error: ae } = await db.from('audit_log').insert([{
+      // Build audit entry — include room only for checkouts (null for releases)
+      const auditEntry = {
         equipment_id: eq.id,
         action: action,
         performed_by: performedBy || 'Unknown'
-      }]);
+      };
+      if (room != null) auditEntry.room = room;
+
+      const { error: ae } = await db.from('audit_log').insert([auditEntry]);
       if (ae) { console.error('Audit log failed', ae); }
 
+      // Update the in-memory room cache immediately so the UI refreshes instantly
+      if (newStatus === 'In Use' && room != null) {
+        latestCheckoutRoom[eq.id] = room;
+      } else if (newStatus === 'Available') {
+        delete latestCheckoutRoom[eq.id];
+      }
+
       return true;
+    }
+
+    // ==========================================
+    // ROOM PICKER (v4)
+    // ==========================================
+    function showRoomPicker(eq, onConfirm) {
+      const modal = document.getElementById('room-picker-modal');
+      const infoEl = document.getElementById('room-picker-eq-info');
+      const sel = document.getElementById('room-picker-select');
+
+      const deptName = (eq.departments && eq.departments.name) ? eq.departments.name : '';
+      infoEl.textContent = eq.name + (deptName ? ' — ' + deptName : '');
+
+      // Populate room options scoped to the equipment's department
+      const rooms = DEPT_ROOMS[deptName] || ['Other / Unspecified'];
+      sel.innerHTML = rooms.map(r => '<option value="' + esc(r) + '">' + esc(r) + '</option>').join('');
+
+      roomPickerCallback = onConfirm;
+      modal.style.display = 'flex';
+      setTimeout(() => sel.focus(), 60);
+    }
+
+    function confirmRoomPicker() {
+      const sel = document.getElementById('room-picker-select');
+      const room = sel ? sel.value : null;
+      const cb = roomPickerCallback;
+      cancelRoomPicker();
+      if (cb) cb(room);
+    }
+
+    function cancelRoomPicker() {
+      document.getElementById('room-picker-modal').style.display = 'none';
+      roomPickerCallback = null;
+      // Reset scan cooldown so user can retry immediately after cancelling
+      scanCooldown = false;
     }
 
     // ==========================================
@@ -4634,26 +4767,43 @@
       // CONFLICT PREVENTION: already In Use by someone else
       if (eq.status === 'In Use') {
         if (eq.held_by === currentUser.username) {
-          // allow release
+          // allow release — fall through
         } else {
           showConflict(eq.name, eq.held_by);
           showToast(eq.name + ' is already In Use!', 'error');
           return;
         }
       }
-      
+
       if (eq.condition === 'Out of Order' && eq.status === 'Available') {
          showToast('Cannot check out an item that is Out of Order', 'error');
          return;
       }
 
       hideConflict();
-      showScanResult('Found: ' + esc(eq.name) + ' — updating...', 'success');
-      const ok = await doToggle(eq, currentUser.username);
-      if (ok) {
-        showScanResult(esc(eq.name) + ' is now In Use. Audit log updated.', 'success');
-        showToast(eq.name + ' marked In Use', 'success');
-        setTimeout(() => closeScanner(), 2000);
+
+      if (eq.status === 'Available') {
+        // v4: Available → In Use — show room picker first, then toggle
+        showScanResult('Found: ' + esc(eq.name) + ' — select a room to continue.', 'success');
+        showRoomPicker(eq, async (room) => {
+          showScanResult('Found: ' + esc(eq.name) + ' — updating...', 'success');
+          const ok = await doToggle(eq, currentUser.username, room);
+          if (ok) {
+            const roomLabel = room ? ' (' + room + ')' : '';
+            showScanResult(esc(eq.name) + ' is now In Use' + roomLabel + '. Audit log updated.', 'success');
+            showToast(eq.name + ' marked In Use' + roomLabel, 'success');
+            setTimeout(() => closeScanner(), 2000);
+          }
+        });
+      } else {
+        // In Use → Available (release) — no room prompt
+        showScanResult('Found: ' + esc(eq.name) + ' — releasing...', 'success');
+        const ok = await doToggle(eq, currentUser.username, null);
+        if (ok) {
+          showScanResult(esc(eq.name) + ' released. Audit log updated.', 'success');
+          showToast(eq.name + ' released', 'success');
+          setTimeout(() => closeScanner(), 2000);
+        }
       }
     }
 
@@ -5072,10 +5222,16 @@
           }
         }
 
+        // v4: show room for Checked Out entries
+        const roomHtml = (entry.action === 'Checked Out' && entry.room)
+          ? '<div class="timeline-room">&#128205; ' + esc(entry.room) + '</div>'
+          : '';
+
         item.innerHTML =
           '<div class="timeline-dot ' + dotClass + '"></div>' +
           '<div class="timeline-content">' +
           '<div class="timeline-action">' + esc(entry.action) + '</div>' +
+          roomHtml +
           '<div class="timeline-user">by ' + esc(entry.performed_by) + '</div>' +
           '<div class="timeline-time">' + fmtDateTime(entry.timestamp) + '</div>' +
           durationHtml +
@@ -5125,9 +5281,9 @@
 
       showToast('Preparing CSV export...', 'info');
 
-      // Fetch all relevant audit logs
+      // Fetch all relevant audit logs — v4: include room column
       let query = db.from('audit_log')
-        .select('id, equipment_id, action, performed_by, timestamp, equipment(name, departments(name))')
+        .select('id, equipment_id, action, performed_by, timestamp, room, equipment(name, departments(name))')
         .order('timestamp', { ascending: false });
 
       if (cutoff) query = query.gte('timestamp', cutoff.toISOString());
@@ -5146,7 +5302,8 @@
         return matchSearch && matchDept;
       });
 
-      const header = ['ID', 'Equipment', 'Department', 'Action', 'Performed By', 'Timestamp'];
+      // v4: Room column added — populated for 'Checked Out' rows, empty for all others
+      const header = ['ID', 'Equipment', 'Department', 'Action', 'Performed By', 'Timestamp', 'Room'];
       const rows = filtered.map(row => {
         const eqName = (row.equipment && row.equipment.name) || '';
         const deptName = (row.equipment && row.equipment.departments && row.equipment.departments.name) || '';
@@ -5156,7 +5313,8 @@
           csvCell(deptName),
           csvCell(row.action),
           csvCell(row.performed_by),
-          new Date(row.timestamp).toLocaleString('en-IN')
+          new Date(row.timestamp).toLocaleString('en-IN'),
+          csvCell(row.room || '')
         ].join(',');
       });
 
@@ -5782,6 +5940,7 @@
     // ==========================================
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
+        cancelRoomPicker(); // v4: close room picker before other modals
         closeScanner();
         closeRequestModal();
         closeResetPwModal();
@@ -5793,6 +5952,7 @@
         doLogin();
       }
     });
+    document.getElementById('room-picker-modal').addEventListener('click', e => { if (e.target.id === 'room-picker-modal') cancelRoomPicker(); }); // v4
     document.getElementById('scanner-modal').addEventListener('click', e => { if (e.target.id === 'scanner-modal') closeScanner(); });
     document.getElementById('request-modal').addEventListener('click', e => { if (e.target.id === 'request-modal') closeRequestModal(); });
     document.getElementById('reset-pw-modal').addEventListener('click', e => { if (e.target.id === 'reset-pw-modal') closeResetPwModal(); });
