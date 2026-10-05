@@ -310,6 +310,18 @@
     .login-btn:active:not(:disabled) { transform: translateY(1px); }
     .login-btn:disabled { opacity: .65; cursor: not-allowed; }
     .login-footer { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 24px; }
+    .login-security-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-bd);
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      color: var(--warn);
+      margin-bottom: 4px;
+    }
 
     /* ===== HEADER ===== */
     .header {
@@ -2612,9 +2624,6 @@
   <!-- ============================================================
        LOGIN SCREEN
   ============================================================ -->
-    <div style="background:var(--danger-bg);color:var(--danger);padding:12px;text-align:center;font-weight:bold;font-size:13px;border-bottom:1px solid var(--danger-bd);" role="alert">
-    &#9888; SECURITY WARNING: Client-side Auth is enabled. This is insecure for production. Use Supabase Auth or Edge Functions with RLS.
-  </div>
   <div id="login-screen">
     <!-- Left brand panel (hidden on mobile) -->
     <div class="login-brand-panel" aria-hidden="true">
@@ -2644,6 +2653,11 @@
           <div class="login-app-sub">Hospital Equipment Tracking</div>
         </div>
         <div class="login-title">Sign in to your account</div>
+        <!-- Security notice: client-side auth – flag for production hardening (Spec §8 item 4) -->
+        <div class="login-security-notice" role="note">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Demo mode: client-side auth only. Not for production patient data.</span>
+        </div>
         <div class="login-error" id="login-error" role="alert"></div>
         <div class="form-group">
           <label class="form-label" for="login-username">Username</label>
@@ -3953,7 +3967,14 @@
     }
 
     async function requestWeeklyAnalysis() {
-      if (!confirm('Run Weekly Deep Analysis?\nThis performs a deep dive on 7 days of historical data and will lock the feature for 30 minutes.')) return;
+      openConfirmModal(
+        'Run Weekly Deep Analysis?',
+        'This performs a deep dive on 7 days of historical data and will lock the feature for 30 minutes.',
+        _doRequestWeeklyAnalysis
+      );
+    }
+
+    async function _doRequestWeeklyAnalysis() {
       
       const btn = document.getElementById('btn-run-weekly');
       if (btn) btn.disabled = true;
@@ -6366,6 +6387,27 @@
       return m + 'm';
     }
 
+    /* ---- Confirm modal helpers ---- */
+    let _confirmCallback = null;
+    function openConfirmModal(title, msg, onConfirm) {
+      document.getElementById('confirm-modal-title').textContent = title;
+      document.getElementById('confirm-modal-msg').textContent = msg;
+      _confirmCallback = onConfirm;
+      const m = document.getElementById('confirm-modal');
+      m.style.display = 'flex';
+      // Move focus to the OK button for keyboard/screen-reader users
+      setTimeout(() => { const ok = document.getElementById('confirm-modal-ok'); if (ok) ok.focus(); }, 50);
+    }
+    function closeConfirmModal() {
+      document.getElementById('confirm-modal').style.display = 'none';
+      _confirmCallback = null;
+    }
+    function _confirmModalOk() {
+      const cb = _confirmCallback;
+      closeConfirmModal();
+      if (cb) cb();
+    }
+
     function showToast(msg, type) {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
@@ -6566,7 +6608,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeConfirmModal()">Cancel</button>
-        <button class="btn-primary" id="confirm-modal-ok-btn">OK</button>
+        <button class="btn-primary" id="confirm-modal-ok" onclick="_confirmModalOk()">OK</button>
       </div>
     </div>
   </div>
