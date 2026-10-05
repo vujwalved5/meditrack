@@ -4867,7 +4867,8 @@
       const condClass = condition === 'Usable' ? 'pill--ok' : condition === 'Needs Maintenance' ? 'pill--warn' : 'pill--danger';
       const condIcon = condition === 'Usable' ? 'i-check' : condition === 'Needs Maintenance' ? 'i-wrench' : 'i-x-octagon';
       const condBadge = '<span class="pill ' + condClass + '"><svg class="icon" aria-hidden="true"><use href="#' + condIcon + '"/></svg><span>' + esc(condition) + '</span></span>';
-      const condWarning = condition !== 'Usable' ? '<div class="condition-warning"><svg class="icon" aria-hidden="true" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg>' + esc(condition) + ' — check before use</div>' : '';height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg> ' + esc(condition) + ' — check before use</div>'
+      const condWarning = condition !== 'Usable'
+        ? '<div class="condition-warning"><svg class="icon" aria-hidden="true" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg> ' + esc(condition) + ' \u2014 check before use</div>'
         : '';
 
       // Status info
