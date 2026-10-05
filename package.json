@@ -1,0 +1,27 @@
+{
+  "name": "ccdtfinal",
+  "version": "1.0.0",
+  "description": "A real-time hospital equipment visibility prototype with QR-based status updates,\r user authentication, and role-based access control.",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "lint": "node scripts/lint.js",
+    "build": "node scripts/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vujwalved5/meditrack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/vujwalved5/meditrack/issues"
+  },
+  "homepage": "https://github.com/vujwalved5/meditrack#readme",
+  "devDependencies": {
+    "jsdom": "^30.1.2",
+    "vitest": "^5.0.3"
+  }
+}

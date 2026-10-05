@@ -1,0 +1,224 @@
+/* ============================================================
+   MediTrack Design Tokens (Phase P0 - Section 3)
+   ============================================================ */
+
+:root {
+  /* Brand */
+  --brand-700: #0B566F;
+  --brand-600: #0E6B8A;
+  --brand-100: #E3F1F6;
+  --brand-50:  #EEF7FA;
+
+  /* Neutrals (slightly cool) */
+  --ink-900: #0F1B24;
+  --ink-700: #2B3A46;
+  --ink-600: #4A5B68;
+  --ink-500: #64748A;   /* minimum for small secondary text on white */
+  --ink-400: #8493A0;   /* ONLY for icons/dividers, never for small text */
+  --line:    #E6ECF0;
+  --surface: #FFFFFF;
+  --surface-2: #F3F6F8;
+  --canvas:  #F6F8FA;
+
+  /* Status: ONE meaning per colour. "dot" = solid, "bg"/"fg" = badge */
+  --st-available-dot: #0F9D6B;  --st-available-bg: #E6F6EF;  --st-available-fg: #0B6B4A;
+  --st-inuse-dot:     #2F6FEB;  --st-inuse-bg:     #E8EFFD;  --st-inuse-fg:     #1D4FBF;
+  --st-attention-dot: #D98A00;  --st-attention-bg: #FFF3DB;  --st-attention-fg: #8A5300;
+  --st-critical-dot:  #D64545;  --st-critical-bg:  #FDE9E9;  --st-critical-fg:  #B42323;
+  --st-neutral-dot:   #8493A0;  --st-neutral-bg:   #EEF1F4;  --st-neutral-fg:   #4A5B68;
+
+  /* Role badges (NOT status colours) */
+  --role-manager-bg: #E3F1F6;  --role-manager-fg: #0B566F;
+  --role-doctor-bg:  #ECEDFB;  --role-doctor-fg:  #3B3F9E;
+  --role-staff-bg:   #EEF1F4;  --role-staff-fg:   #4A5B68;
+
+  /* Shape */
+  --radius-sm: 8px;      /* inputs, buttons, small controls */
+  --radius-md: 12px;     /* cards, panels */
+  --radius-pill: 999px;  /* badges, chips */
+
+  /* Spacing scale (8px grid). Use ONLY these values for padding/margin/gap */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px;  --space-10: 40px;
+
+  /* Elevation */
+  --shadow-1: 0 1px 2px rgba(15,27,36,.04), 0 4px 12px rgba(15,27,36,.04);
+  --shadow-2: 0 8px 24px rgba(15,27,36,.08);
+
+  /* Focus ring: ONE style for every input/select/button/link */
+  --focus-ring: 0 0 0 3px rgba(14,107,138,.35);
+
+  /* Layout */
+  --header-h: 72px;
+  --content-max: 1240px;
+
+  /* Motion */
+  --t-fast: 150ms;  --t-med: 200ms;  --ease: cubic-bezier(.2,.8,.2,1);
+
+  /* Legacy mappings to prevent breaking existing styles */
+  --bg: var(--canvas);
+  --border: var(--line);
+  --border-strong: #CBD3DE;
+  --text: var(--ink-900);
+  --text-2: var(--ink-700);
+  --text-muted: var(--ink-500);
+  --brand: var(--brand-600);
+  --brand-hover: var(--brand-700);
+  --brand-soft: var(--brand-100);
+  --brand-ink: var(--brand-700);
+  --ok: var(--st-available-fg);
+  --ok-bg: var(--st-available-bg);
+  --ok-bd: rgba(15, 157, 107, 0.25);
+  --busy: var(--st-inuse-fg);
+  --busy-bg: var(--st-inuse-bg);
+  --busy-bd: rgba(47, 111, 235, 0.25);
+  --warn: var(--st-attention-fg);
+  --warn-bg: var(--st-attention-bg);
+  --warn-bd: rgba(217, 138, 0, 0.25);
+  --danger: var(--st-critical-fg);
+  --danger-bg: var(--st-critical-bg);
+  --danger-bd: rgba(214, 69, 69, 0.25);
+  --r-sm: var(--radius-sm);
+  --r-md: var(--radius-md);
+  --r-lg: 16px;
+  --r-pill: var(--radius-pill);
+}
+
+:root[data-theme="dark"] {
+  --brand-600: #3AA6C9;  --brand-100: #12303B;  --brand-50: #0F2630;
+  --ink-900: #E8EEF2;  --ink-700: #C9D4DC;  --ink-600: #A9B6C1;  --ink-500: #93A2AE;  --ink-400: #6F7F8B;
+  --line: #243441;  --surface: #16212B;  --surface-2: #1B2833;  --canvas: #0F171E;
+
+  --st-available-dot:#3DDC97; --st-available-bg:rgba(61,220,151,.14);  --st-available-fg:#7BE6B8;
+  --st-inuse-dot:#6C9BFF;     --st-inuse-bg:rgba(108,155,255,.16);     --st-inuse-fg:#A5C1FF;
+  --st-attention-dot:#F2B84B; --st-attention-bg:rgba(242,184,75,.16);  --st-attention-fg:#F5CC7D;
+  --st-critical-dot:#FF7A7A;  --st-critical-bg:rgba(255,122,122,.16);  --st-critical-fg:#FFA3A3;
+  --st-neutral-dot:#8FA0AD;   --st-neutral-bg:rgba(143,160,173,.16);   --st-neutral-fg:#B9C5CE;
+
+  --role-manager-bg:rgba(58,166,201,.18); --role-manager-fg:#8FD3EB;
+  --role-doctor-bg:rgba(140,145,255,.18); --role-doctor-fg:#B9BCFF;
+  --role-staff-bg:rgba(143,160,173,.16);  --role-staff-fg:#B9C5CE;
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-2: 0 8px 24px rgba(0,0,0,.5);
+  --focus-ring: 0 0 0 3px rgba(58,166,201,.45);
+
+  /* Legacy dark mappings */
+  --bg: var(--canvas);
+  --border: var(--line);
+  --text: var(--ink-900);
+  --text-2: var(--ink-700);
+  --text-muted: var(--ink-500);
+  --brand: var(--brand-600);
+  --brand-hover: #4EBADB;
+  --brand-soft: var(--brand-100);
+  --brand-ink: #A5E4F8;
+  --ok: var(--st-available-fg);
+  --ok-bg: var(--st-available-bg);
+  --busy: var(--st-inuse-fg);
+  --busy-bg: var(--st-inuse-bg);
+  --warn: var(--st-attention-fg);
+  --warn-bg: var(--st-attention-bg);
+  --danger: var(--st-critical-fg);
+  --danger-bg: var(--st-critical-bg);
+}
+
+/* Base typography rules */
+.tabular-nums,
+[data-tabular-nums="true"],
+.stat-number,
+.stat-card .stat-number,
+.kpi-value,
+.badge-count,
+.tbl-cell-held,
+.timeline-duration {
+  font-variant-numeric: tabular-nums;
+}
+
+/* StatusBadge Styles */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.status-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.badge-status-available {
+  background: var(--st-available-bg);
+  color: var(--st-available-fg);
+  border-color: rgba(15, 157, 107, 0.2);
+}
+
+.badge-status-active {
+  background: var(--st-available-bg);
+  color: var(--st-available-fg);
+  border-color: rgba(15, 157, 107, 0.2);
+}
+
+.badge-status-inuse {
+  background: var(--st-inuse-bg);
+  color: var(--st-inuse-fg);
+  border-color: rgba(47, 111, 235, 0.2);
+}
+
+.badge-status-attention {
+  background: var(--st-attention-bg);
+  color: var(--st-attention-fg);
+  border-color: rgba(217, 138, 0, 0.2);
+}
+
+.badge-status-critical {
+  background: var(--st-critical-bg);
+  color: var(--st-critical-fg);
+  border-color: rgba(214, 69, 69, 0.2);
+}
+
+.badge-status-neutral {
+  background: var(--st-neutral-bg);
+  color: var(--st-neutral-fg);
+  border-color: rgba(132, 147, 160, 0.2);
+}
+
+/* Role Badges */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.role-badge.Manager,
+.role-badge-manager {
+  background: var(--role-manager-bg);
+  color: var(--role-manager-fg);
+}
+
+.role-badge.Senior-Doctor,
+.role-badge-doctor {
+  background: var(--role-doctor-bg);
+  color: var(--role-doctor-fg);
+}
+
+.role-badge.Staff,
+.role-badge-staff {
+  background: var(--role-staff-bg);
+  color: var(--role-staff-fg);
+}

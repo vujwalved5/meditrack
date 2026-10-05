@@ -7,3 +7,6 @@ android-app/.gradle/
 android-app/local.properties
 *.jks
 *.keystore
+node_modules/
+dist/
+coverage/
