@@ -29,7 +29,7 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- QR Code Generator -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRec0enT66ZfjFhB0/z/8zP0G9aB9e8K+K1T1C+z/aT2hN9hM+7K/N9U+T+4B+x5N2bQ+2V+n+G+N+A==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous"></script>
   <!-- QR Scanner -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <!-- bcryptjs for client-side password hashing -->
@@ -92,7 +92,7 @@
       /* Layout */
       --header-h: 64px;
       --content-max: 1240px;
-      --eq-cols: 32px minmax(200px, 2fr) 150px 130px minmax(160px, 1.2fr) 100px 120px;
+      --eq-cols: 28px minmax(130px, 2fr) minmax(120px, 1.2fr) minmax(86px, 1.1fr) minmax(110px, 1.6fr) minmax(65px, 0.9fr) minmax(105px, 1.2fr);
       --audit-cols: 32px minmax(200px, 2fr) 140px 90px 140px 130px 110px;
 
       /* Motion */
@@ -3164,7 +3164,7 @@
       border: 1px solid var(--line);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-1);
-      overflow: clip;
+      overflow-x: auto;
     }
 
     .eq-table-header {
@@ -3172,12 +3172,9 @@
       grid-template-columns: var(--eq-cols);
       column-gap: 12px;
       align-items: center;
-      padding: 10px 16px;
+      padding: 10px 12px;
       background: var(--surface-2);
       border-bottom: 1px solid var(--line);
-      position: sticky;
-      top: var(--header-h);
-      z-index: 10;
       font-size: 12px;
       font-weight: 600;
       text-transform: uppercase;
@@ -3227,7 +3224,7 @@
       grid-template-columns: var(--eq-cols);
       column-gap: 12px;
       align-items: center;
-      padding: 10px 16px;
+      padding: 10px 12px;
       min-height: 56px;
       background: var(--surface);
       transition: background var(--t-fast) var(--ease);
@@ -3290,9 +3287,8 @@
       min-width: 0;
       font-size: 14px;
       color: var(--ink-700);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .eq-cell-status {
@@ -3331,6 +3327,15 @@
       border-top: 1px solid var(--line);
       background: var(--surface-2);
       padding: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+
+    .eq-table-row.open > .eq-row-details,
+    .eq-row.open > .eq-row-details {
+      max-height: none;
+      visibility: visible;
     }
 
     /* Below 900px width collapse table into cards */
