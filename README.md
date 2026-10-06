@@ -6,9 +6,9 @@ user authentication, and role-based access control.
 ## Default Login Credentials
 
   Username:  admin
-  Password:  NewAdmin@123!
+  Password:  <SET_YOUR_OWN_PASSWORD>
 
-IMPORTANT: Change this password after your first login via Manage Users > Reset PW.
+IMPORTANT: Set a secure password before first use; do not commit real credentials. You can reset it later via Manage Users > Reset PW.
 
 ## Quick Start
 

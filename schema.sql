@@ -121,7 +121,7 @@ ON CONFLICT (qr_code_id) DO NOTHING;
 
 -- Default Admin Account:
 -- Username: admin
--- Password: NewAdmin@123!
+-- Password: <SET_YOUR_OWN_PASSWORD> (set a secure password before first use)
 INSERT INTO users (username, password_hash, role, department_id, is_active)
 VALUES (
   'admin',
