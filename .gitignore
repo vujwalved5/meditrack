@@ -4,9 +4,53 @@
 android-app/build/
 android-app/app/build/
 android-app/.gradle/
+android-app/.idea/
 android-app/local.properties
+supabase/.temp/
 *.jks
 *.keystore
 node_modules/
 dist/
 coverage/
+*.log
+
+# Environment files (commit the placeholder template only)
+.env*
+!.env.example
+
+# Root-only local diagnostics, scratch inputs, and captures
+/diag*.ts
+/test.ts
+/test_diff.ts
+/test_task*.ts
+/body.json
+/force.json
+/t1.json
+/t2.json
+/t3.json
+/expanded_row_*
+/qr_*
+
+# One-off local scripts
+/scripts/debug_bug3.js
+/scripts/inspect_bug2.js
+/scripts/inspect_eq_list.js
+/scripts/measure_bug1.js
+/scripts/test_cdp.js
+/scripts/verify_bug1_proof.js
+/scripts/verify_bug2_proof.js
+/scripts/verify_bug3_proof.js
+
+# Local database exports
+/meditrack_mysql_dump.sql
+/mysql_data_only.sql
+/mysql_tables_and_relations.sql
+
+# Retain only concise UI-review evidence in Git
+/docs/ui-review/*
+!/docs/ui-review/bug1-before-1440.png
+!/docs/ui-review/bug1-after-light-expanded-1440.png
+!/docs/ui-review/bug2-before.png
+!/docs/ui-review/bug2-after.png
+!/docs/ui-review/bug3-before.png
+!/docs/ui-review/bug3-after-light-1440.png
