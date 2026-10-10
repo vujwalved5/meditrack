@@ -2190,7 +2190,7 @@ initTheme();
     function getFiltered() {
       const search = (document.getElementById('eq-search') || {}).value || '';
       const q = search.toLowerCase().trim();
-      return allEquipment.filter(eq => {
+      const filtered = allEquipment.filter(eq => {
         let s = true;
         if (currentFilter === 'Available') {
           s = eq.status === 'Available';
@@ -2215,6 +2215,37 @@ initTheme();
 
         return s && d && pt && m;
       });
+
+      const sortEl = document.getElementById('eq-sort');
+      if (sortEl) {
+        const sortVal = sortEl.value;
+        if (sortVal === 'name') {
+          filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        } else if (sortVal === 'status') {
+          filtered.sort((a, b) => {
+            if (a.status === b.status) return (a.name || '').localeCompare(b.name || '');
+            return a.status === 'Available' ? -1 : 1;
+          });
+        } else if (sortVal === 'dept') {
+          filtered.sort((a, b) => {
+            const da = (a.departments && a.departments.name) || '';
+            const db = (b.departments && b.departments.name) || '';
+            const cmp = da.localeCompare(db);
+            return cmp !== 0 ? cmp : (a.name || '').localeCompare(b.name || '');
+          });
+        } else if (sortVal === 'since') {
+          filtered.sort((a, b) => {
+            if (a.in_use_since && b.in_use_since) {
+              return new Date(a.in_use_since).getTime() - new Date(b.in_use_since).getTime();
+            }
+            if (a.in_use_since && !b.in_use_since) return -1;
+            if (!a.in_use_since && b.in_use_since) return 1;
+            return (a.name || '').localeCompare(b.name || '');
+          });
+        }
+      }
+
+      return filtered;
     }
 
     let durationTimers = [];
@@ -2514,48 +2545,36 @@ initTheme();
 
       if (filtered.length === 0) {
         const hint = currentProductFilter !== 'all'
-          ? 'No equipment of this type matches your filters. <button type="button" onclick="clearProductFilter()" style="color:var(--brand-600);background:none;border:none;cursor:pointer;font-size:13px;padding:0;font-family:inherit;font-weight:600;">Clear product filter</button>'
+          ? 'No equipment of this type matches your filters. <button type="button" onclick="clearProductFilter()" style="color:var(--primary);background:none;border:none;cursor:pointer;font-size:13px;padding:0;font-family:inherit;font-weight:600;">Clear product filter</button>'
           : 'No equipment matches your filters';
-        container.innerHTML = '<div class="empty-state" style="padding:32px 16px;text-align:center;"><div class="empty-icon" style="margin-bottom:8px;"><svg class="icon" aria-hidden="true" width="28" height="28" style="color:var(--ink-400);"><use href="#i-scroll-text"/></svg></div><div class="empty-text" style="color:var(--ink-600);font-size:14px;">' + hint + '</div></div>';
+        container.innerHTML = '<div class="empty-state" style="padding:32px 16px;text-align:center;"><div class="empty-icon" style="margin-bottom:8px;"><svg class="icon" aria-hidden="true" width="28" height="28" style="color:var(--text-3);"><use href="#i-scroll-text"/></svg></div><div class="empty-text" style="color:var(--text-2);font-size:14px;">' + hint + '</div></div>';
         if (paginationEl) paginationEl.innerHTML = '';
         renderProductTiles();
         return;
       }
 
-      // Sort
-      const sorted = sortEquipmentRows(filtered, currentEqSortCol, currentEqSortDir);
-
-      // Paginate
-      const pageInfo = paginate({ totalItems: sorted.length, currentPage: currentEqPage, pageSize: currentEqPageSize });
-      currentEqPage = pageInfo.currentPage;
-      const pageRows = sorted.slice(pageInfo.startIndex, pageInfo.endIndex);
-
       // Preserve open row
       const prevOpenId = openEqRowId;
       container.innerHTML = '';
 
-      pageRows.forEach(eq => {
+      // Column header row
+      const colHead = document.createElement('div');
+      colHead.className = 'eq-col-head';
+      colHead.setAttribute('role', 'row');
+      colHead.innerHTML = `
+        <span class="eq-col-cell" aria-hidden="true"></span>
+        <span class="eq-col-cell">Equipment</span>
+        <span class="eq-col-cell">Department</span>
+        <span class="eq-col-cell">Condition</span>
+        <span class="eq-col-cell">Status</span>
+        <span class="eq-col-cell">Held by</span>
+      `;
+      container.appendChild(colHead);
+
+      filtered.forEach(eq => {
         const row = buildEqRow(eq, eq.id === prevOpenId);
         container.appendChild(row);
       });
-
-      // Pagination controls
-      if (paginationEl) {
-        paginationEl.innerHTML = `
-          <div class="pagination-info" style="font-size:13px;color:var(--text-secondary);">${pageInfo.displayText}</div>
-          <div class="pagination-controls" style="display:flex;align-items:center;gap:10px;">
-            <select class="form-select pagination-pagesize-select" onchange="changeEqPageSize(this.value)" aria-label="Items per page" style="width:auto;height:32px;font-size:12px;padding:2px 8px;">
-              <option value="25"${pageInfo.pageSize === 25 ? ' selected' : ''}>25 / page</option>
-              <option value="50"${pageInfo.pageSize === 50 ? ' selected' : ''}>50 / page</option>
-              <option value="100"${pageInfo.pageSize === 100 ? ' selected' : ''}>100 / page</option>
-            </select>
-            <div class="btn-group" style="display:flex;gap:6px;">
-              <button type="button" class="btn btn-secondary btn-sm" onclick="changeEqPage(${pageInfo.currentPage - 1})" ${!pageInfo.hasPrevious ? 'disabled' : ''} aria-label="Previous page">Previous</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="changeEqPage(${pageInfo.currentPage + 1})" ${!pageInfo.hasNext ? 'disabled' : ''} aria-label="Next page">Next</button>
-            </div>
-          </div>
-        `;
-      }
 
       // Re-render QR for open row
       if (prevOpenId) {
@@ -2567,70 +2586,89 @@ initTheme();
 
     function buildEqRow(eq, isOpen) {
       const isAvail = eq.status === 'Available';
-      // P0-01: Status badge renders ONLY 'In use' or 'Available'
-      const statusBadge = renderStatusBadge(isAvail ? 'available' : 'in_use', isAvail ? 'Available' : 'In use');
       const deptName = eq.departments ? eq.departments.name : 'Unknown';
-      const currentRoom = !isAvail ? (latestCheckoutRoom[eq.id] || null) : null;
+      const cond = eq.condition || 'Usable';
+      let condClass = 'cond-usable';
+      if (cond === 'Needs Maintenance') condClass = 'cond-maintenance';
+      else if (cond === 'Out of Order') condClass = 'cond-danger';
 
-      // Holder / Location: ONLY the holder, plus the room if it exists. If Available, show '—'.
-      let holderLocationText = '—';
+      const statusPill = isAvail
+        ? '<span class="status-pill available"><span class="status-dot"></span>Available</span>'
+        : '<span class="status-pill inuse"><span class="status-dot"></span>In Use</span>';
+
+      const condBadge = '<span class="condition-badge ' + condClass + '"><span class="badge-dot"></span>' + esc(cond) + '</span>';
+
+      let heldByText = '—';
+      let heldAvailClass = ' eq-held-avail';
+      let durText = '';
       if (!isAvail) {
-        const holder = eq.held_by || 'Unknown';
-        if (currentRoom) {
-          holderLocationText = `${esc(holder)} · ${esc(currentRoom)}`;
-        } else {
-          holderLocationText = esc(holder);
+        heldAvailClass = '';
+        const holder = esc(eq.held_by || 'Unknown');
+        if (eq.in_use_since) {
+          const diff = Math.floor((Date.now() - new Date(eq.in_use_since).getTime()) / 1000);
+          if (diff >= 0) {
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            durText = h > 0 ? '(' + h + 'h ' + m + 'm)' : '(' + m + 'm)';
+          }
         }
-      }
-
-      // Held for duration (white-space: nowrap, tabular-nums)
-      let heldForText = '—';
-      if (!isAvail && eq.in_use_since) {
-        const diffMs = Date.now() - new Date(eq.in_use_since).getTime();
-        if (diffMs > 0) {
-          const h = Math.floor(diffMs / 3600000);
-          const m = Math.floor((diffMs % 3600000) / 60000);
-          heldForText = `${h}h ${m}m`;
-        }
-      }
-
-      // Quick action
-      let quickActionHtml = '';
-      if (isAvail) {
-        quickActionHtml = `<button type="button" class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); manualToggle(${eq.id})">Mark In Use</button>`;
-      } else {
-        quickActionHtml = `<button type="button" class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); manualToggle(${eq.id})">Release</button>`;
+        heldByText = '<span class="eq-holder-name">' + holder + '</span> <span class="duration-live tabular-nums" id="dur-' + eq.id + '">' + durText + '</span>';
       }
 
       const row = document.createElement('div');
-      row.className = 'eq-table-row' + (isOpen ? ' open' : '');
+      row.className = 'eq-row' + (isOpen ? ' open' : '');
       row.id = 'eq-row-' + eq.id;
 
-      row.innerHTML = `
-        <div role="row" class="eq-row-line" tabindex="0" aria-expanded="${isOpen ? 'true' : 'false'}" aria-controls="eq-details-${eq.id}" id="eq-header-${eq.id}">
-          <div role="cell" class="eq-cell eq-cell-chevron"><span class="eq-chevron" aria-hidden="true">${isOpen ? '▼' : '▶'}</span></div>
-          <div role="cell" class="eq-cell eq-cell-name">
-            <div class="eq-name-text">${esc(eq.name)}</div>
-            ${eq.qr_code_id ? `<div class="eq-id-caption">${esc(eq.qr_code_id)}</div>` : ''}
-          </div>
-          <div role="cell" class="eq-cell eq-cell-dept"><span class="eq-dept-text">${esc(deptName)}</span></div>
-          <div role="cell" class="eq-cell eq-cell-status">${statusBadge}</div>
-          <div role="cell" class="eq-cell eq-cell-holder-location"><span class="eq-holder-text">${holderLocationText}</span></div>
-          <div role="cell" class="eq-cell eq-cell-held-for tabular-nums" id="dur-${eq.id}">${heldForText}</div>
-          <div role="cell" class="eq-cell eq-cell-actions">${quickActionHtml}</div>
+      const header = document.createElement('div');
+      header.className = 'eq-row-header';
+      header.id = 'eq-header-' + eq.id;
+      header.setAttribute('role', 'button');
+      header.setAttribute('tabindex', '0');
+      header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      header.setAttribute('aria-controls', 'eq-details-' + eq.id);
+
+      header.innerHTML = `
+        <div class="eq-cell eq-cell-chevron" aria-hidden="true">
+          <svg class="icon eq-chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
         </div>
-        <div class="eq-row-details" id="eq-details-${eq.id}" role="region" aria-labelledby="eq-header-${eq.id}" style="${isOpen ? '' : 'display:none;'}">
-          ${buildExpandedHTML(eq)}
+        <div class="eq-cell eq-cell-name">
+          <div class="eq-name-title">${esc(eq.name)}</div>
+          <div class="eq-id-caption">${esc(eq.qr_code_id || '—')}</div>
+          <div class="eq-mobile-meta">${esc(deptName)}${eq.qr_code_id ? ' · ' + esc(eq.qr_code_id) : ''}</div>
+        </div>
+        <div class="eq-cell eq-cell-dept">
+          <span class="eq-dept-name">${esc(deptName)}</span>
+        </div>
+        <div class="eq-cell eq-cell-cond">
+          ${condBadge}
+        </div>
+        <div class="eq-cell eq-cell-status">
+          ${statusPill}
+        </div>
+        <div class="eq-cell eq-cell-held${heldAvailClass}">
+          ${heldByText}
         </div>
       `;
 
-      const line = row.querySelector('.eq-row-line');
-      line.addEventListener('click', (e) => {
-        if (e.target.closest('button')) return;
+      const details = document.createElement('div');
+      details.className = 'eq-row-details';
+      details.id = 'eq-details-' + eq.id;
+      details.setAttribute('role', 'region');
+      details.setAttribute('aria-labelledby', 'eq-header-' + eq.id);
+      if (!isOpen) details.style.display = 'none';
+      details.innerHTML = buildExpandedHTML(eq);
+
+      row.appendChild(header);
+      row.appendChild(details);
+
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('button, select, input, a')) return;
         toggleEqRow(eq.id);
       });
-      line.addEventListener('keydown', (e) => {
-        if (e.target.closest('button')) return;
+      header.addEventListener('keydown', (e) => {
+        if (e.target.closest('button, select, input, a')) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           toggleEqRow(eq.id);
@@ -2812,15 +2850,11 @@ initTheme();
     }
 
     function updateStats() {
-      const counts = computeEquipmentCounts(allEquipment);
-      const totalEl = document.getElementById('stat-total');
-      const availEl = document.getElementById('stat-available');
-      const inuseEl = document.getElementById('stat-inuse');
-      const attEl = document.getElementById('stat-attention');
-      if (totalEl) totalEl.textContent = counts.total;
-      if (availEl) availEl.textContent = counts.available;
-      if (inuseEl) inuseEl.textContent = counts.in_use;
-      if (attEl) attEl.textContent = counts.needs_attention;
+      document.getElementById('stat-total').textContent = allEquipment.length;
+      document.getElementById('stat-available').textContent = allEquipment.filter(e => e.status === 'Available').length;
+      document.getElementById('stat-inuse').textContent = allEquipment.filter(e => e.status === 'In Use').length;
+      const attention = allEquipment.filter(e => e.condition && e.condition !== 'Usable').length;
+      document.getElementById('stat-attention').textContent = attention;
     }
 
     // ==========================================
@@ -3167,6 +3201,7 @@ initTheme();
       allRequests = reqs || []; // keep in sync so updateReq() self-approve guard works
       const el = document.getElementById('requests-list');
       document.getElementById('req-count').textContent = reqs.length;
+      document.getElementById('stat-requests').textContent = reqs.length;
       updateRequestsJump(reqs);
       if (reqs.length === 0) {
         el.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-map-pin"/></svg></div><div class="empty-text">No pending requests</div></div>';

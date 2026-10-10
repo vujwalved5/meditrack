@@ -227,36 +227,126 @@
       <!-- ===================== DASHBOARD PAGE ===================== -->
       <div id="page-dashboard" class="page-view">
 
-        <!-- KPI METRICS ROW (P1-10, P2-02, P3-01: rendered once, above insights panel) -->
-        <div class="stats-bar" id="kpi-stats-bar" style="margin-bottom:16px;">
-          <button type="button" class="stat-card stat-card-btn" onclick="setFilter('all')" aria-label="Show all items" title="Total hospital equipment inventory">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <svg class="icon" aria-hidden="true" width="16" height="16" style="color:var(--ink-500);"><use href="#i-boxes"/></svg>
-              <span class="stat-label">TOTAL EQUIPMENT</span>
+        <!-- Title Row -->
+        <div class="page-title-row">
+          <h1 class="page-title">Dashboard</h1>
+          <div class="page-actions">
+            <button type="button" class="btn btn-primary" onclick="openScanner()" aria-label="Scan QR Code">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                <line x1="7" y1="12" x2="17" y2="12"></line>
+              </svg>
+              <span>Scan QR</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="add-eq-btn" onclick="openAddEquipmentModal()" style="display:none;" aria-label="Add Equipment">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add Product</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="print-all-btn" onclick="openPrintAllModal()" aria-label="Print All QR Codes">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              <span>Print All QR</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+          <!-- Card 1: Available -->
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-header-left">
+                <div class="kpi-chip kpi-chip-green">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                </div>
+                <span class="kpi-title">Available</span>
+              </div>
+              <button type="button" class="kpi-arrow-btn" onclick="setFilter('Available')" aria-label="Filter by Available">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </button>
             </div>
-            <span class="stat-number total" id="stat-total">—</span>
-          </button>
-          <button type="button" class="stat-card stat-card-btn" onclick="setFilter('Available')" aria-label="Show available items" title="Items currently available for checkout">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <svg class="icon" aria-hidden="true" width="16" height="16" style="color:var(--st-available-fg);"><use href="#i-check-circle"/></svg>
-              <span class="stat-label">AVAILABLE</span>
+            <div class="kpi-num" id="stat-available">—</div>
+            <div class="kpi-caption">of <span id="stat-total">—</span> items ready to use</div>
+          </div>
+
+          <!-- Card 2: In Use -->
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-header-left">
+                <div class="kpi-chip kpi-chip-red">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+                <span class="kpi-title">In Use</span>
+              </div>
+              <button type="button" class="kpi-arrow-btn" onclick="setFilter('In Use')" aria-label="Filter by In Use">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </button>
             </div>
-            <span class="stat-number available" id="stat-available">—</span>
-          </button>
-          <button type="button" class="stat-card stat-card-btn" onclick="setFilter('In Use')" aria-label="Show in-use items" title="Items currently checked out">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <svg class="icon" aria-hidden="true" width="16" height="16" style="color:var(--st-inuse-fg);"><use href="#i-activity"/></svg>
-              <span class="stat-label">IN USE</span>
+            <div class="kpi-num" id="stat-inuse">—</div>
+            <div class="kpi-caption">Currently checked out</div>
+          </div>
+
+          <!-- Card 3: Needs Attention -->
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-header-left">
+                <div class="kpi-chip kpi-chip-amber">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </div>
+                <span class="kpi-title">Needs Attention</span>
+              </div>
             </div>
-            <span class="stat-number inuse" id="stat-inuse">—</span>
-          </button>
-          <button type="button" class="stat-card stat-card-btn" onclick="setFilter('Needs Attention')" aria-label="Show items needing attention" title="Items requiring maintenance, out of order, or overdue">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <svg class="icon" aria-hidden="true" width="16" height="16" style="color:var(--st-attention-fg);"><use href="#i-alert-triangle"/></svg>
-              <span class="stat-label">NEEDS ATTENTION</span>
+            <div class="kpi-num" id="stat-attention">0</div>
+            <div class="kpi-caption">Maintenance or out of order</div>
+          </div>
+
+          <!-- Card 4: Pending Requests -->
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-header-left">
+                <div class="kpi-chip kpi-chip-primary">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                    <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                  </svg>
+                </div>
+                <span class="kpi-title">Pending Requests</span>
+              </div>
+              <button type="button" class="kpi-arrow-btn" onclick="const el = document.getElementById('requests-list'); if (el) el.scrollIntoView({ behavior: 'smooth' });" aria-label="View Pending Requests">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </button>
             </div>
-            <span class="stat-number attention" id="stat-attention" style="color:var(--st-attention-fg);">0</span>
-          </button>
+            <div class="kpi-num" id="stat-requests">0</div>
+            <div class="kpi-caption">Waiting for approval</div>
+          </div>
         </div>
 
         <!-- AI DAILY INSIGHTS PANEL (Manager + Senior Doctor only; hidden for Staff by JS) -->
@@ -326,111 +416,46 @@
 
         <div class="layout">
           <section aria-label="Equipment Dashboard">
-            <div class="section-header">
-              <h1 class="section-title"><svg class="icon" aria-hidden="true" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;"><use href="#i-boxes"/></svg> Equipment Dashboard <span class="section-count" id="eq-count">0</span></h1>
-              <a class="jump-requests" id="jump-requests" href="#requests-panel" onclick="jumpToRequests(event)"><span aria-hidden="true"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-clipboard-list"/></svg></span> <span id="jump-req-count">0</span> pending</a>
-            </div>
-
-            <!-- Product Type Tiles -->
-            <div class="product-tiles-section" id="product-tiles-section" style="display:none;">
-              <div class="product-tiles-header">
-                <span class="product-tiles-label"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-camera"/></svg> Filter by Product Type</span>
-                <button class="product-tiles-toggle" id="tiles-collapse-btn" onclick="toggleTilesCollapse()" aria-label="Collapse or expand tile grid" title="Collapse / expand">
-                  <span id="tiles-collapse-icon">▲</span> <span id="tiles-collapse-text">Collapse</span>
-                </button>
-              </div>
-              <div class="product-tiles-grid" id="product-tiles-grid" role="group" aria-label="Filter by product type">
-                <!-- Rendered by JS -->
-              </div>
-            </div>
-
-            <!-- Breadcrumb bar (shown when a tile is selected) -->
-            <div class="product-breadcrumb" id="product-breadcrumb" role="navigation" aria-label="Product filter breadcrumb">
-              <span class="breadcrumb-path" id="breadcrumb-path">All Equipment</span>
-              <span class="breadcrumb-count" id="breadcrumb-count"></span>
-              <button class="btn-breadcrumb-back" onclick="clearProductFilter()" aria-label="Back to all equipment">← Back to all</button>
-            </div>
-
-            <!-- Search + Department + Status filters -->
-            <div class="eq-search-bar" style="position:relative; margin-bottom:12px;">
-              <input type="search" id="eq-search" class="eq-search-input" placeholder="Search equipment (or press Ctrl+K)..." oninput="renderEquipment()" aria-label="Search equipment" />
-              <kbd class="search-kbd-hint" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:11px; padding:2px 6px; border-radius:4px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-500); pointer-events:none; font-family:inherit;">Ctrl K</kbd>
-            </div>
-
-            <!-- Toolbar & Filter Rows (P1-05) -->
-            <div class="filters-container" style="margin-bottom:12px;">
-              <div class="filter-section-row">
-                <span class="filter-row-label">Status</span>
-                <div class="segmented-control" id="status-filter-group" role="radiogroup" aria-label="Filter by status">
-                  <button type="button" class="segmented-btn active" id="filter-all" role="radio" aria-checked="true" onclick="setFilter('all')">All</button>
-                  <button type="button" class="segmented-btn" id="filter-available" role="radio" aria-checked="false" onclick="setFilter('Available')">Available</button>
-                  <button type="button" class="segmented-btn" id="filter-inuse" role="radio" aria-checked="false" onclick="setFilter('In Use')">In use</button>
-                  <button type="button" class="segmented-btn" id="filter-attention" role="radio" aria-checked="false" onclick="setFilter('Needs Attention')">Needs attention</button>
+            <div class="panel eq-table-panel">
+              <!-- 1. Header row -->
+              <div class="eq-panel-header">
+                <div class="eq-panel-title-wrap">
+                  <h2 class="eq-panel-title">Equipment</h2>
+                  <span class="eq-count-pill" id="eq-count">0</span>
+                </div>
+                <div class="eq-panel-controls">
+                  <div class="eq-search-wrap">
+                    <svg class="icon eq-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="search" id="eq-search" class="eq-search-input" placeholder="Search equipment..." oninput="renderEquipment()" aria-label="Search equipment" />
+                  </div>
+                  <select id="eq-sort" class="eq-sort-select" onchange="renderEquipment()" aria-label="Sort equipment">
+                    <option value="name" selected>Name A–Z</option>
+                    <option value="status">Status</option>
+                    <option value="dept">Department</option>
+                    <option value="since">Longest in use</option>
+                  </select>
                 </div>
               </div>
 
-              <div class="filter-section-row">
-                <span class="filter-row-label">Department</span>
-                <div class="filter-group" id="dept-filter-group" role="group" aria-label="Filter by department" style="overflow-x:auto;"></div>
-              </div>
-
-              <div class="filter-summary-bar" id="filter-summary-bar" style="display:none;">
-                <span id="filter-summary-count">Showing 12 of 61</span>
-                <span>·</span>
-                <button type="button" class="btn-clear-link" id="clear-filters-btn" onclick="clearAllFilters()">Clear filters</button>
-              </div>
-
-              <!-- Action button row with strict hierarchy (P1-03) -->
-              <div style="display:flex; justify-content:flex-end; align-items:center; gap:8px; margin-top:8px; position:relative;">
-                <button type="button" class="btn btn-primary btn-md" onclick="openScanner()">
-                  <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-scan-line"/></svg>
-                  <span>Scan QR</span>
-                </button>
-                <button type="button" class="btn btn-secondary btn-md" id="add-eq-btn" onclick="openAddEquipmentModal()" style="display:none;">
-                  <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-plus"/></svg>
-                  <span>Add Product</span>
-                </button>
-                <button type="button" class="btn btn-ghost btn-md" id="more-actions-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More actions" onclick="toggleMoreActionsMenu(event)">
-                  <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-more-vertical"/></svg>
-                </button>
-                <div class="avatar-dropdown-menu" id="more-actions-menu" role="menu" aria-labelledby="more-actions-btn">
-                  <button type="button" class="menu-btn-item" role="menuitem" onclick="openPrintAllModal()">
-                    <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-printer"/></svg>
-                    <span>Print all QR codes</span>
-                  </button>
+              <!-- 2. Filter row -->
+              <div class="eq-filter-row">
+                <div class="segmented-control" role="group" aria-label="Filter by status">
+                  <button type="button" class="filter-btn active" id="filter-all" onclick="setFilter('all')">All</button>
+                  <button type="button" class="filter-btn" id="filter-available" onclick="setFilter('Available')">Available</button>
+                  <button type="button" class="filter-btn" id="filter-inuse" onclick="setFilter('In Use')">In use</button>
                 </div>
+                <div class="dept-filter-group" id="dept-filter-group" role="group" aria-label="Filter by department"></div>
               </div>
-            </div>
 
-            <!-- Equipment Table (P1-04) -->
-            <div class="eq-table-wrap" id="equipment-table-wrap">
-              <div class="eq-table-header" role="row" id="eq-th-row">
-                <span aria-hidden="true"></span>
-                <button type="button" class="th-btn" onclick="toggleEqSort('name')" aria-sort="none" id="th-name">
-                  <span>Equipment</span>
-                  <span id="sort-icon-name" class="sort-indicator" aria-hidden="true">↕</span>
-                </button>
-                <button type="button" class="th-btn" onclick="toggleEqSort('department')" aria-sort="none" id="th-department">
-                  <span>Department</span>
-                  <span id="sort-icon-department" class="sort-indicator" aria-hidden="true">↕</span>
-                </button>
-                <button type="button" class="th-btn" onclick="toggleEqSort('status')" aria-sort="none" id="th-status">
-                  <span>Status</span>
-                  <span id="sort-icon-status" class="sort-indicator" aria-hidden="true">↕</span>
-                </button>
-                <span>Holder / Location</span>
-                <button type="button" class="th-btn" style="justify-content:flex-end;" onclick="toggleEqSort('held_for')" aria-sort="none" id="th-held_for">
-                  <span>Held for</span>
-                  <span id="sort-icon-held_for" class="sort-indicator" aria-hidden="true">↕</span>
-                </button>
-                <span style="text-align:right;">Actions</span>
-              </div>
-              <div id="equipment-list" class="eq-table-body" aria-live="polite">
+              <!-- Equipment list (contains eq-col-head and .eq-row items) -->
+              <div id="equipment-list" class="equipment-list" aria-live="polite">
                 <div class="skeleton" style="height:56px;margin:8px;"></div>
                 <div class="skeleton" style="height:56px;margin:8px;"></div>
                 <div class="skeleton" style="height:56px;margin:8px;"></div>
               </div>
-              <div id="equipment-pagination" class="table-pagination"></div>
             </div>
           </section>
 
