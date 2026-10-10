@@ -868,6 +868,12 @@ initTheme();
       const initials = (currentUser.username || 'U').charAt(0).toUpperCase();
       const initialsEl = document.getElementById('header-avatar-initials');
       if (initialsEl) initialsEl.textContent = initials;
+      const headerAvatar = document.getElementById('header-avatar');
+      if (headerAvatar) {
+        const u = (currentUser.username || 'U').trim();
+        const parts = u.split(/\s+/);
+        headerAvatar.textContent = (parts.length > 1 ? parts[0][0] + parts[1][0] : u.slice(0, 2)).toUpperCase();
+      }
 
       const rb = document.getElementById('header-role-badge');
       if (rb) {
@@ -910,9 +916,30 @@ initTheme();
       appInit();
     }
 
+    function openNavDrawer() {
+      const drawer = document.getElementById('nav-drawer');
+      const overlay = document.getElementById('nav-overlay');
+      const toggle = document.getElementById('nav-toggle');
+      if (drawer) drawer.classList.add('open');
+      if (overlay) overlay.classList.add('open');
+      if (toggle) toggle.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeNavDrawer() {
+      const drawer = document.getElementById('nav-drawer');
+      const overlay = document.getElementById('nav-overlay');
+      const toggle = document.getElementById('nav-toggle');
+      if (drawer) drawer.classList.remove('open');
+      if (overlay) overlay.classList.remove('open');
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    }
+
     function buildNav() {
       const nav = document.getElementById('header-nav');
-      nav.innerHTML = '';
+      if (nav) nav.innerHTML = '';
+      const drawer = document.getElementById('nav-drawer');
+      if (drawer) drawer.innerHTML = '';
+
       const tabs = [{ id: 'dashboard', label: 'Dashboard', icon: 'i-layout-dashboard' }];
       if (currentUser.role === 'Manager' || currentUser.role === 'Senior Doctor') {
         tabs.push({ id: 'auditlog', label: 'Audit Log', icon: 'i-scroll-text' });
@@ -920,13 +947,27 @@ initTheme();
       if (currentUser.role === 'Manager') {
         tabs.push({ id: 'users', label: 'Manage Users', icon: 'i-users' });
       }
+
       tabs.forEach(tab => {
-        const btn = document.createElement('button');
-        btn.className = 'nav-tab';
-        btn.id = 'nav-' + tab.id;
-        btn.innerHTML = `<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#${tab.icon}"/></svg>${esc(tab.label)}`;
-        btn.onclick = () => showPage(tab.id);
-        nav.appendChild(btn);
+        if (nav) {
+          const btn = document.createElement('button');
+          btn.className = 'nav-tab';
+          btn.id = 'nav-' + tab.id;
+          btn.innerHTML = `<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#${tab.icon}"/></svg>${esc(tab.label)}`;
+          btn.onclick = () => showPage(tab.id);
+          nav.appendChild(btn);
+        }
+        if (drawer) {
+          const dbtn = document.createElement('button');
+          dbtn.className = 'nav-tab nav-drawer-tab';
+          dbtn.id = 'navd-' + tab.id;
+          dbtn.innerHTML = `<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#${tab.icon}"/></svg>${esc(tab.label)}`;
+          dbtn.onclick = () => {
+            showPage(tab.id);
+            closeNavDrawer();
+          };
+          drawer.appendChild(dbtn);
+        }
       });
     }
 
@@ -952,6 +993,8 @@ initTheme();
       if (page) page.classList.add('active');
       const tab = document.getElementById('nav-' + pageId);
       if (tab) tab.classList.add('active');
+      const dtab = document.getElementById('navd-' + pageId);
+      if (dtab) dtab.classList.add('active');
 
       if (pageId === 'users') loadUsersTable();
       if (pageId === 'auditlog') initAuditPage();
@@ -3120,6 +3163,7 @@ initTheme();
     // RENDER REQUESTS (role-gated approve/reject)
     // ==========================================
     function renderRequests(reqs) {
+      const notifBadge = document.getElementById('notif-badge'); if (notifBadge) { const count = (reqs || []).length; notifBadge.textContent = count; notifBadge.hidden = (count === 0); }
       allRequests = reqs || []; // keep in sync so updateReq() self-approve guard works
       const el = document.getElementById('requests-list');
       document.getElementById('req-count').textContent = reqs.length;
@@ -4468,6 +4512,7 @@ initTheme();
     // ==========================================
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
+        closeNavDrawer();
         cancelRoomPicker(); // v4: close room picker before other modals
         closeScanner();
         closeRequestModal();
