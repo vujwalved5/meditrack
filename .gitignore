@@ -45,7 +45,7 @@ coverage/
 /meditrack_mysql_dump.sql
 /mysql_data_only.sql
 /mysql_tables_and_relations.sql
-
+/CHANGELOG_ORGANIZE.md
 # Retain only concise UI-review evidence in Git
 /docs/ui-review/*
 !/docs/ui-review/bug1-before-1440.png
