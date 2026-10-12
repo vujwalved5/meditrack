@@ -3707,3 +3707,164 @@
       background: var(--surface-2);
       color: var(--text);
     }
+
+    /* ==========================================================
+       RESTORED FEATURES (PHASE 11A — SPEC TOKEN ALIGNED)
+    ========================================================== */
+    .avatar-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--r-pill);
+      background: var(--primary-tint);
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--primary);
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+      transition: transform 150ms ease;
+    }
+    .avatar-btn:hover {
+      transform: scale(1.05);
+    }
+    .avatar-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-card);
+      box-shadow: var(--shadow-card);
+      min-width: 220px;
+      padding: 8px 0;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+    }
+    .avatar-dropdown-menu.show {
+      display: flex;
+    }
+    .menu-header-item {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .menu-btn-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      transition: background-color 150ms ease;
+    }
+    .menu-btn-item:hover {
+      background: var(--surface-2);
+    }
+    .menu-btn-item.danger {
+      color: var(--danger);
+    }
+    .jump-requests {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 32px;
+      padding: 4px 10px;
+      border-radius: var(--r-pill);
+      white-space: nowrap;
+      border: 1px solid var(--primary);
+      background: var(--primary-tint);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .jump-requests:hover {
+      text-decoration: underline;
+    }
+    .product-tiles-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      width: 100%;
+      min-width: 0;
+    }
+    .product-tiles-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .product-tiles-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-pill);
+      background: var(--surface);
+      color: var(--text-2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-breadcrumb-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border: 1.5px solid var(--primary);
+      border-radius: var(--r-pill);
+      background: var(--surface);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .filter-summary-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-2);
+      margin: 8px 0 12px 0;
+      padding: 6px 12px;
+      background: var(--primary-tint);
+      border-radius: var(--r-ctl);
+      width: fit-content;
+    }
+    .btn-clear-link {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: underline;
+      font-family: inherit;
+    }
+    .table-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-2);
+    }

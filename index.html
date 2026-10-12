@@ -11,14 +11,16 @@
   <script>
     (function() {
       try {
-        var theme = localStorage.getItem('theme');
+        var theme = localStorage.getItem('meditrack_theme');
         var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (theme === 'dark' || (!theme && systemDark)) {
+        if (theme === 'dark' || ((!theme || theme === 'system') && systemDark)) {
           document.documentElement.setAttribute('data-theme', 'dark');
-          document.getElementById('theme-color-meta').setAttribute('content', '#0B1220');
+          var meta = document.getElementById('theme-color-meta');
+          if (meta) meta.setAttribute('content', '#0B1220');
         } else {
           document.documentElement.setAttribute('data-theme', 'light');
-          document.getElementById('theme-color-meta').setAttribute('content', '#F5F7FA');
+          var meta = document.getElementById('theme-color-meta');
+          if (meta) meta.setAttribute('content', '#F5F7FA');
         }
       } catch (e) {}
     })();
@@ -218,11 +220,28 @@
             <span class="notif-badge" id="notif-badge" hidden>0</span>
           </button>
 
-          <div class="header-user-block">
-            <div class="header-avatar" id="header-avatar" aria-hidden="true"></div>
+          <div class="header-user-block" style="position:relative;">
+            <button type="button" class="avatar-btn" id="header-avatar-btn" aria-haspopup="menu" aria-expanded="false" aria-label="User account menu" onclick="toggleAvatarMenu(event)">
+              <span id="header-avatar-initials">A</span>
+            </button>
+            <div class="header-avatar" id="header-avatar" style="display:none;" aria-hidden="true"></div>
             <div class="header-user-meta">
               <div class="header-username" id="header-username">Loading...</div>
               <div class="user-role-badge" id="header-role-badge"></div>
+            </div>
+            <div class="avatar-dropdown-menu" id="avatar-menu" role="menu" aria-labelledby="header-avatar-btn">
+              <div class="menu-header-item">
+                <div id="avatar-menu-name" style="font-weight:600;color:var(--text);">User</div>
+                <div id="avatar-menu-role" style="font-size:12px;color:var(--text-2);margin-top:2px;">Role</div>
+              </div>
+              <button type="button" class="menu-btn-item" id="menu-theme-btn" role="menuitem" onclick="toggleThemeFromMenu()">
+                <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-sun"/></svg>
+                <span id="menu-theme-text">Toggle Theme</span>
+              </button>
+              <button type="button" class="menu-btn-item danger" id="menu-logout-btn" role="menuitem" onclick="doLogout()">
+                <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-log-out"/></svg>
+                <span>Log out</span>
+              </button>
             </div>
           </div>
 
@@ -248,7 +267,7 @@
         <!-- Title Row -->
         <div class="page-title-row">
           <h1 class="page-title">Dashboard</h1>
-          <div class="page-actions">
+          <div class="page-actions" style="position:relative;">
             <button type="button" class="btn btn-primary" onclick="openScanner()" aria-label="Scan QR Code">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
@@ -274,6 +293,19 @@
               </svg>
               <span>Print All QR</span>
             </button>
+            <button type="button" class="btn btn-secondary" id="more-actions-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More actions" onclick="toggleMoreActionsMenu(event)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="12" cy="5" r="1"></circle>
+                <circle cx="12" cy="19" r="1"></circle>
+              </svg>
+            </button>
+            <div class="avatar-dropdown-menu" id="more-actions-menu" role="menu" aria-labelledby="more-actions-btn">
+              <button type="button" class="menu-btn-item" role="menuitem" onclick="openPrintAllModal()">
+                <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-printer"/></svg>
+                <span>Print all QR codes</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -434,12 +466,33 @@
 
         <div class="layout">
           <section aria-label="Equipment Dashboard">
+            <!-- Product Type Tiles -->
+            <div class="product-tiles-section" id="product-tiles-section" style="display:none;">
+              <div class="product-tiles-header">
+                <span class="product-tiles-label"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-camera"/></svg> Filter by Product Type</span>
+                <button type="button" class="product-tiles-toggle" id="tiles-collapse-btn" onclick="toggleTilesCollapse()" aria-label="Collapse or expand tile grid" title="Collapse / expand">
+                  <span id="tiles-collapse-icon">▲</span> <span id="tiles-collapse-text">Collapse</span>
+                </button>
+              </div>
+              <div class="product-tiles-grid" id="product-tiles-grid" role="group" aria-label="Filter by product type">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Breadcrumb bar (shown when a tile is selected) -->
+            <div class="product-breadcrumb" id="product-breadcrumb" role="navigation" aria-label="Product filter breadcrumb">
+              <span class="breadcrumb-path" id="breadcrumb-path">All Equipment</span>
+              <span class="breadcrumb-count" id="breadcrumb-count"></span>
+              <button type="button" class="btn-breadcrumb-back" onclick="clearProductFilter()" aria-label="Back to all equipment">← Back to all</button>
+            </div>
+
             <div class="panel eq-table-panel">
               <!-- 1. Header row -->
               <div class="eq-panel-header">
                 <div class="eq-panel-title-wrap">
                   <h2 class="eq-panel-title">Equipment</h2>
                   <span class="eq-count-pill" id="eq-count">0</span>
+                  <a class="jump-requests" id="jump-requests" href="#requests-panel" onclick="jumpToRequests(event)"><span aria-hidden="true"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-clipboard-list"/></svg></span> <span id="jump-req-count">0</span> pending</a>
                 </div>
                 <div class="eq-panel-controls">
                   <div class="eq-search-wrap">
@@ -468,12 +521,20 @@
                 <div class="dept-filter-group" id="dept-filter-group" role="group" aria-label="Filter by department"></div>
               </div>
 
+              <!-- Filter Summary Bar -->
+              <div class="filter-summary-bar" id="filter-summary-bar" style="display:none;">
+                <span id="filter-summary-text"><span id="filter-summary-count"></span></span>
+                <span>·</span>
+                <button type="button" class="btn-clear-link" id="clear-filters-btn" onclick="clearAllFilters()">Clear filters</button>
+              </div>
+
               <!-- Equipment list (contains eq-col-head and .eq-row items) -->
               <div id="equipment-list" class="equipment-list" aria-live="polite">
                 <div class="skeleton" style="height:56px;margin:8px;"></div>
                 <div class="skeleton" style="height:56px;margin:8px;"></div>
                 <div class="skeleton" style="height:56px;margin:8px;"></div>
               </div>
+              <div id="equipment-pagination" class="table-pagination"></div>
             </div>
           </section>
 
@@ -1045,11 +1106,6 @@
   </div>
 
   <!-- ============================================================
-       APPLICATION SCRIPT
-  ============================================================ -->
-  <script src="app.js"></script>
-
-  <!-- ============================================================
        CONFIRM MODAL
   ============================================================ -->
   <div id="confirm-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
@@ -1067,6 +1123,11 @@
       </div>
     </div>
   </div>
+
+  <!-- ============================================================
+       APPLICATION SCRIPT
+  ============================================================ -->
+  <script src="app.js"></script>
 
 </body>
 

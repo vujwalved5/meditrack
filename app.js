@@ -399,8 +399,8 @@ initTheme();
         }
         modal.innerHTML = `
           <div class="confirm-dialog-box" role="dialog" aria-modal="true" aria-labelledby="confirm-dlg-title" aria-describedby="confirm-dlg-body">
-            <h3 id="confirm-dlg-title" class="confirm-dlg-title">${title}</h3>
-            <p id="confirm-dlg-body" class="confirm-dlg-body">${body}</p>
+            <h3 id="confirm-dlg-title" class="confirm-dlg-title">${esc(title)}</h3>
+            <p id="confirm-dlg-body" class="confirm-dlg-body">${esc(body)}</p>
             <div class="confirm-dlg-actions">
               <button type="button" class="btn btn-secondary btn-sm" id="confirm-dlg-cancel">${cancelText}</button>
               <button type="button" class="btn ${isDestructive ? 'btn-danger' : 'btn-primary'} btn-sm" id="confirm-dlg-confirm">${confirmText}</button>
@@ -454,13 +454,14 @@ initTheme();
         }
         return this.container;
       }
-      show({ message, type = 'info', duration = 4000, onUndo = null }) {
+      show({ message, htmlMessage = null, type = 'info', duration = 4000, onUndo = null }) {
         const c = this.ensureContainer();
         const toast = document.createElement('div');
         toast.className = `toast-item toast-${type}`;
         toast.setAttribute('role', 'status');
         let undoBtn = onUndo ? `<button type="button" class="toast-undo-btn">Undo</button>` : '';
-        toast.innerHTML = `<span class="toast-msg">${message}</span>${undoBtn}<button type="button" class="toast-close-btn" aria-label="Dismiss notification">&times;</button>`;
+        const msgContent = htmlMessage !== null ? htmlMessage : esc(message);
+        toast.innerHTML = `<span class="toast-msg">${msgContent}</span>${undoBtn}<button type="button" class="toast-close-btn" aria-label="Dismiss notification">&times;</button>`;
         c.appendChild(toast);
         let dismissed = false;
         const dismiss = () => {
@@ -2503,7 +2504,7 @@ initTheme();
         parts.push(`Type: ${currentProductFilter}`);
       }
       if (hasSearch) {
-        parts.push(`Search: "${searchVal}"`);
+        parts.push(`Search: "${esc(searchVal)}"`);
       }
 
       text.innerHTML = `Showing <strong>${count}</strong> item${count !== 1 ? 's' : ''} matching ${parts.join(' · ')}`;
@@ -2515,8 +2516,7 @@ initTheme();
       currentProductFilter = 'all';
       const searchInput = document.getElementById('eq-search');
       if (searchInput) searchInput.value = '';
-      const deptSelect = document.getElementById('dept-filter-select');
-      if (deptSelect) deptSelect.value = 'all';
+      setDeptFilter('all', document.getElementById('dept-all'));
 
       ['all', 'Available', 'In Use', 'Needs Attention'].forEach(x => {
         const m = { 'all': 'filter-all', 'Available': 'filter-available', 'In Use': 'filter-inuse', 'Needs Attention': 'filter-attention' };
@@ -2612,7 +2612,7 @@ initTheme();
             durText = h > 0 ? '(' + h + 'h ' + m + 'm)' : '(' + m + 'm)';
           }
         }
-        heldByText = '<span class="eq-holder-name">' + holder + '</span> <span class="duration-live tabular-nums" id="dur-' + eq.id + '">' + durText + '</span>';
+        heldByText = '<span class="eq-holder-name">' + holder + '</span> <span class="duration-live tabular-nums" data-dur="' + eq.id + '">' + durText + '</span>';
       }
 
       const row = document.createElement('div');
@@ -2835,13 +2835,13 @@ initTheme();
 
       function update() {
         const el = document.getElementById('dur-' + eqId);
-        if (!el) return;
+        const rowEls = document.querySelectorAll('.duration-live[data-dur="' + eqId + '"]');
+        if (!el && rowEls.length === 0) return;
         const since = new Date(eq.in_use_since);
         const diff = Math.floor((Date.now() - since.getTime()) / 1000);
-        if (diff < 0) { el.textContent = ''; return; }
-        const h = Math.floor(diff / 3600);
-        const m = Math.floor((diff % 3600) / 60);
-        el.textContent = h > 0 ? '(' + h + 'h ' + m + 'm)' : '(' + m + 'm)';
+        const text = diff < 0 ? '' : (Math.floor(diff / 3600) > 0 ? '(' + Math.floor(diff / 3600) + 'h ' + Math.floor((diff % 3600) / 60) + 'm)' : '(' + Math.floor((diff % 3600) / 60) + 'm)');
+        if (el) el.textContent = text;
+        rowEls.forEach(r => { r.textContent = text; });
       }
 
       update();
@@ -2850,20 +2850,24 @@ initTheme();
     }
 
     function updateStats() {
-      document.getElementById('stat-total').textContent = allEquipment.length;
-      document.getElementById('stat-available').textContent = allEquipment.filter(e => e.status === 'Available').length;
-      document.getElementById('stat-inuse').textContent = allEquipment.filter(e => e.status === 'In Use').length;
-      const attention = allEquipment.filter(e => e.condition && e.condition !== 'Usable').length;
-      document.getElementById('stat-attention').textContent = attention;
+      const counts = computeEquipmentCounts(allEquipment);
+      const totalEl = document.getElementById('stat-total');
+      const availEl = document.getElementById('stat-available');
+      const inuseEl = document.getElementById('stat-inuse');
+      const attEl = document.getElementById('stat-attention');
+      if (totalEl) totalEl.textContent = counts.total;
+      if (availEl) availEl.textContent = counts.available;
+      if (inuseEl) inuseEl.textContent = counts.in_use;
+      if (attEl) attEl.textContent = counts.needs_attention;
 
       const banner = document.getElementById('attention-banner');
       if (banner) {
-        if (attention > 0 && !window.attentionBannerDismissed) {
+        if (counts.needs_attention > 0 && !window.attentionBannerDismissed) {
           banner.style.display = 'flex';
           const cnt = document.getElementById('attention-banner-count');
-          if (cnt) cnt.textContent = attention;
+          if (cnt) cnt.textContent = counts.needs_attention;
           const txt = document.getElementById('attention-banner-text');
-          if (txt && !cnt) txt.textContent = `${attention} items need attention`;
+          if (txt && !cnt) txt.textContent = `${counts.needs_attention} items need attention`;
         } else {
           banner.style.display = 'none';
         }
@@ -3953,7 +3957,7 @@ initTheme();
           const resetBtn = document.createElement('button');
           resetBtn.type = 'button';
           resetBtn.className = 'tbl-action-btn reset';
-          resetBtn.setAttribute('title', 'Reset password for ' + esc(u.username));
+          resetBtn.setAttribute('title', 'Reset password for ' + u.username);
           resetBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> <span>Reset</span>';
           resetBtn.onclick = () => openResetPwModal(u.id, u.username);
           actionsWrap.appendChild(resetBtn);
