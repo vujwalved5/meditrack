@@ -91,14 +91,31 @@
     <!-- Left brand panel (hidden on mobile) -->
     <div class="login-brand-panel" aria-hidden="true">
       <div class="login-brand-logo">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" ry="4"/><path d="M12 8v8"/><path d="M8 12h8"/><path d="M6 16l3-4 2 2 3-5 4 4"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
       </div>
       <div class="login-brand-name">MediTrack</div>
-      <div class="login-brand-tagline">Know where every device is,<br>right now.</div>
+      <p class="login-brand-tagline">Real-time hospital equipment visibility with role-based access control.</p>
       <ul class="login-brand-points">
-        <li>Live equipment status across all departments</li>
-        <li>QR-based check-in and check-out</li>
-        <li>Timestamped audit trail</li>
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Scan a QR code to check equipment in or out</span>
+        </li>
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>See live status across every department</span>
+        </li>
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Full audit trail of every action</span>
+        </li>
       </ul>
     </div>
 
@@ -107,14 +124,15 @@
       <button class="theme-toggle login-theme-toggle" id="login-theme-btn" onclick="cycleTheme()" aria-label="Toggle color theme" title="Toggle theme">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sun"/></svg>
       </button>
-      <div class="login-card">
-        <div class="login-logo">
-          <div class="login-logo-icon">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#i-brand"/></svg>
-          </div>
-          <div class="login-app-name">MediTrack</div>
-          <div class="login-app-sub">Hospital Equipment Tracking</div>
+      <div class="login-logo" aria-hidden="true">
+        <div class="login-logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
         </div>
+        <div class="login-app-name">MediTrack</div>
+      </div>
+      <div class="login-card panel">
         <div class="login-title">Sign in to your account</div>
         <!-- Security notice: client-side auth – flag for production hardening (Spec §8 item 4) -->
         <div class="login-security-notice" role="note">
@@ -759,12 +777,12 @@
   <div id="scanner-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-scan-line"/></svg> Scan Equipment QR Code</div>
-        <button class="modal-close" onclick="closeScanner()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><line x1="7" y1="12" x2="17" y2="12"></line></svg><span>Scan Equipment QR Code</span></div>
+        <button class="modal-close" onclick="closeScanner()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="modal-body">
         <div class="conflict-alert" id="conflict-alert" role="alert">
-          <div class="conflict-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg> CONFLICT DETECTED</div>
+          <div class="conflict-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>CONFLICT DETECTED</span></div>
           <div class="conflict-msg" id="conflict-msg"></div>
         </div>
         <div id="scanner-container"></div>
@@ -778,7 +796,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeScanner()">Close</button>
+        <button type="button" class="btn btn-secondary btn-cancel" onclick="closeScanner()">Close</button>
       </div>
     </div>
   </div>
@@ -812,8 +830,8 @@
   <div id="request-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title"><svg class="icon" aria-hidden="true" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;"><use href="#i-pencil"/></svg> Request Equipment</div>
-        <button class="modal-close" onclick="closeRequestModal()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg><span>Request Equipment</span></div>
+        <button class="modal-close" onclick="closeRequestModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="modal-body">
         <div id="request-eq-info" style="padding:12px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:16px;font-size:13px;color:var(--text-secondary);"></div>
@@ -825,13 +843,13 @@
           <span class="form-label" id="pri-label">Priority</span>
           <div class="priority-toggle" role="radiogroup" aria-labelledby="pri-label">
             <button class="priority-option selected-normal" id="pri-normal" role="radio" aria-checked="true" onclick="selectPriority('Normal')" type="button">Normal</button>
-            <button class="priority-option" id="pri-urgent" role="radio" aria-checked="false" onclick="selectPriority('Urgent')" type="button"><span aria-hidden="true"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg></span> Urgent</button>
+            <button class="priority-option" id="pri-urgent" role="radio" aria-checked="false" onclick="selectPriority('Urgent')" type="button"><span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> Urgent</button>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeRequestModal()">Cancel</button>
-        <button class="btn-primary" onclick="submitRequest()" id="submit-req-btn">Submit Request</button>
+        <button type="button" class="btn btn-secondary btn-cancel" onclick="closeRequestModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitRequest()" id="submit-req-btn">Submit Request</button>
       </div>
     </div>
   </div>
@@ -842,8 +860,8 @@
   <div id="reset-pw-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title"><svg class="icon" aria-hidden="true" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;"><use href="#i-lock"/></svg> Reset Password</div>
-        <button class="modal-close" onclick="closeResetPwModal()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Reset Password</span></div>
+        <button class="modal-close" onclick="closeResetPwModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="modal-body">
         <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
@@ -858,8 +876,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeResetPwModal()">Cancel</button>
-        <button class="btn-primary" onclick="doResetPassword()" id="reset-pw-btn">Reset Password</button>
+        <button type="button" class="btn btn-secondary btn-cancel" onclick="closeResetPwModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="doResetPassword()" id="reset-pw-btn">Reset Password</button>
       </div>
     </div>
   </div>
@@ -870,8 +888,8 @@
   <div id="add-equipment-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-plus"/></svg> Add New Product / Equipment</div>
-        <button class="modal-close" onclick="closeAddEquipmentModal()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>Add New Product / Equipment</span></div>
+        <button class="modal-close" onclick="closeAddEquipmentModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -902,7 +920,7 @@
           <select id="new-eq-pt" class="form-select" onchange="onProductTypeSelectChange()">
             <option value="">-- None --</option>
             <!-- dynamically loaded from productTypes -->
-            <option value="__new__"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-plus"/></svg> New product type...</option>
+            <option value="__new__">+ New product type...</option>
           </select>
           <!-- Inline new product type form -->
           <div class="new-pt-form" id="new-pt-form">
@@ -918,8 +936,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-cancel" onclick="closeAddEquipmentModal()">Cancel</button>
-        <button class="btn-primary" onclick="createEquipment()" id="create-eq-btn"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-plus"/></svg> Add Product &amp; Generate QR</button>
+        <button type="button" class="btn btn-secondary btn-cancel" onclick="closeAddEquipmentModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="createEquipment()" id="create-eq-btn"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-plus"/></svg> Add Product &amp; Generate QR</button>
       </div>
     </div>
   </div>
@@ -930,8 +948,8 @@
   <div id="sticker-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal" style="max-width:440px;">
       <div class="modal-header">
-        <div class="modal-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-printer"/></svg> Physical QR Sticker Label</div>
-        <button class="modal-close" onclick="closeStickerModal()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Physical QR Sticker Label</span></div>
+        <button class="modal-close" onclick="closeStickerModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="modal-body" style="text-align:center;">
         <div class="sticker-badge" id="sticker-badge-preview">
@@ -951,12 +969,10 @@
           You can print this physical sticker directly or download a high-resolution PNG image for sticker/barcode printers.
         </p>
       </div>
-      <div class="modal-footer" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
-        <button class="btn-cancel" onclick="closeStickerModal()">Close</button>
-        <div style="display:flex;gap:8px;">
-          <button class="btn-action-secondary" id="sticker-download-btn" onclick="downloadCurrentStickerPng()"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-download"/></svg> Download PNG</button>
-          <button class="btn-primary" id="sticker-print-btn" onclick="printCurrentSticker()"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-printer"/></svg> Print Sticker</button>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-cancel" onclick="closeStickerModal()">Close</button>
+        <button type="button" class="btn btn-secondary btn-action-secondary" id="sticker-download-btn" onclick="downloadCurrentStickerPng()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PNG</button>
+        <button type="button" class="btn btn-primary" id="sticker-print-btn" onclick="printCurrentSticker()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print Sticker</button>
       </div>
     </div>
   </div>
@@ -967,8 +983,8 @@
   <div id="print-all-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal" style="max-width:760px;">
       <div class="modal-header">
-        <div class="modal-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-printer"/></svg> Print All Equipment QR Labels</div>
-        <button class="modal-close" onclick="closePrintAllModal()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print All Equipment QR Labels</span></div>
+        <button class="modal-close" onclick="closePrintAllModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="modal-body">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
@@ -982,11 +998,9 @@
         </div>
         <div class="print-grid-preview" id="print-all-preview-grid"></div>
       </div>
-      <div class="modal-footer" style="justify-content:space-between;">
-        <button class="btn-cancel" onclick="closePrintAllModal()">Close</button>
-        <div style="display:flex;gap:8px;">
-          <button class="btn-primary" onclick="printAllStickersAction()"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-printer"/></svg> Print Labels Sheet</button>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-cancel" onclick="closePrintAllModal()">Close</button>
+        <button type="button" class="btn btn-primary" onclick="printAllStickersAction()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print Labels Sheet</button>
       </div>
     </div>
   </div>
