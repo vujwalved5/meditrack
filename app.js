@@ -2855,6 +2855,48 @@ initTheme();
       document.getElementById('stat-inuse').textContent = allEquipment.filter(e => e.status === 'In Use').length;
       const attention = allEquipment.filter(e => e.condition && e.condition !== 'Usable').length;
       document.getElementById('stat-attention').textContent = attention;
+
+      const banner = document.getElementById('attention-banner');
+      if (banner) {
+        if (attention > 0 && !window.attentionBannerDismissed) {
+          banner.style.display = 'flex';
+          const cnt = document.getElementById('attention-banner-count');
+          if (cnt) cnt.textContent = attention;
+          const txt = document.getElementById('attention-banner-text');
+          if (txt && !cnt) txt.textContent = `${attention} items need attention`;
+        } else {
+          banner.style.display = 'none';
+        }
+      }
+
+      renderDeptOverview();
+    }
+
+    function renderDeptOverview() {
+      const container = document.getElementById('dept-overview-list');
+      if (!container || !Array.isArray(departments)) return;
+      container.innerHTML = departments.map(d => {
+        const deptEq = (allEquipment || []).filter(e => String(e.department_id) === String(d.id) || (e.departments && e.departments.name === d.name));
+        const total = deptEq.length;
+        const available = deptEq.filter(e => e.status === 'Available').length;
+        const inUse = deptEq.filter(e => e.status === 'In Use').length;
+        const pct = total > 0 ? Math.round((inUse / total) * 100) : 0;
+        const initials = (d.name || '').slice(0, 2).toUpperCase();
+
+        return `<div class="dept-overview-row">
+          <div class="dept-overview-main">
+            <div class="dept-avatar">${esc(initials)}</div>
+            <div class="dept-info">
+              <div class="dept-name">${esc(d.name)}</div>
+              <div class="dept-count">${total} items</div>
+            </div>
+            <div class="dept-avail">${available} available</div>
+          </div>
+          <div class="dept-bar-track">
+            <div class="dept-bar-fill" style="width:${pct}%;"></div>
+          </div>
+        </div>`;
+      }).join('');
     }
 
     // ==========================================
@@ -3202,9 +3244,15 @@ initTheme();
       const el = document.getElementById('requests-list');
       document.getElementById('req-count').textContent = reqs.length;
       document.getElementById('stat-requests').textContent = reqs.length;
+      const urgentCount = (reqs || []).filter(r => r.priority === 'Urgent').length;
+      const normalCount = (reqs || []).length - urgentCount;
+      const urgentEl = document.getElementById('req-urgent-count');
+      if (urgentEl) urgentEl.textContent = urgentCount;
+      const normalEl = document.getElementById('req-normal-count');
+      if (normalEl) normalEl.textContent = normalCount;
       updateRequestsJump(reqs);
       if (reqs.length === 0) {
-        el.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-map-pin"/></svg></div><div class="empty-text">No pending requests</div></div>';
+        el.innerHTML = '<div class="req-empty-state"><div class="req-empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-inbox"/></svg></div><div class="req-empty-title">No pending requests</div><div class="req-empty-desc">New equipment requests will appear here.</div></div>';
         return;
       }
       const canApprove = currentUser && (currentUser.role === 'Manager' || currentUser.role === 'Senior Doctor');
@@ -3217,22 +3265,21 @@ initTheme();
 
         item.innerHTML =
           '<div class="request-eq-name">' +
-          (isU ? '<span class="urgent-flag"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg> URGENT</span> ' : '') +
+          (isU ? '<span class="urgent-flag">URGENT</span> ' : '') +
           esc(eqName) +
-          (isU ? '<span class="approval-needed-badge">Needs Sr. Doctor / Manager</span>' : '') +
           '</div>' +
-          '<div class="request-meta"><svg class="icon" aria-hidden="true" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;"><use href="#i-user"/></svg> ' + esc(req.requested_by) + ' · ' + fmtTime(req.created_at) + '</div>';
+          '<div class="request-meta">' + esc(req.requested_by) + ' · ' + fmtTime(req.created_at) + '</div>';
 
         if (canApprove) {
           const row = document.createElement('div');
           row.className = 'approve-reject-row';
           const approveBtn = document.createElement('button');
           approveBtn.className = 'btn-approve';
-          approveBtn.innerHTML = '\u2713 Approve<span class="sr-only"> request for ' + esc(eqName) + '</span>';
+          approveBtn.innerHTML = 'Approve<span class="sr-only"> request for ' + esc(eqName) + '</span>';
           approveBtn.addEventListener('click', () => updateReq(req.id, 'Approved', req.equipment_id));
           const rejectBtn = document.createElement('button');
           rejectBtn.className = 'btn-reject';
-          const rejectLabel = '\u2715 Reject<span class="sr-only"> request for ' + esc(eqName) + '</span>';
+          const rejectLabel = 'Reject<span class="sr-only"> request for ' + esc(eqName) + '</span>';
           rejectBtn.innerHTML = rejectLabel;
           let armTimer = null;
           rejectBtn.addEventListener('click', () => {
@@ -3251,7 +3298,7 @@ initTheme();
           item.appendChild(row);
         } else {
           const wait = document.createElement('div');
-          wait.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:6px;';
+          wait.className = 'request-awaiting';
           wait.textContent = 'Awaiting approval by Senior Doctor or Manager';
           item.appendChild(wait);
         }
