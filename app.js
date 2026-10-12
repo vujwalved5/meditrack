@@ -2353,6 +2353,8 @@ initTheme();
             img.src = pt.image_url;
             img.alt = pt.name;
             img.loading = 'lazy';
+            img.width = 40;
+            img.height = 40;
             img.onerror = function() {
               this.parentNode.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
             };
@@ -3992,7 +3994,7 @@ initTheme();
     function confirmDeactivateUser(userId, username) {
       confirmDialog.open({
         title: 'Deactivate ' + username + '?',
-        message: 'They will no longer be able to sign in. You can reactivate them at any time.',
+        body: 'They will no longer be able to sign in. You can reactivate them at any time.',
         confirmText: 'Deactivate',
         cancelText: 'Cancel',
         isDestructive: true,
@@ -4005,7 +4007,7 @@ initTheme();
     function confirmReactivateUser(userId, username) {
       confirmDialog.open({
         title: 'Reactivate ' + username + '?',
-        message: 'They will regain access to sign in to MediTrack.',
+        body: 'They will regain access to sign in to MediTrack.',
         confirmText: 'Reactivate',
         cancelText: 'Cancel',
         isDestructive: false,

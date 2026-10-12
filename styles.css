@@ -6,6 +6,21 @@
       padding: 0;
     }
 
+    /* ── Global image safety net ────────────────────────────────
+       Keeps ALL images from escaping their container.
+       :where() keeps specificity at 0 so any explicit rule wins.
+       Excludes QR/sticker/print areas and inline SVGs with fixed size.
+    ─────────────────────────────────────────────────────────── */
+    :where(img):not(.sticker-img):not(#print-area img):not(.print-sticker-card img) {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+    :where(svg[width]):not(.sticker-img) {
+      /* Do NOT override height on sized SVG icons */
+      max-width: none;
+    }
+
 :root {
   /* Design Tokens — Light (Single Source of Truth) */
   color-scheme: light;
@@ -3416,23 +3431,71 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
+      position: relative;
       transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
     }
     .product-tile:hover {
       border-color: var(--primary);
       background: var(--surface);
     }
-    .product-tile.active {
+    .product-tile.active,
+    .product-tile.selected {
       border-color: var(--primary);
       background: var(--primary-tint);
     }
+    .product-tile.dimmed {
+      opacity: 0.55;
+    }
 
+    /* ── Product-tile image wrapper: fixed 40×40, never overflows ── */
+    .pt-img-wrap {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: var(--r-ctl);
+      flex-shrink: 0;
+    }
+    .pt-img-wrap img {
+      width: 40px;
+      height: 40px;
+      max-width: 40px;
+      max-height: 40px;
+      object-fit: contain;
+      display: block;
+      border-radius: var(--r-ctl);
+    }
+    .pt-emoji-fallback {
+      font-size: 22px;
+      line-height: 1;
+      display: block;
+      text-align: center;
+    }
+    .pt-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .pt-dot.green { background: var(--success); }
+    .pt-dot.red   { background: var(--danger); }
 
     .pt-name {
       font-size: 12px;
       font-weight: 500;
       color: var(--text);
       line-height: 1.2;
+    }
+    .pt-summary {
+      font-size: 11px;
+      color: var(--text-2);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
     }
 
     .pt-count-badge {
