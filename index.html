@@ -564,12 +564,72 @@
       <!-- ===================== AUDIT LOG PAGE ===================== -->
       <div id="page-auditlog" class="page-view">
         <div class="audit-page-header">
-          <h1 class="section-title"><svg class="icon" aria-hidden="true" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;"><use href="#i-scroll-text"/></svg> Audit Log</h1>
-          <button class="btn-export-csv" onclick="exportAuditCSV()" id="audit-export-btn"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-download"/></svg> Export CSV</button>
+          <h1 class="page-title">Audit Log</h1>
+          <button type="button" class="btn btn-secondary" onclick="exportAuditCSV()" id="audit-export-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Export CSV</span>
+          </button>
         </div>
 
-        <div class="audit-filters-bar">
-          <input type="search" id="audit-search" class="audit-filter-input" placeholder="Search equipment or user..." oninput="renderAuditPage()" aria-label="Search audit log" />
+        <div class="audit-summary-bar" id="audit-summary-bar">
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-header-left">
+                <div class="kpi-chip kpi-chip-primary">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <line x1="10" y1="9" x2="8" y2="9"></line>
+                  </svg>
+                </div>
+                <span class="kpi-title">Total events</span>
+              </div>
+            </div>
+            <div class="kpi-num" id="audit-total-events">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-header-left">
+                <div class="kpi-chip kpi-chip-green">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+                <span class="kpi-title">Items used today</span>
+              </div>
+            </div>
+            <div class="kpi-num" id="audit-used-today">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-header-left">
+                <div class="kpi-chip kpi-chip-red">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </div>
+                <span class="kpi-title">In use now</span>
+              </div>
+            </div>
+            <div class="kpi-num" id="audit-in-use-now">—</div>
+          </div>
+        </div>
+
+        <div class="panel audit-filters-panel">
+          <div class="audit-search-wrap">
+            <svg class="audit-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="search" id="audit-search" class="audit-filter-input" placeholder="Search equipment or user..." oninput="renderAuditPage()" aria-label="Search audit log" />
+          </div>
           <select id="audit-dept-filter" class="audit-filter-select" onchange="renderAuditPage()" aria-label="Filter by department">
             <option value="all">All Departments</option>
           </select>
@@ -588,40 +648,40 @@
             <option value="Request Rejected">Request Rejected</option>
             <option value="Condition Changed">Condition Changed</option>
           </select>
-          <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer;margin-left:auto;">
+          <label class="audit-filter-check">
             <input type="checkbox" id="audit-hide-never-used" onchange="auditHideNeverUsed = this.checked; renderAuditPage();">
             <span>Hide never used</span>
           </label>
         </div>
 
-        <div class="audit-summary-bar" id="audit-summary-bar">
-          <div class="audit-summary-chip" title="All recorded check-outs and returns"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-file-text"/></svg> <span class="audit-summary-num" id="audit-total-events">—</span> total events</div>
-          <div class="audit-summary-chip" title="Items checked out since 00:00 today"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-clock"/></svg> <span class="audit-summary-num" id="audit-used-today">—</span> items used today</div>
-          <div class="audit-summary-chip" title="Items currently checked out"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-activity"/></svg> <span class="audit-summary-num" id="audit-in-use-now">—</span> in use now</div>
-        </div>
-
         <div id="audit-eq-list" class="audit-eq-list" aria-live="polite">
-          <div class="skeleton" style="height:52px;margin:8px;"></div>
-          <div class="skeleton" style="height:52px;margin:8px;"></div>
-          <div class="skeleton" style="height:52px;margin:8px;"></div>
+          <div class="skeleton" style="height:56px;"></div>
+          <div class="skeleton" style="height:56px;"></div>
+          <div class="skeleton" style="height:56px;"></div>
         </div>
         <div id="audit-pagination" class="table-pagination"></div>
       </div><!-- /page-auditlog -->
 
       <!-- ===================== MANAGE USERS PAGE ===================== -->
       <div id="page-users" class="page-view">
-        <div class="section-header">
-          <h1 class="section-title"><svg class="icon" aria-hidden="true" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;"><use href="#i-users"/></svg> Manage Users</h1>
+        <div class="page-title-row">
+          <h1 class="page-title">Manage Users</h1>
         </div>
         <div class="manage-users-grid">
 
           <!-- CREATE USER FORM -->
-          <div class="create-user-panel" style="align-self:start;">
-            <div class="create-user-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-plus"/></svg> Create New User</div>
+          <div class="create-user-panel">
+            <div class="create-user-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Create New User</span>
+            </div>
             <div class="form-group">
               <label class="form-label" for="new-username">Username</label>
               <input id="new-username" class="form-input" type="text" placeholder="e.g. dr.smith" maxlength="40" oninput="onUsernameInput()" />
-              <span class="field-hint" style="font-size:12px;color:var(--ink-500);display:block;margin-top:4px;">Letters, numbers, dots and underscores. Used to sign in.</span>
+              <span class="field-hint">Letters, numbers, dots and underscores. Used to sign in.</span>
             </div>
             <div class="form-group">
               <label class="form-label" for="new-role">Role</label>
@@ -630,7 +690,7 @@
                 <option value="Senior Doctor">Senior Doctor</option>
                 <option value="Manager">Manager</option>
               </select>
-              <div id="role-helper-text" style="font-size:12px;color:var(--ink-500);margin-top:4px;">Can check equipment in and out.</div>
+              <div id="role-helper-text">Can check equipment in and out.</div>
             </div>
             <div class="form-group">
               <label class="form-label" for="new-dept">Department</label>
@@ -640,27 +700,36 @@
             </div>
             <div class="temp-password-box" id="new-temp-pw-box"></div>
             <div class="temp-password-label" id="new-temp-pw-label"></div>
-            <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="createUser()" id="create-user-btn" disabled>Create User</button>
+            <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="createUser()" id="create-user-btn" disabled>Create User</button>
           </div>
 
           <!-- USERS TABLE -->
           <div class="users-table-panel">
-            <div class="users-table-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
-              <div class="users-table-title"><svg class="icon" aria-hidden="true" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;"><use href="#i-users"/></svg> All Users <span class="section-count" id="users-count">0</span></div>
-              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <input type="search" id="user-search-input" class="form-input" style="width:180px;height:36px;font-size:13px;" placeholder="Search users…" oninput="renderUsersTable()" aria-label="Search users">
-                <div class="segmented-control" role="radiogroup" aria-label="Filter users by status" style="display:inline-flex;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--line);">
-                  <button type="button" class="segmented-btn active" id="user-filter-all" onclick="setUserStatusFilter('all')" role="radio" aria-checked="true" style="padding:6px 12px;font-size:12px;font-weight:500;border:none;background:var(--brand-600);color:#fff;cursor:pointer;">All <span id="users-filter-count-all" style="font-variant-numeric:tabular-nums;">0</span></button>
-                  <button type="button" class="segmented-btn" id="user-filter-active" onclick="setUserStatusFilter('active')" role="radio" aria-checked="false" style="padding:6px 12px;font-size:12px;font-weight:500;border:none;background:var(--surface);color:var(--ink-700);cursor:pointer;border-left:1px solid var(--line);">Active <span id="users-filter-count-active" style="font-variant-numeric:tabular-nums;">0</span></button>
-                  <button type="button" class="segmented-btn" id="user-filter-inactive" onclick="setUserStatusFilter('inactive')" role="radio" aria-checked="false" style="padding:6px 12px;font-size:12px;font-weight:500;border:none;background:var(--surface);color:var(--ink-700);cursor:pointer;border-left:1px solid var(--line);">Inactive <span id="users-filter-count-inactive" style="font-variant-numeric:tabular-nums;">0</span></button>
+            <div class="users-table-header">
+              <div class="users-table-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>All Users</span>
+                <span class="count-pill" id="users-count">0</span>
+              </div>
+              <div class="users-table-controls" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <input type="search" id="user-search-input" class="form-input" style="width:180px;height:var(--h-ctl);font-size:13px;" placeholder="Search users…" oninput="renderUsersTable()" aria-label="Search users">
+                <div class="segmented-control" role="radiogroup" aria-label="Filter users by status">
+                  <button type="button" class="segmented-btn active" id="user-filter-all" onclick="setUserStatusFilter('all')" role="radio" aria-checked="true">All <span id="users-filter-count-all" style="font-variant-numeric:tabular-nums;">0</span></button>
+                  <button type="button" class="segmented-btn" id="user-filter-active" onclick="setUserStatusFilter('active')" role="radio" aria-checked="false">Active <span id="users-filter-count-active" style="font-variant-numeric:tabular-nums;">0</span></button>
+                  <button type="button" class="segmented-btn" id="user-filter-inactive" onclick="setUserStatusFilter('inactive')" role="radio" aria-checked="false">Inactive <span id="users-filter-count-inactive" style="font-variant-numeric:tabular-nums;">0</span></button>
                 </div>
-                <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-500);cursor:pointer;">
+                <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer;user-select:none;">
                   <input type="checkbox" id="user-hide-demo" onchange="renderUsersTable()">
                   <span>Hide demo accounts</span>
                 </label>
               </div>
             </div>
-            <div style="overflow-x:auto;">
+            <div class="users-table-container">
               <table class="users-table" aria-label="Users list">
                 <thead>
                   <tr>
@@ -672,7 +741,7 @@
                   </tr>
                 </thead>
                 <tbody id="users-tbody">
-                  <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Loading...</td></tr>
+                  <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-3);">Loading...</td></tr>
                 </tbody>
               </table>
             </div>

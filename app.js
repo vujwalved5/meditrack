@@ -3509,20 +3509,16 @@ initTheme();
         tableHeader.className = 'audit-table-header';
         tableHeader.setAttribute('role', 'row');
         tableHeader.innerHTML = `
-          <span style="width:16px;"></span>
-          <button type="button" onclick="setAuditSort('name')" aria-sort="${auditSortCol === 'name' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
+          <span style="width:24px;"></span>
+          <button type="button" class="audit-col-btn" onclick="setAuditSort('name')" aria-sort="${auditSortCol === 'name' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
             <span>Equipment</span>${getSortIndicator('name', auditSortCol, auditSortDir)}
           </button>
-          <button type="button" onclick="setAuditSort('department')" aria-sort="${auditSortCol === 'department' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
+          <button type="button" class="audit-col-btn" onclick="setAuditSort('department')" aria-sort="${auditSortCol === 'department' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
             <span>Department</span>${getSortIndicator('department', auditSortCol, auditSortDir)}
           </button>
-          <button type="button" style="justify-content:flex-end;" onclick="setAuditSort('uses')" aria-sort="${auditSortCol === 'uses' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
-            <span>Uses</span>${getSortIndicator('uses', auditSortCol, auditSortDir)}
+          <button type="button" class="audit-col-btn" onclick="setAuditSort('uses')" aria-sort="${auditSortCol === 'uses' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
+            <span>Usage & Activity</span>${getSortIndicator('uses', auditSortCol, auditSortDir)}
           </button>
-          <button type="button" onclick="setAuditSort('last_activity')" aria-sort="${auditSortCol === 'last_activity' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
-            <span>Last activity</span>${getSortIndicator('last_activity', auditSortCol, auditSortDir)}
-          </button>
-          <span>Last user</span>
           <span>Status</span>
         `;
         container.appendChild(tableHeader);
@@ -3536,6 +3532,11 @@ initTheme();
         pageSlice.forEach(eq => {
           const entries = eq.entries;
           const checkoutCount = eq.uses;
+          const usesText = checkoutCount + (checkoutCount === 1 ? ' use' : ' uses');
+          const lastText = eq.last_activity ? fmtRelativeTime(eq.last_activity) : 'Never';
+          const statusPill = eq.status === 'Available'
+            ? '<span class="status-pill available"><span class="status-dot"></span>Available</span>'
+            : '<span class="status-pill inuse"><span class="status-dot"></span>In Use</span>';
           const isOpen = eq.id === prevOpenId;
 
           const row = document.createElement('div');
@@ -3550,13 +3551,15 @@ initTheme();
           header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
           header.setAttribute('aria-controls', 'audit-details-' + eq.id);
           header.innerHTML =
-            '<span class="audit-eq-chevron">▶</span>' +
-            '<span class="audit-eq-name">' + esc(eq.name) + '</span>' +
-            '<span class="audit-eq-dept">' + esc(eq.dept_name) + '</span>' +
-            '<span class="audit-eq-uses" style="text-align:right;">' + checkoutCount + '</span>' +
-            '<span class="audit-eq-last-act">' + (eq.last_activity ? fmtRelativeTime(eq.last_activity) : '—') + '</span>' +
-            '<span class="audit-eq-last-user">' + esc(eq.last_user || '—') + '</span>' +
-            '<span class="audit-eq-status">' + renderStatusBadge(eq.status.toLowerCase().replace(' ', '_'), eq.status) + '</span>';
+            '<div class="audit-eq-chevron" aria-hidden="true">' +
+              '<svg class="icon audit-chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' +
+                '<polyline points="6 9 12 15 18 9"></polyline>' +
+              '</svg>' +
+            '</div>' +
+            '<div class="audit-eq-name">' + esc(eq.name) + '</div>' +
+            '<div class="audit-eq-dept">' + esc(eq.dept_name) + '</div>' +
+            '<div class="audit-eq-activity">' + esc(usesText + ' · Last: ' + lastText) + '</div>' +
+            '<div class="audit-eq-status">' + statusPill + '</div>';
 
           header.addEventListener('click', () => toggleAuditRow(eq.id));
           header.addEventListener('keydown', e => {
@@ -3679,7 +3682,7 @@ initTheme();
       const entries = entriesOverride || cache.entries;
 
       if (entries.length === 0) {
-        timelineEl.innerHTML = '<div class="audit-empty">No usage yet</div>';
+        timelineEl.innerHTML = '<div class="audit-empty" style="color:var(--text-3);font-size:13px;padding:8px 0;">No usage yet</div>';
         return;
       }
 
@@ -3697,20 +3700,22 @@ initTheme();
           const checkoutBefore = allForEq.find((e, i) => i > idx && e.action === 'Checked Out');
           if (checkoutBefore) {
             const durMs = new Date(entry.timestamp).getTime() - new Date(checkoutBefore.timestamp).getTime();
-            if (durMs > 0) durationHtml = '<div class="timeline-duration">&#8987; used for ' + fmtDuration(durMs) + '</div>';
+            if (durMs > 0) {
+              durationHtml = '<div class="timeline-duration"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>used for ' + fmtDuration(durMs) + '</div>';
+            }
           }
         } else if (entry.action === 'Checked Out') {
           // Check if there's no Released after it (still in use)
           const allForEq = cache.entries;
           const releasedAfter = allForEq.find((e, i) => i < idx && e.action === 'Released');
           if (!releasedAfter) {
-            durationHtml = '<div class="timeline-duration"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-activity"/></svg> still in use</div>';
+            durationHtml = '<div class="timeline-duration"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>still in use</div>';
           }
         }
 
         // v4: show room for Checked Out entries
         const roomHtml = (entry.action === 'Checked Out' && entry.room)
-          ? '<div class="timeline-room"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-map-pin"/></svg> ' + esc(entry.room) + '</div>'
+          ? '<div class="timeline-room"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>' + esc(entry.room) + '</div>'
           : '';
 
         item.innerHTML =
@@ -3727,7 +3732,7 @@ initTheme();
 
       if (cache.hasMore) {
         const loadMoreBtn = document.createElement('button');
-        loadMoreBtn.className = 'btn-load-more';
+        loadMoreBtn.className = 'btn btn-secondary btn-load-more';
         loadMoreBtn.textContent = 'Load more';
         loadMoreBtn.onclick = () => {
           loadMoreBtn.textContent = 'Loading...';
@@ -3868,7 +3873,7 @@ initTheme();
 
     async function loadUsersTable() {
       const tbody = document.getElementById('users-tbody');
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--ink-500);">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-3);">Loading...</td></tr>';
 
       const { data, error } = await db
         .from('users')
@@ -3876,7 +3881,7 @@ initTheme();
         .order('id');
 
       if (error) {
-        tbody.innerHTML = '<tr><td colspan="5" style="color:var(--st-critical-fg);padding:16px;">Failed to load users.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="color:var(--danger);padding:16px;">Failed to load users.</td></tr>';
         return;
       }
       cachedUsers = data || [];
@@ -3911,7 +3916,7 @@ initTheme();
 
       tbody.innerHTML = '';
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink-500);">No users match your filters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-3);">No users match your filters.</td></tr>';
         return;
       }
 
@@ -3924,7 +3929,7 @@ initTheme();
 
         const tdUser = document.createElement('td');
         tdUser.innerHTML = '<strong>' + esc(u.username) + '</strong>' +
-          (isSelf ? ' <span style="font-size:11px;color:var(--brand-600);font-weight:600;margin-left:4px;">(You)</span>' : '');
+          (isSelf ? ' <span style="font-size:11px;color:var(--primary);font-weight:600;margin-left:4px;">(You)</span>' : '');
         tr.appendChild(tdUser);
 
         const tdRole = document.createElement('td');
@@ -3941,73 +3946,39 @@ initTheme();
 
         const tdActions = document.createElement('td');
         if (!isSelf) {
-          const menuWrap = document.createElement('div');
-          menuWrap.className = 'user-actions-dropdown';
-
-          const kebabBtn = document.createElement('button');
-          kebabBtn.type = 'button';
-          kebabBtn.className = 'btn btn-ghost btn-sm btn-icon';
-          kebabBtn.setAttribute('aria-label', 'Actions for ' + esc(u.username));
-          kebabBtn.setAttribute('aria-haspopup', 'menu');
-          kebabBtn.innerHTML = '<svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-more-vertical"/></svg>';
-
-          const menuEl = document.createElement('div');
-          menuEl.className = 'user-actions-menu';
-          menuEl.setAttribute('role', 'menu');
+          const actionsWrap = document.createElement('div');
+          actionsWrap.className = 'user-row-actions';
 
           // Reset Password
           const resetBtn = document.createElement('button');
           resetBtn.type = 'button';
-          resetBtn.className = 'user-actions-item';
-          resetBtn.setAttribute('role', 'menuitem');
-          resetBtn.innerHTML = '<svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-lock"/></svg> Reset password';
-          resetBtn.onclick = (e) => {
-            e.stopPropagation();
-            menuEl.classList.remove('show');
-            openResetPwModal(u.id, u.username);
-          };
-          menuEl.appendChild(resetBtn);
+          resetBtn.className = 'tbl-action-btn reset';
+          resetBtn.setAttribute('title', 'Reset password for ' + esc(u.username));
+          resetBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> <span>Reset</span>';
+          resetBtn.onclick = () => openResetPwModal(u.id, u.username);
+          actionsWrap.appendChild(resetBtn);
 
           // Deactivate / Reactivate
           if (u.is_active) {
             const deactBtn = document.createElement('button');
             deactBtn.type = 'button';
-            deactBtn.className = 'user-actions-item danger-text';
-            deactBtn.setAttribute('role', 'menuitem');
-            deactBtn.innerHTML = '<svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-slash"/></svg> Deactivate';
-            deactBtn.onclick = (e) => {
-              e.stopPropagation();
-              menuEl.classList.remove('show');
-              confirmDeactivateUser(u.id, u.username);
-            };
-            menuEl.appendChild(deactBtn);
+            deactBtn.className = 'tbl-action-btn deactivate';
+            deactBtn.setAttribute('title', 'Deactivate ' + esc(u.username));
+            deactBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg> <span>Deactivate</span>';
+            deactBtn.onclick = () => confirmDeactivateUser(u.id, u.username);
+            actionsWrap.appendChild(deactBtn);
           } else {
             const reactBtn = document.createElement('button');
             reactBtn.type = 'button';
-            reactBtn.className = 'user-actions-item';
-            reactBtn.setAttribute('role', 'menuitem');
-            reactBtn.innerHTML = '<svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-check"/></svg> Reactivate';
-            reactBtn.onclick = (e) => {
-              e.stopPropagation();
-              menuEl.classList.remove('show');
-              confirmReactivateUser(u.id, u.username);
-            };
-            menuEl.appendChild(reactBtn);
+            reactBtn.className = 'tbl-action-btn reactivate';
+            reactBtn.setAttribute('title', 'Reactivate ' + esc(u.username));
+            reactBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Reactivate</span>';
+            reactBtn.onclick = () => confirmReactivateUser(u.id, u.username);
+            actionsWrap.appendChild(reactBtn);
           }
-
-          kebabBtn.onclick = (e) => {
-            e.stopPropagation();
-            document.querySelectorAll('.user-actions-menu.show').forEach(m => {
-              if (m !== menuEl) m.classList.remove('show');
-            });
-            menuEl.classList.toggle('show');
-          };
-
-          menuWrap.appendChild(kebabBtn);
-          menuWrap.appendChild(menuEl);
-          tdActions.appendChild(menuWrap);
+          tdActions.appendChild(actionsWrap);
         } else {
-          tdActions.innerHTML = '<span style="color:var(--ink-500);font-size:12px;">—</span>';
+          tdActions.innerHTML = '<span style="color:var(--text-3);font-size:12px;">—</span>';
         }
         tr.appendChild(tdActions);
         tbody.appendChild(tr);
