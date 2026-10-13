@@ -3992,3 +3992,25 @@
         overflow-wrap: anywhere;
       }
     }
+
+    /* ── Product tile grid: collapsed state ─────────────────────────
+       JS (renderProductTiles / toggleTilesCollapse) adds/removes the
+       .collapsed class on #product-tiles-grid.  We just need the CSS
+       to respond: hide the grid and remove the header's bottom gap.
+    ─────────────────────────────────────────────────────────────── */
+    .product-tiles-grid.collapsed {
+      display: none;
+    }
+
+    /* When the grid is hidden, the header no longer needs a margin below it */
+    .product-tiles-grid.collapsed ~ * {
+      /* sibling rule not needed — target the header via the section parent */
+    }
+    .product-tiles-section:has(.product-tiles-grid.collapsed) .product-tiles-header {
+      margin-bottom: 0;
+    }
+
+    /* Fallback for browsers without :has() — JS can also add .tiles-collapsed
+       directly on the section if needed, but the :has() path covers all
+       modern browsers (Chrome 105+, Firefox 121+, Safari 15.4+).
+       The display:none on the grid itself is the primary, always-working fix. */
