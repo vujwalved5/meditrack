@@ -3082,7 +3082,13 @@ initTheme();
       html5Scanner = new Html5Qrcode('scanner-container');
       html5Scanner.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        {
+          fps: 10,
+          qrbox: (w, h) => {
+            const s = Math.floor(Math.min(w, h) * 0.7);
+            return { width: s, height: s };
+          }
+        },
         (decoded) => onScanSuccess(decoded),
         () => {}
       ).catch(err => {

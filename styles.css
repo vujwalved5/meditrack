@@ -916,7 +916,7 @@
     /* Layout: Wide >=1100px main + 360px side; Medium single column */
     .layout {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 24px;
     }
 
@@ -964,7 +964,7 @@
     /* ===== KPI GRID & CARDS (Phase 4) ===== */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
@@ -1078,7 +1078,7 @@
     /* Responsive Breakpoints for Title Row & KPI Grid */
     @media (max-width: 1099px) {
       .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -1097,7 +1097,7 @@
         justify-content: center;
       }
       .kpi-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 12px;
         margin-bottom: 16px;
       }
@@ -1215,6 +1215,7 @@
       border-bottom: 1px solid var(--border);
       background: var(--surface);
       overflow-x: auto;
+      min-width: 0;
     }
 
     .eq-filter-row .segmented-control {
@@ -1261,6 +1262,7 @@
       flex-wrap: nowrap;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      min-width: 0;
     }
 
     .dept-filter-group::-webkit-scrollbar {
@@ -1537,7 +1539,7 @@
 
     .eq-row-details-inner {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 20px;
       align-items: start;
     }
@@ -1774,7 +1776,7 @@
     @media (max-width: 639px) {
       .eq-row-header {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr) auto;
         grid-template-areas:
           "name status"
           "meta meta"
@@ -1836,7 +1838,7 @@
       }
 
       .eq-row-details-inner {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 16px;
       }
 
@@ -2101,7 +2103,7 @@
 
     .req-stats-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 8px;
       margin-bottom: 16px;
     }
@@ -2629,14 +2631,14 @@
     /* ===== MANAGE USERS PAGE (Phase 7) ===== */
     .manage-users-grid {
       display: grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 360px minmax(0, 1fr);
       gap: 24px;
       align-items: start;
     }
 
     @media (max-width: 1099px) {
       .manage-users-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
@@ -2938,14 +2940,14 @@
 
     .audit-summary-bar {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
 
     @media (max-width: 899px) {
       .audit-summary-bar {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
@@ -3175,7 +3177,7 @@
 
       .audit-eq-row-header {
         display: grid;
-        grid-template-columns: 24px 1fr auto;
+        grid-template-columns: 24px minmax(0, 1fr) auto;
         grid-template-areas:
           "chev name status"
           "chev dept dept"
@@ -3930,4 +3932,63 @@
       border-top: 1px solid var(--border);
       font-size: 13px;
       color: var(--text-2);
+    }
+
+    /* ============================================================
+       MOBILE OVERFLOW FIXES
+       Prevents horizontal page scroll on phones (~360-430px wide).
+       Desktop (>=1100px) appearance is unchanged.
+    ============================================================ */
+
+    /* 1. Safety net: no element can push the page wider than the viewport */
+    html,
+    body {
+      max-width: 100%;
+      overflow-x: clip;
+    }
+
+    /* 2. Every direct child of .layout (main column + side column) must
+          be able to shrink to zero. Also catches <section> wrappers. */
+    .layout > *,
+    .layout > section {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    /* 3. Scanner modal: cap width to viewport on all screen sizes */
+    #scanner-modal .modal {
+      max-width: min(480px, 100vw);
+    }
+
+    /* 4. Scanner container and html5-qrcode injected elements */
+    #scanner-container {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    #scanner-container video,
+    #scanner-container canvas {
+      width: 100% !important;
+      height: auto !important;
+      max-width: 100% !important;
+    }
+
+    #scanner-container > div {
+      max-width: 100% !important;
+    }
+
+    /* 5. Phone-width overrides */
+    @media (max-width: 639px) {
+      /* Product tile grid: 2 fixed columns instead of auto-fill
+         (auto-fill with minmax(110px) produces 3+ columns at 360px) */
+      .product-tiles-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      /* Allow long product names/counts to wrap inside tiles */
+      .pt-name,
+      .pt-summary {
+        overflow-wrap: anywhere;
+      }
     }
