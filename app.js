@@ -3888,7 +3888,9 @@ initTheme();
 
     async function loadUsersTable() {
       const tbody = document.getElementById('users-tbody');
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-3);">Loading...</td></tr>';
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-3);">Loading...</td></tr>';
+      }
 
       const { data, error } = await db
         .from('users')
@@ -3896,11 +3898,16 @@ initTheme();
         .order('id');
 
       if (error) {
-        tbody.innerHTML = '<tr><td colspan="5" style="color:var(--danger);padding:16px;">Failed to load users.</td></tr>';
-        return;
+        if (tbody) {
+          tbody.innerHTML = '<tr><td colspan="5" style="color:var(--danger);padding:16px;">Failed to load users.</td></tr>';
+        }
+        return [];
       }
       cachedUsers = data || [];
-      renderUsersTable();
+      window.cachedUsers = cachedUsers;
+      if (tbody) renderUsersTable();
+      document.dispatchEvent(new CustomEvent('meditrack:users-updated', { detail: cachedUsers }));
+      return cachedUsers;
     }
 
     function renderUsersTable() {
@@ -4026,57 +4033,68 @@ initTheme();
       });
     }
 
-    async function createUser() {
-      const username = document.getElementById('new-username').value.trim();
-      const role = document.getElementById('new-role').value;
-      const deptId = document.getElementById('new-dept').value || null;
-      const btn = document.getElementById('create-user-btn');
-      const pwBox = document.getElementById('new-temp-pw-box');
-      const pwLabel = document.getElementById('new-temp-pw-label');
-
-      pwBox.classList.remove('show');
-      if (!username) { showToast('Please enter a username.', 'error'); return; }
-      if (username.length < 3) { showToast('Username must be at least 3 characters.', 'error'); return; }
+    async function createUserAccount(username, role, deptId) {
+      const cleanUsername = (username || '').trim();
+      if (!cleanUsername) throw new Error('Please enter a username.');
+      if (cleanUsername.length < 3) throw new Error('Username must be at least 3 characters.');
 
       const array = new Uint32Array(2);
       window.crypto.getRandomValues(array);
       const tempPw = 'Tmp' + array[0].toString(36) + '!';
-      btn.disabled = true; btn.textContent = 'Creating...';
+
+      const salt = await dcodeIO.bcrypt.genSalt(10);
+      const hash = await dcodeIO.bcrypt.hash(tempPw, salt);
+
+      const { error } = await db.from('users').insert([{
+        username: cleanUsername,
+        password_hash: hash,
+        role: role || 'Staff',
+        department_id: deptId ? parseInt(deptId, 10) : null,
+        is_active: true
+      }]);
+
+      if (error) {
+        if (error.message.includes('unique')) {
+          throw new Error('Username "' + cleanUsername + '" already exists.');
+        }
+        throw new Error(error.message);
+      }
+
+      await loadUsersTable();
+      return { username: cleanUsername, tempPw };
+    }
+
+    async function createUser() {
+      const usernameInput = document.getElementById('new-username');
+      const username = usernameInput ? usernameInput.value.trim() : '';
+      const role = (document.getElementById('new-role') || {}).value || 'Staff';
+      const deptId = (document.getElementById('new-dept') || {}).value || null;
+      const btn = document.getElementById('create-user-btn');
+      const pwBox = document.getElementById('new-temp-pw-box');
+      const pwLabel = document.getElementById('new-temp-pw-label');
+
+      if (pwBox) pwBox.classList.remove('show');
+      if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
 
       try {
-        const salt = await dcodeIO.bcrypt.genSalt(10);
-        const hash = await dcodeIO.bcrypt.hash(tempPw, salt);
-
-        const { error } = await db.from('users').insert([{
-          username: username,
-          password_hash: hash,
-          role: role,
-          department_id: deptId ? parseInt(deptId) : null,
-          is_active: true
-        }]);
-
-        if (error) {
-          if (error.message.includes('unique')) {
-            showToast('Username "' + username + '" already exists.', 'error');
-          } else {
-            showToast('Error: ' + error.message, 'error');
-          }
-          return;
+        const result = await createUserAccount(username, role, deptId);
+        if (pwBox) {
+          pwBox.textContent = result.tempPw;
+          pwBox.classList.add('show');
         }
-
-        pwBox.textContent = tempPw;
-        pwBox.classList.add('show');
-        pwLabel.textContent = 'Share this password once — it will not be shown again.';
-        document.getElementById('new-username').value = '';
+        if (pwLabel) {
+          pwLabel.textContent = 'Share this password once — it will not be shown again.';
+        }
+        if (usernameInput) usernameInput.value = '';
         showToast('User "' + username + '" created!', 'success');
-        await loadUsersTable();
-
       } catch (err) {
-        showToast('Error: ' + err.message, 'error');
+        showToast(err.message, 'error');
       } finally {
         const un = (document.getElementById('new-username') || {}).value || '';
-        btn.disabled = un.trim().length < 3;
-        btn.textContent = 'Create User';
+        if (btn) {
+          btn.disabled = un.trim().length < 3;
+          btn.textContent = 'Create User';
+        }
       }
     }
 
@@ -4100,22 +4118,28 @@ initTheme();
       resetPwTargetId = null;
     }
 
+    async function resetUserPasswordDirect(userId, newPw) {
+      if (!newPw || newPw.length < 6) throw new Error('Password must be at least 6 characters.');
+      const salt = await dcodeIO.bcrypt.genSalt(10);
+      const hash = await dcodeIO.bcrypt.hash(newPw, salt);
+      const { error } = await db.from('users').update({ password_hash: hash }).eq('id', userId);
+      if (error) throw new Error(error.message);
+      await loadUsersTable();
+      return true;
+    }
+
     async function doResetPassword() {
-      const newPw = document.getElementById('reset-pw-new').value;
-      if (!newPw || newPw.length < 6) { showToast('Password must be at least 6 characters.', 'error'); return; }
+      const newPw = (document.getElementById('reset-pw-new') || {}).value || '';
       const btn = document.getElementById('reset-pw-btn');
-      btn.disabled = true; btn.textContent = 'Resetting...';
+      if (btn) { btn.disabled = true; btn.textContent = 'Resetting...'; }
       try {
-        const salt = await dcodeIO.bcrypt.genSalt(10);
-        const hash = await dcodeIO.bcrypt.hash(newPw, salt);
-        const { error } = await db.from('users').update({ password_hash: hash }).eq('id', resetPwTargetId);
-        if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+        await resetUserPasswordDirect(resetPwTargetId, newPw);
         showToast('Password reset successfully.', 'success');
         closeResetPwModal();
       } catch (err) {
         showToast('Error: ' + err.message, 'error');
       } finally {
-        btn.disabled = false; btn.textContent = 'Reset Password';
+        if (btn) { btn.disabled = false; btn.textContent = 'Reset Password'; }
       }
     }
 
@@ -4758,6 +4782,7 @@ initTheme();
     window.MediTrack = {
       getState: () => ({
         currentUser,
+        cachedUsers: Array.isArray(cachedUsers) ? cachedUsers : [],
         allEquipment: Array.isArray(allEquipment) ? allEquipment : [],
         departments: Array.isArray(departments) ? departments : [],
         productTypes: Array.isArray(productTypes) ? productTypes : [],
@@ -4774,7 +4799,11 @@ initTheme();
         loadRequests: typeof loadRequests === 'function' ? loadRequests : null,
         loadUsersTable: typeof loadUsersTable === 'function' ? loadUsersTable : null,
         createUser: typeof createUser === 'function' ? createUser : null,
+        createUserAccount: typeof createUserAccount === 'function' ? createUserAccount : null,
         toggleUserActive: typeof toggleUserActive === 'function' ? toggleUserActive : null,
+        resetUserPasswordDirect: typeof resetUserPasswordDirect === 'function' ? resetUserPasswordDirect : null,
+        openResetPwModal: typeof openResetPwModal === 'function' ? openResetPwModal : null,
+        closeResetPwModal: typeof closeResetPwModal === 'function' ? closeResetPwModal : null,
         doResetPassword: typeof doResetPassword === 'function' ? doResetPassword : null,
         exportAuditCSV: typeof exportAuditCSV === 'function' ? exportAuditCSV : null,
         doLogout: typeof doLogout === 'function' ? doLogout : null,

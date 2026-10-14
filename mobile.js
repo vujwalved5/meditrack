@@ -49,6 +49,7 @@
     const app = getApp();
     return app ? app.getState() : {
       currentUser: null,
+      cachedUsers: [],
       allEquipment: [],
       departments: [],
       productTypes: [],
@@ -1236,37 +1237,108 @@
   // ==========================================
   // M-17: MANAGE USERS SHEET (MANAGER ONLY)
   // ==========================================
-  function openManageUsersSheet() {
-    const actions = getActions();
-    if (actions.loadUsersTable) actions.loadUsersTable();
+  let mUsersFilterStatus = 'all'; // 'all' | 'active' | 'inactive'
+  let mUsersSearchQuery = '';
 
-    const renderUsersContent = () => {
-      const cached = window.cachedUsers || [];
-      const user = (getState().currentUser) || { id: 1 };
+  async function openManageUsersSheet() {
+    const state = getState();
+    const currentUser = state.currentUser;
+    if (!currentUser || currentUser.role !== 'Manager') {
+      mToast('Only managers can access user management.', 'error');
+      return;
+    }
+
+    const actions = getActions();
+
+    let cached = state.cachedUsers || window.cachedUsers || [];
+    const isLoading = (!cached || cached.length === 0);
+
+    const renderUsersContent = (usersList) => {
+      const q = mUsersSearchQuery.toLowerCase().trim();
+      const allCount = usersList.length;
+      const actCount = usersList.filter(u => u.is_active).length;
+      const inactCount = usersList.filter(u => !u.is_active).length;
+
+      const filtered = usersList.filter(u => {
+        const matchStatus = mUsersFilterStatus === 'all' || (mUsersFilterStatus === 'active' ? u.is_active : !u.is_active);
+        const matchSearch = !q ||
+          (u.username && u.username.toLowerCase().includes(q)) ||
+          (u.role && u.role.toLowerCase().includes(q)) ||
+          (u.departments && u.departments.name && u.departments.name.toLowerCase().includes(q));
+        return matchStatus && matchSearch;
+      });
 
       return `
+        <!-- Top bar with Count + Create button -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:700; margin:0;">Staff & Users (${cached.length})</h3>
-          <button id="m-btn-create-user" style="height:36px; padding:0 12px; border-radius:8px; background:var(--primary); color:#fff; border:none; font-size:12px; font-weight:700; cursor:pointer;">
-            + Create User
+          <div>
+            <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:700; margin:0; color:var(--text);">Staff & Users (${allCount})</h3>
+            <div style="font-size:12px; color:var(--text-2); margin-top:2px;">Manage system accounts and access</div>
+          </div>
+          <button id="m-btn-create-user" style="height:36px; padding:0 12px; border-radius:8px; background:var(--primary); color:#fff; border:none; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+            <span>+</span> Create User
           </button>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          ${cached.map(u => {
-            const isSelf = u.id === user.id;
+        <!-- Search input -->
+        <div style="position:relative; margin-bottom:10px;">
+          <input type="search" id="m-users-search" placeholder="Search staff by name or role…" value="${escapeHtml(mUsersSearchQuery)}" style="width:100%; height:40px; padding:0 12px 0 34px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:13.5px; box-sizing:border-box;">
+          <svg style="position:absolute; left:10px; top:12px; width:16px; height:16px; color:var(--text-2); pointer-events:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+
+        <!-- Segmented Filter (All, Active, Inactive) -->
+        <div style="display:flex; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:3px; margin-bottom:14px;">
+          <button type="button" class="m-user-filter-btn" data-status="all" style="flex:1; height:32px; border:none; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; background:${mUsersFilterStatus === 'all' ? 'var(--primary)' : 'transparent'}; color:${mUsersFilterStatus === 'all' ? '#fff' : 'var(--text-2)'}; transition:all 0.15s ease;">
+            All (${allCount})
+          </button>
+          <button type="button" class="m-user-filter-btn" data-status="active" style="flex:1; height:32px; border:none; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; background:${mUsersFilterStatus === 'active' ? 'var(--primary)' : 'transparent'}; color:${mUsersFilterStatus === 'active' ? '#fff' : 'var(--text-2)'}; transition:all 0.15s ease;">
+            Active (${actCount})
+          </button>
+          <button type="button" class="m-user-filter-btn" data-status="inactive" style="flex:1; height:32px; border:none; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; background:${mUsersFilterStatus === 'inactive' ? 'var(--primary)' : 'transparent'}; color:${mUsersFilterStatus === 'inactive' ? '#fff' : 'var(--text-2)'}; transition:all 0.15s ease;">
+            Inactive (${inactCount})
+          </button>
+        </div>
+
+        <!-- Users List -->
+        <div id="m-users-list" style="display:flex; flex-direction:column; gap:8px;">
+          ${filtered.length === 0 ? `
+            <div style="padding:32px 16px; text-align:center; color:var(--text-2); background:var(--surface-2); border:1px solid var(--border); border-radius:12px;">
+              <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px;">No users found</div>
+              <div style="font-size:12px;">No accounts match your search or filter.</div>
+            </div>
+          ` : filtered.map(u => {
+            const isSelf = u.id === currentUser.id;
             const deptName = u.departments ? u.departments.name : '—';
+            const roleKey = (u.role || '').toLowerCase();
+            const roleClass = roleKey.includes('doctor') ? 'doctor' : (roleKey.includes('manager') ? 'manager' : 'staff');
+
             return `
-              <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <div style="font-size:13.5px; font-weight:700; color:var(--text);">${escapeHtml(u.username)} ${isSelf ? '<span style="font-size:11px; color:var(--primary); font-weight:600;">(You)</span>' : ''}</div>
-                  <div style="font-size:11.5px; color:var(--text-2); margin-top:2px;">${escapeHtml(u.role)} · ${escapeHtml(deptName)} · <span style="font-weight:600; color:${u.is_active ? 'var(--success)' : 'var(--neutral)'};">${u.is_active ? 'Active' : 'Inactive'}</span></div>
+              <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="flex:1; min-width:0; padding-right:10px;">
+                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                    <span style="font-size:14px; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(u.username)}</span>
+                    ${isSelf ? '<span style="font-size:11px; color:var(--primary); font-weight:700; background:var(--primary-tint); padding:1px 6px; border-radius:6px;">You</span>' : ''}
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11.5px; color:var(--text-2);">
+                    <span class="m-role-pill ${roleClass}">${escapeHtml(u.role)}</span>
+                    <span>·</span>
+                    <span>${escapeHtml(deptName)}</span>
+                    <span>·</span>
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:1px 6px; border-radius:6px; background:${u.is_active ? 'var(--success-tint)' : 'var(--surface)'}; color:${u.is_active ? 'var(--success)' : 'var(--text-2)'}; border:1px solid ${u.is_active ? 'transparent' : 'var(--border)'};">
+                      <span style="width:5px; height:5px; border-radius:50%; background:currentColor;"></span>
+                      ${u.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
                 </div>
 
                 ${!isSelf ? `
-                  <div style="display:flex; gap:6px;">
-                    <button class="m-user-reset-btn" data-userid="${u.id}" data-username="${escapeHtml(u.username)}" style="height:32px; padding:0 10px; border-radius:8px; background:var(--surface); border:1px solid var(--border); font-size:11px; font-weight:600; cursor:pointer;">Reset</button>
-                    <button class="m-user-toggle-btn" data-userid="${u.id}" data-username="${escapeHtml(u.username)}" data-active="${u.is_active}" style="height:32px; padding:0 10px; border-radius:8px; background:var(--surface); border:1px solid var(--border); font-size:11px; font-weight:600; cursor:pointer; color:${u.is_active ? 'var(--danger)' : 'var(--success)'};">${u.is_active ? 'Deactivate' : 'Reactivate'}</button>
+                  <div style="display:flex; gap:6px; flex-shrink:0;">
+                    <button class="m-user-reset-btn" data-userid="${u.id}" data-username="${escapeHtml(u.username)}" style="height:32px; padding:0 10px; border-radius:8px; background:var(--surface); border:1px solid var(--border); color:var(--text); font-size:11.5px; font-weight:600; cursor:pointer;" aria-label="Reset password for ${escapeHtml(u.username)}">
+                      Reset
+                    </button>
+                    <button class="m-user-toggle-btn" data-userid="${u.id}" data-username="${escapeHtml(u.username)}" data-active="${u.is_active}" style="height:32px; padding:0 10px; border-radius:8px; background:var(--surface); border:1px solid var(--border); font-size:11.5px; font-weight:600; cursor:pointer; color:${u.is_active ? 'var(--danger)' : 'var(--success)'};" aria-label="${u.is_active ? 'Deactivate' : 'Reactivate'} ${escapeHtml(u.username)}">
+                      ${u.is_active ? 'Deactivate' : 'Reactivate'}
+                    </button>
                   </div>
                 ` : ''}
               </div>
@@ -1276,55 +1348,408 @@
       `;
     };
 
+    const attachSheetListeners = (currentList) => {
+      // Filter segmented buttons
+      document.querySelectorAll('.m-user-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          mUsersFilterStatus = btn.dataset.status;
+          const bodyEl = document.getElementById('m-sheet-body-content');
+          if (bodyEl) {
+            bodyEl.innerHTML = renderUsersContent(currentList);
+            attachSheetListeners(currentList);
+          }
+        });
+      });
+
+      // Search input
+      const searchInput = document.getElementById('m-users-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          mUsersSearchQuery = e.target.value;
+          const bodyEl = document.getElementById('m-sheet-body-content');
+          if (bodyEl) {
+            bodyEl.innerHTML = renderUsersContent(currentList);
+            attachSheetListeners(currentList);
+            const newSearch = document.getElementById('m-users-search');
+            if (newSearch) {
+              newSearch.focus();
+              newSearch.setSelectionRange(mUsersSearchQuery.length, mUsersSearchQuery.length);
+            }
+          }
+        });
+      }
+
+      // Create user button
+      document.getElementById('m-btn-create-user')?.addEventListener('click', () => {
+        openCreateUserSheet();
+      });
+
+      // Reset password button
+      document.querySelectorAll('.m-user-reset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const uid = parseInt(btn.dataset.userid, 10);
+          const uname = btn.dataset.username;
+          openResetPasswordSheet(uid, uname);
+        });
+      });
+
+      // Toggle active / deactive button
+      document.querySelectorAll('.m-user-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const uid = parseInt(btn.dataset.userid, 10);
+          const uname = btn.dataset.username;
+          const isActive = btn.dataset.active === 'true';
+
+          openConfirmSheet({
+            title: `${isActive ? 'Deactivate' : 'Reactivate'} ${uname}?`,
+            body: isActive ? 'They will no longer be able to sign in. You can reactivate them at any time.' : 'They will regain access to sign in.',
+            confirmLabel: isActive ? 'Deactivate' : 'Reactivate',
+            isDestructive: isActive,
+            onConfirm: async () => {
+              if (actions.toggleUserActive) {
+                await actions.toggleUserActive(uid, !isActive);
+                const updated = getState().cachedUsers || window.cachedUsers || [];
+                const bodyEl = document.getElementById('m-sheet-body-content');
+                if (bodyEl) {
+                  bodyEl.innerHTML = renderUsersContent(updated);
+                  attachSheetListeners(updated);
+                }
+              }
+            }
+          });
+        });
+      });
+    };
+
+    // Open sheet
     mOpenSheet({
       id: 'manage-users',
       title: 'Manage Users',
-      bodyHtml: renderUsersContent(),
+      bodyHtml: isLoading ? `
+        <div style="padding:32px 16px; text-align:center; color:var(--text-2);">
+          <div style="font-size:24px; margin-bottom:8px;">⏳</div>
+          <div style="font-size:14px; font-weight:600; color:var(--text);">Loading users…</div>
+        </div>
+      ` : renderUsersContent(cached),
       footerHtml: `
         <button onclick="window.MediTrackMobile.closeSheet()" style="width:100%; height:44px; border-radius:10px; background:var(--surface-2); border:1px solid var(--border); color:var(--text); font-weight:600; font-size:13px; cursor:pointer;">
           Done
         </button>
       `,
-      onMounted: () => {
-        // Reset password handler
-        document.querySelectorAll('.m-user-reset-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const uid = parseInt(btn.dataset.userid, 10);
-            const uname = btn.dataset.username;
-            if (actions.openResetPwModal) actions.openResetPwModal(uid, uname);
-          });
-        });
-
-        // Toggle active handler with confirm sheet
-        document.querySelectorAll('.m-user-toggle-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const uid = parseInt(btn.dataset.userid, 10);
-            const uname = btn.dataset.username;
-            const isActive = btn.dataset.active === 'true';
-
-            openConfirmSheet({
-              title: `${isActive ? 'Deactivate' : 'Reactivate'} ${uname}?`,
-              body: isActive ? 'They will no longer be able to sign in.' : 'They will regain access to sign in.',
-              confirmLabel: isActive ? 'Deactivate' : 'Reactivate',
-              isDestructive: isActive,
-              onConfirm: async () => {
-                if (actions.toggleUserActive) await actions.toggleUserActive(uid, !isActive);
-                openManageUsersSheet();
-              }
-            });
-          });
-        });
-
-        // Create user button
-        document.getElementById('m-btn-create-user')?.addEventListener('click', () => {
-          const createSec = document.getElementById('create-user-section') || document.querySelector('.user-create-card');
-          if (createSec) {
-            createSec.scrollIntoView({ behavior: 'smooth' });
+      onMounted: async () => {
+        if (!isLoading) {
+          attachSheetListeners(cached);
+        }
+        // Always ensure fresh user list from DB
+        if (actions.loadUsersTable) {
+          const fresh = await actions.loadUsersTable();
+          const list = (fresh && fresh.length) ? fresh : (getState().cachedUsers || window.cachedUsers || []);
+          const bodyEl = document.getElementById('m-sheet-body-content');
+          if (bodyEl) {
+            bodyEl.innerHTML = renderUsersContent(list);
+            attachSheetListeners(list);
           }
-          mCloseSheet();
-          const pageUsers = document.getElementById('page-users');
-          if (pageUsers) actions.showPage('users');
+        }
+      }
+    });
+  }
+
+  // ==========================================
+  // CREATE USER SHEET (M-17 SUB-SCREEN)
+  // ==========================================
+  function openCreateUserSheet() {
+    const state = getState();
+    const depts = state.departments || [];
+    const actions = getActions();
+
+    const bodyHtml = `
+      <form id="m-form-create-user" style="display:flex; flex-direction:column; gap:14px;" onsubmit="return false;">
+        <div>
+          <label for="m-new-username" style="display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px;">Username *</label>
+          <input type="text" id="m-new-username" autocomplete="off" placeholder="e.g. nurse.sarah" style="width:100%; height:44px; padding:0 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:16px; box-sizing:border-box;">
+          <div id="m-new-user-error" style="font-size:11.5px; color:var(--danger); margin-top:4px; display:none;"></div>
+        </div>
+
+        <div>
+          <label for="m-new-role" style="display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px;">Role *</label>
+          <select id="m-new-role" style="width:100%; height:44px; padding:0 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:16px; box-sizing:border-box;">
+            <option value="Staff">Staff</option>
+            <option value="Senior Doctor">Senior Doctor</option>
+            <option value="Manager">Manager</option>
+          </select>
+          <div id="m-role-helper" style="font-size:11.5px; color:var(--text-2); margin-top:4px;">Can check equipment in and out.</div>
+        </div>
+
+        <div>
+          <label for="m-new-dept" style="display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px;">Department</label>
+          <select id="m-new-dept" style="width:100%; height:44px; padding:0 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:16px; box-sizing:border-box;">
+            <option value="">— No Department —</option>
+            ${depts.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('')}
+          </select>
+        </div>
+
+        <div style="background:var(--primary-tint); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12px; color:var(--text-2);">
+          💡 A temporary password will be auto-generated and shown once upon creation.
+        </div>
+      </form>
+    `;
+
+    const footerHtml = `
+      <div style="display:flex; gap:10px; width:100%;">
+        <button id="m-create-user-cancel" style="flex:1; height:44px; border-radius:10px; background:var(--surface-2); border:1px solid var(--border); color:var(--text); font-weight:600; font-size:13.5px; cursor:pointer;">
+          Cancel
+        </button>
+        <button id="m-create-user-submit" disabled style="flex:1; height:44px; border-radius:10px; background:var(--primary); border:none; color:#fff; font-weight:700; font-size:13.5px; cursor:pointer; opacity:0.5;">
+          Create User
+        </button>
+      </div>
+    `;
+
+    mOpenSheet({
+      id: 'create-user',
+      title: 'Create User',
+      bodyHtml,
+      footerHtml,
+      onMounted: () => {
+        const usernameInput = document.getElementById('m-new-username');
+        const roleSelect = document.getElementById('m-new-role');
+        const deptSelect = document.getElementById('m-new-dept');
+        const roleHelper = document.getElementById('m-role-helper');
+        const submitBtn = document.getElementById('m-create-user-submit');
+        const cancelBtn = document.getElementById('m-create-user-cancel');
+        const errorDiv = document.getElementById('m-new-user-error');
+
+        roleSelect?.addEventListener('change', () => {
+          const role = roleSelect.value;
+          if (role === 'Manager') {
+            roleHelper.textContent = 'Full access, including user management and equipment catalog.';
+          } else if (role === 'Senior Doctor') {
+            roleHelper.textContent = 'Can request equipment and view department activity.';
+          } else {
+            roleHelper.textContent = 'Can check equipment in and out.';
+          }
         });
+
+        usernameInput?.addEventListener('input', () => {
+          const val = usernameInput.value.trim();
+          if (errorDiv) errorDiv.style.display = 'none';
+          if (val.length >= 3) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+          } else {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+          }
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+          openManageUsersSheet();
+        });
+
+        submitBtn?.addEventListener('click', async () => {
+          const username = usernameInput.value.trim();
+          const role = roleSelect.value;
+          const deptId = deptSelect.value;
+
+          if (username.length < 3) {
+            if (errorDiv) {
+              errorDiv.textContent = 'Username must be at least 3 characters.';
+              errorDiv.style.display = 'block';
+            }
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Creating user…';
+
+          try {
+            if (!actions.createUserAccount) {
+              throw new Error('User creation is not available.');
+            }
+            const result = await actions.createUserAccount(username, role, deptId);
+            openUserCreatedSuccessSheet(result.username, result.tempPw);
+          } catch (err) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create User';
+            if (errorDiv) {
+              errorDiv.textContent = err.message || 'Failed to create user.';
+              errorDiv.style.display = 'block';
+            }
+            mToast(err.message || 'Failed to create user.', 'error');
+          }
+        });
+
+        usernameInput?.focus();
+      }
+    });
+  }
+
+  // ==========================================
+  // TEMPORARY PASSWORD DISPLAY SHEET (M-17 SUB-SCREEN)
+  // ==========================================
+  function openUserCreatedSuccessSheet(username, tempPw) {
+    const bodyHtml = `
+      <div style="text-align:center; padding:12px 0;">
+        <div style="width:48px; height:48px; border-radius:50%; background:var(--success-tint); color:var(--success); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px;">✓</div>
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:17px; font-weight:700; margin:0 0 6px; color:var(--text);">User Created Successfully</h3>
+        <p style="font-size:13px; color:var(--text-2); margin:0 0 16px;"><strong>${escapeHtml(username)}</strong> has been added to MediTrack.</p>
+
+        <div style="background:var(--surface-2); border:1.5px dashed var(--primary); border-radius:12px; padding:16px; margin-bottom:12px;">
+          <div style="font-size:11px; text-transform:uppercase; font-weight:700; letter-spacing:0.5px; color:var(--primary); margin-bottom:6px;">Temporary Password</div>
+          <div id="m-temp-pw-text" style="font-family:monospace; font-size:22px; font-weight:700; color:var(--text); letter-spacing:1px; user-select:all;">${escapeHtml(tempPw)}</div>
+        </div>
+
+        <button id="m-btn-copy-temp-pw" style="width:100%; height:44px; border-radius:10px; background:var(--primary); color:#fff; border:none; font-size:13.5px; font-weight:700; cursor:pointer; margin-bottom:12px; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+          <span>📋</span> <span id="m-copy-pw-label">Copy Temporary Password</span>
+        </button>
+
+        <p style="font-size:11.5px; color:var(--text-2); margin:0; line-height:1.4;">
+          ⚠️ Share this password once with the user — it will not be shown again.
+        </p>
+      </div>
+    `;
+
+    const footerHtml = `
+      <button id="m-success-done" style="width:100%; height:44px; border-radius:10px; background:var(--surface-2); border:1px solid var(--border); color:var(--text); font-weight:600; font-size:13.5px; cursor:pointer;">
+        Done & Return to Users
+      </button>
+    `;
+
+    mOpenSheet({
+      id: 'user-created-success',
+      title: 'Temporary Password',
+      bodyHtml,
+      footerHtml,
+      onMounted: () => {
+        document.getElementById('m-btn-copy-temp-pw')?.addEventListener('click', () => {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(tempPw);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = tempPw;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            ta.remove();
+          }
+          const label = document.getElementById('m-copy-pw-label');
+          if (label) label.textContent = 'Copied to Clipboard!';
+          mToast('Temporary password copied!', 'success');
+        });
+
+        document.getElementById('m-success-done')?.addEventListener('click', () => {
+          openManageUsersSheet();
+        });
+      }
+    });
+  }
+
+  // ==========================================
+  // RESET PASSWORD SHEET (M-17 SUB-SCREEN)
+  // ==========================================
+  function openResetPasswordSheet(userId, username) {
+    const actions = getActions();
+
+    const bodyHtml = `
+      <form id="m-form-reset-pw" style="display:flex; flex-direction:column; gap:14px;" onsubmit="return false;">
+        <div>
+          <div style="font-size:13.5px; color:var(--text-2); margin-bottom:12px;">
+            Set a new password for <strong>${escapeHtml(username)}</strong>.
+          </div>
+          <label for="m-reset-pw-input" style="display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px;">New Password (min 6 chars) *</label>
+          <div style="position:relative;">
+            <input type="text" id="m-reset-pw-input" placeholder="Enter new password…" style="width:100%; height:44px; padding:0 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:16px; box-sizing:border-box;">
+          </div>
+          <div id="m-reset-pw-error" style="font-size:11.5px; color:var(--danger); margin-top:4px; display:none;"></div>
+        </div>
+
+        <button type="button" id="m-btn-generate-pw" style="height:36px; padding:0 12px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border); color:var(--primary); font-size:12.5px; font-weight:600; cursor:pointer; align-self:flex-start;">
+          ⚡ Generate Random Password
+        </button>
+      </form>
+    `;
+
+    const footerHtml = `
+      <div style="display:flex; gap:10px; width:100%;">
+        <button id="m-reset-pw-cancel" style="flex:1; height:44px; border-radius:10px; background:var(--surface-2); border:1px solid var(--border); color:var(--text); font-weight:600; font-size:13.5px; cursor:pointer;">
+          Cancel
+        </button>
+        <button id="m-reset-pw-submit" disabled style="flex:1; height:44px; border-radius:10px; background:var(--primary); border:none; color:#fff; font-weight:700; font-size:13.5px; cursor:pointer; opacity:0.5;">
+          Save Password
+        </button>
+      </div>
+    `;
+
+    mOpenSheet({
+      id: 'reset-user-password',
+      title: 'Reset Password',
+      bodyHtml,
+      footerHtml,
+      onMounted: () => {
+        const pwInput = document.getElementById('m-reset-pw-input');
+        const genBtn = document.getElementById('m-btn-generate-pw');
+        const submitBtn = document.getElementById('m-reset-pw-submit');
+        const cancelBtn = document.getElementById('m-reset-pw-cancel');
+        const errorDiv = document.getElementById('m-reset-pw-error');
+
+        const validate = () => {
+          const val = pwInput.value;
+          if (errorDiv) errorDiv.style.display = 'none';
+          if (val.length >= 6) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+          } else {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+          }
+        };
+
+        pwInput?.addEventListener('input', validate);
+
+        genBtn?.addEventListener('click', () => {
+          const array = new Uint32Array(2);
+          window.crypto.getRandomValues(array);
+          const generated = 'Tmp' + array[0].toString(36) + '!';
+          pwInput.value = generated;
+          validate();
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+          openManageUsersSheet();
+        });
+
+        submitBtn?.addEventListener('click', async () => {
+          const newPw = pwInput.value;
+          if (newPw.length < 6) {
+            if (errorDiv) {
+              errorDiv.textContent = 'Password must be at least 6 characters.';
+              errorDiv.style.display = 'block';
+            }
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving…';
+
+          try {
+            if (!actions.resetUserPasswordDirect) {
+              throw new Error('Password reset is not available.');
+            }
+            await actions.resetUserPasswordDirect(userId, newPw);
+            mToast(`Password updated for ${username}`, 'success');
+            openUserCreatedSuccessSheet(username, newPw);
+          } catch (err) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Password';
+            if (errorDiv) {
+              errorDiv.textContent = err.message || 'Failed to reset password.';
+              errorDiv.style.display = 'block';
+            }
+            mToast(err.message || 'Failed to reset password.', 'error');
+          }
+        });
+
+        pwInput?.focus();
       }
     });
   }
