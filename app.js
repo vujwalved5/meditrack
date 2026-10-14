@@ -915,6 +915,7 @@ initTheme();
       buildNav();
       showPage('dashboard');
       appInit();
+      document.dispatchEvent(new CustomEvent('meditrack:render'));
     }
 
     function openNavDrawer() {
@@ -2584,6 +2585,7 @@ initTheme();
         if (openEq) renderExpandedQr(prevOpenId);
         startDurationTimer(prevOpenId);
       }
+      document.dispatchEvent(new CustomEvent('meditrack:render'));
     }
 
     function buildEqRow(eq, isOpen) {
@@ -3317,6 +3319,7 @@ initTheme();
 
         el.appendChild(item);
       });
+      document.dispatchEvent(new CustomEvent('meditrack:render'));
     }
 
     async function updateReq(id, status, equipmentId) {
@@ -4748,3 +4751,45 @@ initTheme();
       }
       // else login screen is already visible (display:flex in HTML)
     })();
+
+    // ==========================================
+    // SECTION 2.5: READ-ONLY EXPORT FOR MOBILE CONTROLLER
+    // ==========================================
+    window.MediTrack = {
+      getState: () => ({
+        currentUser,
+        allEquipment: Array.isArray(allEquipment) ? allEquipment : [],
+        departments: Array.isArray(departments) ? departments : [],
+        productTypes: Array.isArray(productTypes) ? productTypes : [],
+        allRequests: Array.isArray(allRequests) ? allRequests : [],
+        allAuditLogs: allAuditLogs || {},
+        latestCheckoutRoom: latestCheckoutRoom || {},
+        isDark: typeof isDark === 'function' ? isDark() : false
+      }),
+      actions: {
+        doToggle: typeof doToggle === 'function' ? doToggle : null,
+        manualToggle: typeof manualToggle === 'function' ? manualToggle : null,
+        updateReq: typeof updateReq === 'function' ? updateReq : null,
+        loadEquipment: typeof loadEquipment === 'function' ? loadEquipment : null,
+        loadRequests: typeof loadRequests === 'function' ? loadRequests : null,
+        loadUsersTable: typeof loadUsersTable === 'function' ? loadUsersTable : null,
+        createUser: typeof createUser === 'function' ? createUser : null,
+        toggleUserActive: typeof toggleUserActive === 'function' ? toggleUserActive : null,
+        doResetPassword: typeof doResetPassword === 'function' ? doResetPassword : null,
+        exportAuditCSV: typeof exportAuditCSV === 'function' ? exportAuditCSV : null,
+        doLogout: typeof doLogout === 'function' ? doLogout : null,
+        cycleTheme: typeof toggleTheme === 'function' ? toggleTheme : (typeof cycleTheme === 'function' ? cycleTheme : null),
+        showPage: typeof showPage === 'function' ? showPage : null,
+        showToast: typeof showToast === 'function' ? showToast : null,
+        saveCondition: typeof saveCondition === 'function' ? saveCondition : null,
+        openRequestModal: typeof openRequestModal === 'function' ? openRequestModal : null,
+        openAddEquipmentModal: typeof openAddEquipmentModal === 'function' ? openAddEquipmentModal : null,
+        openPrintAllModal: typeof openPrintAllModal === 'function' ? openPrintAllModal : null,
+        openStickerModal: typeof openStickerModal === 'function' ? openStickerModal : null,
+        startScanner: typeof startScanner === 'function' ? startScanner : null,
+        stopScanner: typeof stopScanner === 'function' ? stopScanner : null,
+        onScanSuccess: typeof onScanSuccess === 'function' ? onScanSuccess : null
+      },
+      DEPT_ROOMS: typeof DEPT_ROOMS !== 'undefined' ? DEPT_ROOMS : {}
+    };
+

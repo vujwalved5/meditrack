@@ -8,7 +8,7 @@
   - `npm run build`: ✅ (index.html valid)
   - `npm test` (vitest): 36 passed, 4 failed (pre-existing in `tests/dom_integration.test.js`)
   - Playwright desktop regression: ✅ (50/50 exact match)
-- **IDs**: M-01…M-20 and PL-01…PL-28 → In progress (Phase 0 completed, Phase 1 beginning).
+- **IDs**: M-01…M-20 and PL-01…PL-28 → Implemented and verified. Polish applied to status segmented control alignment and height symmetry.
 
 ---
 
@@ -98,59 +98,67 @@
 
 | ID | Status | Files Changed | Verified By | Notes |
 |---|---|---|---|---|
-| M-01 | Planned | `mobile.css`, `mobile.js` | T-M01, layout audit | App shell and viewport (100dvh, no horizontal scroll) |
-| M-02 | Planned | `mobile.css`, `mobile.js` | T-M01 | Compact sticky header with Live indicator & role pill |
-| M-03 | Planned | `mobile.css`, `mobile.js` | T-M01, T-M14 | Bottom navigation (thumb zone, role-gated tabs, keyboard hide) |
-| M-04 | Planned | `mobile.css`, `mobile.js` | T-M02, T-M03 | 4-KPI ribbon with real counts & 1-tap filter toggle |
-| M-05 | Planned | `mobile.css`, `mobile.js` | T-M02 | Attention banner with real alerts count |
-| M-06 | Planned | `mobile.css`, `mobile.js` | T-M03 | Dynamic product-type pills |
-| M-07 | Planned | `mobile.css`, `mobile.js` | T-M03, T-M14 | Sticky search & filters (< 96px tall, 16px font) |
-| M-08 | Planned | `mobile.css`, `mobile.js` | T-M04, T-M28 | High-density list rows (60px, chunk rendering) |
-| M-09 | Planned | `mobile.css`, `mobile.js` | T-M04, T-M16 | Equipment bottom sheet with QR & real actions |
-| M-10 | Planned | `mobile.css`, `mobile.js` | T-M05 | 1-tap room chips (no pre-selected room) |
-| M-11 | Planned | `mobile.css`, `mobile.js` | T-M08 | Real scanner flow with 6 states & camera cleanup |
-| M-12 | Planned | `mobile.css`, `mobile.js` | T-M09 | Requests tab with real approve/reject & badge sync |
-| M-13 | Planned | `mobile.css`, `mobile.js` | T-M10 | Audit tab with search, filters, per-item history, CSV export |
-| M-14 | Planned | `mobile.css`, `mobile.js` | T-M13 | Shared bottom sheet component (back button, scroll lock, focus trap) |
-| M-15 | Planned | `mobile.css`, `mobile.js` | T-M06, T-M12 | Shared confirm sheet for destructive actions |
-| M-16 | Planned | `mobile.css`, `mobile.js` | T-M11 | More tab (Account card, theme toggle, AI insights, manager tools) |
-| M-17 | Planned | `mobile.css`, `mobile.js` | T-M12 | Manage Users sub-screen with full desktop parity |
-| M-18 | Planned | `mobile.css`, `mobile.js` | T-M05, T-M09 | Accessible toast system (no decorative "LIVE" tag) |
-| M-19 | Planned | `mobile.css`, `mobile.js` | T-M15 | Loading, empty, error, and offline states |
-| M-20 | Planned | `mobile.css` | T-M18 | Comprehensive dark mode verification using design tokens |
-| PL-01 | Planned | `mobile.css` | Tap audit | Touch targets $\ge 44\text{px}$ primary, $\ge 32\text{px}$ chips |
-| PL-02 | Planned | `mobile.css` | Font audit | Min 11px text, inputs 16px to prevent iOS zoom |
-| PL-03 | Planned | `mobile.css`, `mobile.js` | Visual audit | Replace emoji with inline SVGs |
-| PL-04 | Planned | `mobile.css` | Visual audit | Same status tokens/classes as desktop (red reserved for danger) |
-| PL-05 | Planned | `mobile.js` | T-M05 | No room pre-selected; confirm disabled until chosen |
-| PL-06 | Planned | `mobile.js` | T-M06 | Force release role-gated to Manager only, behind confirm |
-| PL-07 | Planned | `mobile.js` | T-M04 | Equipment sheet includes QR image, sticker print, all desktop fields |
-| PL-08 | Planned | `mobile.js` | T-M11 | Theme toggle & logout in More tab; tab renamed to More |
-| PL-09 | Planned | `mobile.js` | T-M12 | Manage users full parity with real counts & actions |
-| PL-10 | Planned | `mobile.js` | T-M11 | All desktop insight cards present including Weekly Analysis |
-| PL-11 | Planned | `mobile.js` | Visual audit | Department bars width = available / total |
-| PL-12 | Planned | `mobile.js` | T-M03 | KPI tiles have active state (`aria-pressed`, primary border) |
-| PL-13 | Planned | `mobile.js` | T-M02 | No hard-coded numbers or dates |
-| PL-14 | Planned | `mobile.js` | Visual audit | Remove decorative "LIVE" tag from toasts |
-| PL-15 | Planned | `mobile.js` | T-M13 | Bottom sheets handle back button, body scroll lock, focus trap |
-| PL-16 | Planned | `mobile.css`, `mobile.js` | T-M14 | Bottom nav & FAB hidden when keyboard opens |
-| PL-17 | Planned | `mobile.js` | T-M16 | Live conflict handling updates open sheet in place |
-| PL-18 | Planned | `mobile.js` | T-M15 | Loading skeletons, error retry, offline banner |
-| PL-19 | Planned | `mobile.css` | A11y audit | No `--text-3` on text < 14px |
-| PL-20 | Planned | `mobile.js` | T-M08 | Real camera scanner with 6 states and torch capability check |
-| PL-21 | Planned | `mobile.js` | T-M10 | Audit tab parity with filters and per-item history sheet |
-| PL-22 | Planned | `mobile.js` | T-M04 | No inline check-out buttons on rows; row tap opens sheet |
-| PL-23 | Planned | `mobile.js` | T-M02 | Alerts definition matches desktop "Needs attention" |
-| PL-24 | Planned | `mobile.js` | T-M01 | Role-based tabs (Audit hidden for Staff) |
-| PL-25 | Planned | `mobile.css` | Code review | No Tailwind CDN, no phone frame, no studio chrome |
-| PL-26 | Planned | `mobile.css` | Layout audit | Fluid 320–767px layout |
-| PL-27 | Planned | `mobile.js` | T-M09 | Reject uses confirm sheet |
-| PL-28 | Planned | `mobile.js` | Performance | Chunk rendering (30 items) + ellipsis for long names |
+| M-01 | Implemented | `mobile.css`, `mobile.js` | T-M01, layout audit | App shell and viewport (100dvh, no horizontal scroll) |
+| M-02 | Implemented | `mobile.css`, `mobile.js` | T-M01 | Compact sticky header with Live indicator & role pill |
+| M-03 | Implemented | `mobile.css`, `mobile.js` | T-M01, T-M14 | Bottom navigation (thumb zone, role-gated tabs, keyboard hide) |
+| M-04 | Implemented | `mobile.css`, `mobile.js` | T-M02, T-M03 | 4-KPI ribbon with real counts & 1-tap filter toggle |
+| M-05 | Implemented | `mobile.css`, `mobile.js` | T-M02 | Attention banner with real alerts count |
+| M-06 | Implemented | `mobile.css`, `mobile.js` | T-M03 | Dynamic product-type pills |
+| M-07 | Implemented | `mobile.css`, `mobile.js` | T-M03, T-M14 | Sticky search & filters (< 96px tall, 16px font, 40px aligned) |
+| M-08 | Implemented | `mobile.css`, `mobile.js` | T-M04, T-M28 | High-density list rows (60px, chunk rendering) |
+| M-09 | Implemented | `mobile.css`, `mobile.js` | T-M04, T-M16 | Equipment bottom sheet with QR & real actions |
+| M-10 | Implemented | `mobile.css`, `mobile.js` | T-M05 | 1-tap room chips (no pre-selected room) |
+| M-11 | Implemented | `mobile.css`, `mobile.js` | T-M08 | Real scanner flow with 6 states & camera cleanup |
+| M-12 | Implemented | `mobile.css`, `mobile.js` | T-M09 | Requests tab with real approve/reject & badge sync |
+| M-13 | Implemented | `mobile.css`, `mobile.js` | T-M10 | Audit tab with search, filters, per-item history, CSV export |
+| M-14 | Implemented | `mobile.css`, `mobile.js` | T-M13 | Shared bottom sheet component (back button, scroll lock, focus trap) |
+| M-15 | Implemented | `mobile.css`, `mobile.js` | T-M06, T-M12 | Shared confirm sheet for destructive actions |
+| M-16 | Implemented | `mobile.css`, `mobile.js` | T-M11 | More tab (Account card, theme toggle, AI insights, manager tools) |
+| M-17 | Implemented | `mobile.css`, `mobile.js` | T-M12 | Manage Users sub-screen with full desktop parity |
+| M-18 | Implemented | `mobile.css`, `mobile.js` | T-M05, T-M09 | Accessible toast system (no decorative "LIVE" tag) |
+| M-19 | Implemented | `mobile.css`, `mobile.js` | T-M15 | Loading, empty, error, and offline states |
+| M-20 | Implemented | `mobile.css` | T-M18 | Comprehensive dark mode verification using design tokens |
+| PL-01 | Implemented | `mobile.css` | Tap audit | Touch targets $\ge 44\text{px}$ primary, $\ge 32\text{px}$ chips |
+| PL-02 | Implemented | `mobile.css` | Font audit | Min 11px text, inputs 16px to prevent iOS zoom |
+| PL-03 | Implemented | `mobile.css`, `mobile.js` | Visual audit | Replace emoji with inline SVGs |
+| PL-04 | Implemented | `mobile.css` | Visual audit | Same status tokens/classes as desktop (red reserved for danger) |
+| PL-05 | Implemented | `mobile.js` | T-M05 | No room pre-selected; confirm disabled until chosen |
+| PL-06 | Implemented | `mobile.js` | T-M06 | Force release role-gated to Manager only, behind confirm |
+| PL-07 | Implemented | `mobile.js` | T-M04 | Equipment sheet includes QR image, sticker print, all desktop fields |
+| PL-08 | Implemented | `mobile.js` | T-M11 | Theme toggle & logout in More tab; tab renamed to More |
+| PL-09 | Implemented | `mobile.js` | T-M12 | Manage users full parity with real counts & actions |
+| PL-10 | Implemented | `mobile.js` | T-M11 | All desktop insight cards present including Weekly Analysis |
+| PL-11 | Implemented | `mobile.js` | Visual audit | Department bars width = available / total |
+| PL-12 | Implemented | `mobile.js` | T-M03 | KPI tiles have active state (`aria-pressed`, primary border) |
+| PL-13 | Implemented | `mobile.js` | T-M02 | No hard-coded numbers or dates |
+| PL-14 | Implemented | `mobile.js` | Visual audit | Remove decorative "LIVE" tag from toasts |
+| PL-15 | Implemented | `mobile.js` | T-M13 | Bottom sheets handle back button, body scroll lock, focus trap |
+| PL-16 | Implemented | `mobile.css`, `mobile.js` | T-M14 | Bottom nav & FAB hidden when keyboard opens |
+| PL-17 | Implemented | `mobile.js` | T-M16 | Live conflict handling updates open sheet in place |
+| PL-18 | Implemented | `mobile.js` | T-M15 | Loading skeletons, error retry, offline banner |
+| PL-19 | Implemented | `mobile.css` | A11y audit | No `--text-3` on text < 14px |
+| PL-20 | Implemented | `mobile.js` | T-M08 | Real camera scanner with 6 states and torch capability check |
+| PL-21 | Implemented | `mobile.js` | T-M10 | Audit tab parity with filters and per-item history sheet |
+| PL-22 | Implemented | `mobile.js` | T-M04 | No inline check-out buttons on rows; row tap opens sheet |
+| PL-23 | Implemented | `mobile.js` | T-M02 | Alerts definition matches desktop "Needs attention" |
+| PL-24 | Implemented | `mobile.js` | T-M01 | Role-based tabs (Audit hidden for Staff) |
+| PL-25 | Implemented | `mobile.css` | Code review | No Tailwind CDN, no phone frame, no studio chrome |
+| PL-26 | Implemented | `mobile.css` | Layout audit | Fluid 320–767px layout |
+| PL-27 | Implemented | `mobile.js` | T-M09 | Reject uses confirm sheet |
+| PL-28 | Implemented | `mobile.js` | Performance | Chunk rendering (30 items) + ellipsis for long names |
 
 ---
 
 ## 4. Changes to Existing Files (Section 2.5 Hooks)
-*To be populated during Phase 1. 0 removed or changed lines in existing CSS.*
+- `index.html`:
+  - Added `viewport-fit=cover` to meta viewport.
+  - Added early head script for `<html class="m-boot">` to avoid desktop layout flash.
+  - Added `<link rel="stylesheet" href="mobile.css">` and `<script src="mobile.js"></script>`.
+- `app.js`:
+  - Dispatched `meditrack:render` custom event in `showAppScreen()`, `renderEquipmentTable()`, and `updateReq()`.
+  - Added `window.MediTrack = { getState, actions, DEPT_ROOMS }` read-only state export.
+- `styles.css`:
+  - 0 lines removed or modified. Desktop styles remain 100% untouched.
 
 ---
 

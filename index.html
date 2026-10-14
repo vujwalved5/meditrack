@@ -3,11 +3,14 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>MediTrack — Hospital Equipment Tracking</title>
   <meta name="description" content="Real-time hospital equipment visibility with role-based access control." />
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#F5F7FA" id="theme-color-meta" />
+  <script>
+    if (window.matchMedia('(max-width: 767px)').matches) document.documentElement.classList.add('m-boot');
+  </script>
   <script>
     (function() {
       try {
@@ -37,6 +40,7 @@
   <!-- bcryptjs for client-side password hashing -->
   <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="mobile.css">
 </head>
 
 <body>
@@ -1128,6 +1132,7 @@
        APPLICATION SCRIPT
   ============================================================ -->
   <script src="app.js"></script>
+  <script src="mobile.js"></script>
 
 </body>
 
