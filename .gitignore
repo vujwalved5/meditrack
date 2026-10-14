@@ -12,6 +12,8 @@ supabase/.temp/
 node_modules/
 dist/
 coverage/
+test-results/
+playwright-report/
 *.log
 
 # Environment files (commit the placeholder template only)

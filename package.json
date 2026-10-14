@@ -4,7 +4,11 @@
   "description": "A real-time hospital equipment visibility prototype with QR-based status updates,\r user authentication, and role-based access control.",
   "main": "index.js",
   "scripts": {
+    "start": "node tests/serve.cjs",
+    "serve": "node tests/serve.cjs",
     "test": "vitest run",
+    "test:desktop": "playwright test tests/desktop_regression.spec.js",
+    "test:mobile": "playwright test tests/mobile_functional.spec.js",
     "lint": "node scripts/lint.js",
     "build": "node scripts/build.js"
   },
@@ -21,6 +25,8 @@
   },
   "homepage": "https://github.com/vujwalved5/meditrack#readme",
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.64.1",
     "jsdom": "^30.1.2",
     "vitest": "^5.0.3"
   }

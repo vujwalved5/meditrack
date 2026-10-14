@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediTrack — Mobile UI Design Renders & UX Audit Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #F3F4F6;
+      --surface: #FFFFFF;
+      --surface-2: #F7F8FA;
+      --border: #E8EAEE;
+      --text: #14161A;
+      --text-2: #5B616B;
+      --text-3: #8B919B;
+      --primary: #2F5BEA;
+      --primary-strong: #2548C4;
+      --primary-tint: #E9EEFD;
+      --success: #16A34A;
+      --success-tint: #E7F6EC;
+      --danger: #DC2626;
+      --danger-tint: #FDECEC;
+      --warning: #D97706;
+      --warning-tint: #FEF3E2;
+      --neutral: #6B7280;
+      --neutral-tint: #EEF0F3;
+      --grad-highlight: linear-gradient(135deg, #2F5BEA 0%, #4C7BFF 100%);
+    }
+
+    [data-phone-theme="dark"] {
+      --bg: #0F1012;
+      --surface: #1B1C1F;
+      --surface-2: #232428;
+      --border: #2C2D32;
+      --text: #F2F3F5;
+      --text-2: #B0B4BC;
+      --text-3: #7E838D;
+      --primary: #4F7BFF;
+      --primary-strong: #6D93FF;
+      --primary-tint: #1E2A4F;
+      --success: #34D399;
+      --success-tint: #12301F;
+      --danger: #F87171;
+      --danger-tint: #3A1717;
+      --warning: #FBBF24;
+      --warning-tint: #3A2A0E;
+      --neutral: #9CA3AF;
+      --neutral-tint: #2A2C31;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0B0F19;
+      color: #F8FAFC;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Phone Frame Realism */
+    .phone-frame {
+      width: 375px;
+      height: 780px;
+      border-radius: 46px;
+      padding: 11px;
+      background: linear-gradient(145deg, #334155 0%, #0f172a 50%, #1e293b 100%);
+      box-shadow:
+        0 25px 60px -15px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(255, 255, 255, 0.12),
+        inset 0 1px 2px rgba(255, 255, 255, 0.25);
+      position: relative;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 36px;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .phone-notch {
+      width: 110px;
+      height: 22px;
+      background: #090D16;
+      border-radius: 999px;
+      margin: 6px auto 2px;
+      position: relative;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      flex-shrink: 0;
+    }
+    .phone-notch::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #38bdf8 0%, #0284c7 40%, #0f172a 100%);
+      opacity: 0.7;
+    }
+
+    /* Custom Scrollbars inside phone */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .thin-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+    .thin-scroll::-webkit-scrollbar-track { background: transparent; }
+    .thin-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.35); border-radius: 999px; }
+
+    /* Phone internal tokens */
+    .p-surface { background: var(--surface); border-color: var(--border); color: var(--text); }
+    .p-surface-2 { background: var(--surface-2); border-color: var(--border); color: var(--text); }
+    .p-border { border-color: var(--border); }
+    .p-text { color: var(--text); }
+    .p-text-2 { color: var(--text-2); }
+    .p-text-3 { color: var(--text-3); }
+
+    .badge-avail { background: var(--success-tint); color: var(--success); }
+    .badge-inuse { background: var(--danger-tint); color: var(--danger); }
+    .badge-warn  { background: var(--warning-tint); color: var(--warning); }
+    .badge-neutral { background: var(--neutral-tint); color: var(--neutral); }
+    .badge-primary { background: var(--primary-tint); color: var(--primary); }
+
+    /* Scanner laser animation */
+    @keyframes scan-laser {
+      0%, 100% { top: 14%; opacity: 0.9; }
+      50% { top: 84%; opacity: 1; }
+    }
+    .laser-line {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      height: 2px;
+      background: #38bdf8;
+      box-shadow: 0 0 12px 3px rgba(56, 189, 248, 0.75);
+      animation: scan-laser 2.2s ease-in-out infinite;
+    }
+
+    /* Fold line indicator */
+    .fold-marker {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 690px;
+      border-top: 2px dashed #F43F5E;
+      z-index: 40;
+      pointer-events: none;
+    }
+    .fold-marker span {
+      position: absolute;
+      right: 8px;
+      top: -20px;
+      background: #F43F5E;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* Bottom sheet slide transition */
+    .bottom-sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.52);
+      z-index: 50;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+    .bottom-sheet-backdrop.open {
+      display: flex;
+      animation: fadeIn 0.18s ease-out;
+    }
+    .bottom-sheet {
+      width: 100%;
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 22px 22px 0 0;
+      border-top: 1px solid var(--border);
+      padding: 12px 16px 22px;
+      max-height: 82%;
+      overflow-y: auto;
+      animation: slideUp 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.25);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- =====================================================================
+       TOP STUDIO HEADER BAR
+  ====================================================================== -->
+  <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 lg:px-8 py-3">
+    <div class="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-display font-bold text-base text-white tracking-tight">MediTrack Mobile UI Studio</span>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">v5 Mobile Concept</span>
+          </div>
+          <p class="text-xs text-slate-400">Audited from your uploaded <code class="text-slate-300">index.html</code>, <code class="text-slate-300">styles.css</code> &amp; <code class="text-slate-300">app.js</code></p>
+        </div>
+      </div>
+
+      <!-- Main Studio Mode Switcher -->
+      <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 gap-1">
+        <button onclick="setStudioView('prototype')" id="tab-prototype" class="studio-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-blue-600 text-white shadow">
+          1. Interactive Mobile Renders
+        </button>
+        <button onclick="setStudioView('compare')" id="tab-compare" class="studio-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">
+          2. Before vs. After (Why It Looked Zoomed)
+        </button>
+        <button onclick="setStudioView('report')" id="tab-report" class="studio-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">
+          3. UX Report, Android vs. PWA &amp; CSS Patch
+        </button>
+      </div>
+
+      <!-- Global Phone Controls (Role + Theme) -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center bg-slate-950 rounded-lg border border-slate-800 px-2 py-1 text-xs">
+          <span class="text-slate-400 mr-1.5">Role:</span>
+          <select id="sim-role" onchange="changeSimRole(this.value)" class="bg-transparent text-slate-100 font-semibold focus:outline-none cursor-pointer">
+            <option value="Manager" class="bg-slate-900">Manager (admin)</option>
+            <option value="Senior Doctor" class="bg-slate-900">Senior Doctor (vinayaka)</option>
+            <option value="Staff" class="bg-slate-900">Staff (raju)</option>
+          </select>
+        </div>
+
+        <button onclick="togglePhoneTheme()" id="phone-theme-btn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition">
+          <span id="phone-theme-icon">🌙</span>
+          <span id="phone-theme-label">Dark Phone</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       VIEW 1: INTERACTIVE MOBILE RENDERS & MULTI-SCREEN GALLERY
+  ====================================================================== -->
+  <main id="view-prototype" class="flex-1 max-w-[1440px] w-full mx-auto px-4 lg:px-8 py-6">
+
+    <!-- Top Explanation Banner -->
+    <div class="mb-6 bg-gradient-to-r from-blue-950/70 via-slate-900 to-slate-900 border border-blue-500/30 rounded-2xl p-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 text-blue-400 text-xs font-bold uppercase tracking-wider mb-1">
+          <span>Interactive Mobile Design Render</span>
+          <span>•</span>
+          <span>Desktop Remains 100% Untouched</span>
+        </div>
+        <h2 class="text-lg font-bold text-white">High-Density Clinical Mobile Layout (8+ items visible without scrolling)</h2>
+        <p class="text-xs text-slate-300 mt-0.5 max-w-3xl">
+          Try clicking the bottom navigation tabs, filtering by Product Type or Department chips, tapping any equipment row to open its <strong>Bottom Sheet</strong>, or pressing the center <strong>Scan</strong> button to test the <strong>1-Tap Room Chip Checkout</strong> flow.
+        </p>
+      </div>
+      <!-- Quick Screen Jump Pills -->
+      <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+        <button onclick="switchPhoneTab('home')" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 text-xs font-semibold transition">🏠 Equipment Feed</button>
+        <button onclick="openMobileScanner()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition">📷 QR Scanner + Room Sheet</button>
+        <button onclick="switchPhoneTab('requests')" class="px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 text-xs font-semibold transition">📋 Request Queue (1)</button>
+        <button onclick="switchPhoneTab('audit')" class="px-3 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-semibold transition">📜 Audit Log</button>
+        <button onclick="switchPhoneTab('more')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition">⚡ AI Brief &amp; Users</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+
+      <!-- LEFT COLUMN: MAIN INTERACTIVE PHONE RENDER -->
+      <div class="xl:col-span-5 flex flex-col items-center">
+        <div class="phone-frame" id="interactive-phone" data-phone-theme="light">
+          <div class="phone-screen">
+            <!-- Dynamic Island / Notch -->
+            <div class="phone-notch"></div>
+
+            <!-- 1. ULTRA-COMPACT MOBILE HEADER (46px instead of 64px) -->
+            <div class="px-3.5 py-2 p-surface border-b flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs" style="background: var(--primary-tint); color: var(--primary);">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                </div>
+                <span class="font-display font-bold text-sm tracking-tight p-text">MediTrack</span>
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold badge-avail">
+                  <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>Live
+                </span>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <!-- Role Pill -->
+                <span id="phone-role-pill" class="text-[10px] font-semibold px-2 py-0.5 rounded-full badge-primary">Manager</span>
+                <!-- Avatar -->
+                <button onclick="switchPhoneTab('more')" class="w-7 h-7 rounded-full text-[11px] font-bold flex items-center justify-center border" style="background: var(--primary-tint); color: var(--primary); border-color: var(--primary);" title="Account &amp; More">
+                  <span id="phone-avatar-txt">AD</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- =========================================================
+                 TAB 1: HOME & COMPACT EQUIPMENT FEED
+            ========================================================== -->
+            <div id="p-tab-home" class="flex-1 flex flex-col overflow-hidden">
+
+              <!-- Scrollable body -->
+              <div class="flex-1 overflow-y-auto thin-scroll pb-20">
+
+                <!-- A. 4-IN-1 COMPACT KPI RIBBON (Takes only 54px height instead of 520px!) -->
+                <div class="grid grid-cols-4 gap-1.5 px-3 pt-2.5 pb-1.5">
+                  <button onclick="setPhoneStatusFilter('Available')" id="kpi-btn-Available" class="p-surface border rounded-xl py-1.5 px-2 text-left transition hover:border-blue-500">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-semibold p-text-2">Avail</span>
+                      <span class="w-1.5 h-1.5 rounded-full" style="background: var(--success);"></span>
+                    </div>
+                    <div class="font-display font-bold text-base leading-tight mt-0.5 p-text tabular-nums" id="p-stat-avail">39</div>
+                  </button>
+
+                  <button onclick="setPhoneStatusFilter('In Use')" id="kpi-btn-In Use" class="p-surface border rounded-xl py-1.5 px-2 text-left transition hover:border-blue-500">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-semibold p-text-2">In Use</span>
+                      <span class="w-1.5 h-1.5 rounded-full" style="background: var(--danger);"></span>
+                    </div>
+                    <div class="font-display font-bold text-base leading-tight mt-0.5 p-text tabular-nums" id="p-stat-inuse">22</div>
+                  </button>
+
+                  <button onclick="setPhoneStatusFilter('Attention')" id="kpi-btn-Attention" class="p-surface border rounded-xl py-1.5 px-2 text-left transition hover:border-blue-500">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-semibold p-text-2">Alerts</span>
+                      <span class="w-1.5 h-1.5 rounded-full" style="background: var(--warning);"></span>
+                    </div>
+                    <div class="font-display font-bold text-base leading-tight mt-0.5 p-text tabular-nums" id="p-stat-alert">3</div>
+                  </button>
+
+                  <button onclick="switchPhoneTab('requests')" class="p-surface border rounded-xl py-1.5 px-2 text-left transition hover:border-blue-500">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-semibold p-text-2">Reqs</span>
+                      <span class="w-1.5 h-1.5 rounded-full" style="background: var(--primary);"></span>
+                    </div>
+                    <div class="font-display font-bold text-base leading-tight mt-0.5 p-text tabular-nums" id="p-stat-reqs">1</div>
+                  </button>
+                </div>
+
+                <!-- B. SLIM 1-LINE AI / ATTENTION BANNER (32px height) -->
+                <div class="px-3 mb-1.5" id="p-slim-banner">
+                  <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] badge-warn border border-amber-500/20">
+                    <button onclick="setPhoneStatusFilter('Attention')" class="flex items-center gap-1.5 font-medium truncate text-left">
+                      <span>⚠️</span>
+                      <span class="truncate"><strong>3 items</strong> need maintenance or held &gt;24h</span>
+                    </button>
+                    <button onclick="switchPhoneTab('more')" class="font-bold underline ml-2 shrink-0">AI Brief →</button>
+                  </div>
+                </div>
+
+                <!-- C. HORIZONTAL PRODUCT TYPE PILLS (Replaces 320px 2-column tile grid with a 36px strip!) -->
+                <div class="px-3 mb-2">
+                  <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="p-product-pills">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+
+                <!-- D. STICKY SEARCH + DEPT FILTER BAR -->
+                <div class="sticky top-0 z-20 px-3 py-2 p-surface border-y shadow-sm">
+                  <div class="flex items-center gap-1.5">
+                    <!-- Search input -->
+                    <div class="relative flex-1">
+                      <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 p-text-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      <input
+                        id="p-search"
+                        type="search"
+                        oninput="renderPhoneEquipment()"
+                        placeholder="Search equipment, ID, holder..."
+                        class="w-full h-8 pl-8 pr-2 rounded-lg text-xs p-surface-2 border focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <!-- Status Segmented Mini -->
+                    <div class="flex items-center p-surface-2 border rounded-lg p-0.5 text-[11px] font-semibold shrink-0">
+                      <button onclick="setPhoneStatusFilter('all')" id="seg-all" class="px-2 py-1 rounded-md transition bg-blue-600 text-white">All</button>
+                      <button onclick="setPhoneStatusFilter('Available')" id="seg-Available" class="px-2 py-1 rounded-md transition p-text-2">Avail</button>
+                      <button onclick="setPhoneStatusFilter('In Use')" id="seg-In Use" class="px-2 py-1 rounded-md transition p-text-2">In Use</button>
+                    </div>
+                  </div>
+
+                  <!-- Department Horizontal Chips -->
+                  <div class="flex items-center gap-1 overflow-x-auto no-scrollbar mt-2" id="p-dept-chips">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+
+                <!-- E. HIGH-DENSITY EQUIPMENT CARDS (Fits 6-7 rows immediately!) -->
+                <div id="p-eq-list" class="divide-y p-border">
+                  <!-- Populated by JS -->
+                </div>
+
+              </div>
+            </div>
+
+            <!-- =========================================================
+                 TAB 2: REQUESTS QUEUE (Promoted from bottom of sidebar!)
+            ========================================================== -->
+            <div id="p-tab-requests" class="flex-1 flex flex-col overflow-hidden hidden">
+              <div class="px-3.5 py-2.5 p-surface border-b flex items-center justify-between">
+                <div>
+                  <h3 class="font-display font-bold text-sm p-text">Pending Requests</h3>
+                  <p class="text-[11px] p-text-2">Approve or reject equipment handovers</p>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-xs font-bold badge-primary" id="req-tab-count">1</span>
+              </div>
+
+              <div class="flex-1 overflow-y-auto thin-scroll p-3 space-y-2.5 pb-20" id="p-requests-container">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+
+            <!-- =========================================================
+                 TAB 3: AUDIT LOG (Compact Mobile Timeline)
+            ========================================================== -->
+            <div id="p-tab-audit" class="flex-1 flex flex-col overflow-hidden hidden">
+              <div class="px-3.5 py-2.5 p-surface border-b flex items-center justify-between">
+                <div>
+                  <h3 class="font-display font-bold text-sm p-text">Audit Trail</h3>
+                  <p class="text-[11px] p-text-2">494 total events · Real-time room tracking</p>
+                </div>
+                <button onclick="showMobileToast('CSV exported (494 rows)')" class="px-2.5 py-1 rounded-lg border p-surface-2 text-[11px] font-semibold p-text flex items-center gap-1">
+                  <span>⬇</span> CSV
+                </button>
+              </div>
+
+              <div class="flex-1 overflow-y-auto thin-scroll p-3 space-y-2 pb-20" id="p-audit-container">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+
+            <!-- =========================================================
+                 TAB 4: MORE (AI Insights, Departments, Manage Users)
+            ========================================================== -->
+            <div id="p-tab-more" class="flex-1 flex flex-col overflow-hidden hidden">
+              <div class="flex-1 overflow-y-auto thin-scroll p-3 space-y-3 pb-20">
+                <!-- AI Morning Brief Card -->
+                <div class="p-surface border rounded-2xl p-3 shadow-sm">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-sm">✨</span>
+                      <span class="font-display font-bold text-xs p-text">AI Operations Brief · 14 Oct</span>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full badge-primary font-semibold">Daily Analysis</span>
+                  </div>
+                  <p class="text-xs p-text-2 leading-relaxed mb-2">
+                    39 of 61 items are available and 22 are in use. <strong>Ventilator A</strong> has an urgent pending request in ICU.
+                  </p>
+                  <div class="grid grid-cols-2 gap-1.5 text-center">
+                    <div class="p-surface-2 border rounded-lg p-1.5">
+                      <div class="font-display font-bold text-sm p-text">14</div>
+                      <div class="text-[10px] p-text-3">Checkouts Yest.</div>
+                    </div>
+                    <div class="p-surface-2 border rounded-lg p-1.5">
+                      <div class="font-display font-bold text-sm p-text">2</div>
+                      <div class="text-[10px] p-text-3">Overnight Holds</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Department Availability Bars -->
+                <div class="p-surface border rounded-2xl p-3 shadow-sm">
+                  <h4 class="font-display font-bold text-xs p-text mb-2">Department Availability</h4>
+                  <div class="space-y-2 text-xs">
+                    <div>
+                      <div class="flex justify-between mb-0.5"><span class="font-medium p-text">ICU (14 items)</span><span class="text-[11px] font-semibold" style="color:var(--success)">9 avail</span></div>
+                      <div class="h-1.5 rounded-full p-surface-2 overflow-hidden"><div class="h-full bg-blue-600" style="width: 36%"></div></div>
+                    </div>
+                    <div>
+                      <div class="flex justify-between mb-0.5"><span class="font-medium p-text">Operation Theatre (12 items)</span><span class="text-[11px] font-semibold" style="color:var(--success)">8 avail</span></div>
+                      <div class="h-1.5 rounded-full p-surface-2 overflow-hidden"><div class="h-full bg-blue-600" style="width: 33%"></div></div>
+                    </div>
+                    <div>
+                      <div class="flex justify-between mb-0.5"><span class="font-medium p-text">Emergency (11 items)</span><span class="text-[11px] font-semibold" style="color:var(--success)">7 avail</span></div>
+                      <div class="h-1.5 rounded-full p-surface-2 overflow-hidden"><div class="h-full bg-blue-600" style="width: 36%"></div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Manager Quick Actions (Add Product / Manage Users) -->
+                <div class="p-surface border rounded-2xl p-3 shadow-sm" id="p-manager-card">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-display font-bold text-xs p-text">Manager Controls</h4>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full badge-neutral">Admin</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 mb-3">
+                    <button onclick="showMobileToast('Opened Add Product Sheet')" class="p-surface-2 border rounded-xl p-2 text-left hover:border-blue-500 transition">
+                      <div class="text-sm mb-0.5">➕</div>
+                      <div class="text-xs font-semibold p-text">Add Product</div>
+                      <div class="text-[10px] p-text-3">Auto QR tag</div>
+                    </button>
+                    <button onclick="showMobileToast('Desktop Print Layout Prepared')" class="p-surface-2 border rounded-xl p-2 text-left hover:border-blue-500 transition">
+                      <div class="text-sm mb-0.5">🖨️</div>
+                      <div class="text-xs font-semibold p-text">Print Stickers</div>
+                      <div class="text-[10px] p-text-3">61 QR labels</div>
+                    </button>
+                  </div>
+
+                  <!-- Compact User Cards (Replaces horizontal-scrolling 5-col table on mobile) -->
+                  <div class="text-[11px] font-semibold p-text-2 mb-1.5">Active Staff (8 Users)</div>
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between p-2 rounded-xl p-surface-2 border">
+                      <div>
+                        <div class="text-xs font-semibold p-text">raju <span class="text-[10px] font-normal p-text-2">· General Ward</span></div>
+                        <div class="text-[10px] p-text-3">Role: Staff · Active</div>
+                      </div>
+                      <div class="flex gap-1">
+                        <button onclick="showMobileToast('Password reset link generated for raju')" class="px-2 py-1 rounded border p-surface text-[10px] font-semibold p-text">Reset</button>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-xl p-surface-2 border">
+                      <div>
+                        <div class="text-xs font-semibold p-text">vinayaka <span class="text-[10px] font-normal p-text-2">· ICU</span></div>
+                        <div class="text-[10px] p-text-3">Role: Senior Doctor · Active</div>
+                      </div>
+                      <div class="flex gap-1">
+                        <button onclick="showMobileToast('Password reset link generated for vinayaka')" class="px-2 py-1 rounded border p-surface text-[10px] font-semibold p-text">Reset</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- =========================================================
+                 BOTTOM SHEET 1: EQUIPMENT DETAIL & QUICK ACTIONS
+            ========================================================== -->
+            <div id="p-detail-sheet" class="bottom-sheet-backdrop" onclick="if(event.target===this)closeDetailSheet()">
+              <div class="bottom-sheet">
+                <div class="w-10 h-1 bg-slate-400/40 rounded-full mx-auto mb-3"></div>
+                <div id="p-detail-content"></div>
+              </div>
+            </div>
+
+            <!-- =========================================================
+                 BOTTOM SHEET 2: FULL-SCREEN QR SCANNER + 1-TAP ROOM CHIPS
+            ========================================================== -->
+            <div id="p-scanner-sheet" class="bottom-sheet-backdrop" onclick="if(event.target===this)closeMobileScanner()">
+              <div class="bottom-sheet" style="max-height: 92%; padding-bottom: 18px;">
+                <div class="flex items-center justify-between mb-2.5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">📷</span>
+                    <div>
+                      <h4 class="font-display font-bold text-sm p-text">Scan Equipment QR</h4>
+                      <p class="text-[10px] p-text-2">Point camera at asset tag or simulate scan below</p>
+                    </div>
+                  </div>
+                  <button onclick="closeMobileScanner()" class="w-7 h-7 rounded-full p-surface-2 border flex items-center justify-center text-xs font-bold p-text">✕</button>
+                </div>
+
+                <!-- Simulated Camera Viewfinder -->
+                <div class="relative w-full h-44 rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 mb-3 flex flex-col items-center justify-center">
+                  <div class="w-32 h-32 border-2 border-sky-400/80 rounded-2xl relative">
+                    <div class="laser-line"></div>
+                  </div>
+                  <div class="absolute bottom-2 inset-x-3 flex items-center justify-between text-[10px] text-slate-300">
+                    <span class="bg-black/60 px-2 py-0.5 rounded">Rear Camera · Auto-focus</span>
+                    <button onclick="showMobileToast('Flashlight toggled')" class="bg-black/60 hover:bg-black/80 px-2 py-0.5 rounded border border-white/20">🔦 Torch</button>
+                  </div>
+                </div>
+
+                <!-- Interactive Scan Simulation Buttons -->
+                <div class="mb-3">
+                  <div class="text-[10px] font-bold uppercase tracking-wider p-text-3 mb-1.5">Tap to Simulate Instant Scan:</div>
+                  <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="simulateQrScan('MT-OT-001')" class="p-2 rounded-xl border text-left p-surface-2 hover:border-blue-500 transition">
+                      <div class="text-[11px] font-bold p-text">🟢 Anaesthesia A</div>
+                      <div class="text-[10px] p-text-2 font-mono-code">MT-OT-001 (Avail)</div>
+                    </button>
+                    <button onclick="simulateQrScan('MT-ICU-004')" class="p-2 rounded-xl border text-left p-surface-2 hover:border-blue-500 transition">
+                      <div class="text-[11px] font-bold p-text">🔴 Ventilator B</div>
+                      <div class="text-[10px] p-text-2 font-mono-code">MT-ICU-004 (Conflict)</div>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Dynamic 1-Tap Room Chip Picker (Replaces clunky <select> modal!) -->
+                <div id="p-scan-room-picker" class="p-3 rounded-2xl border p-surface-2">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-bold p-text" id="scan-picked-title">Selected: Anaesthesia Machine A</span>
+                    <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded badge-avail" id="scan-picked-dept">Operation Theatre</span>
+                  </div>
+                  <div class="text-[11px] p-text-2 mb-2">Tap Room / Location for 1-Tap Check-Out:</div>
+                  <div class="flex flex-wrap gap-1.5 mb-3" id="scan-room-chips">
+                    <!-- Populated from DEPT_ROOMS -->
+                  </div>
+                  <button onclick="confirmScanCheckout()" id="scan-confirm-btn" class="w-full py-2.5 rounded-xl font-display font-bold text-xs text-white shadow-md transition" style="background: var(--primary);">
+                    ✓ Confirm Check-Out to Theatre 1
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Toast inside phone -->
+            <div id="p-toast" class="absolute bottom-16 inset-x-3 z-50 hidden">
+              <div class="bg-slate-900 text-white text-xs font-medium px-3 py-2 rounded-xl shadow-lg border border-slate-700 flex items-center justify-between">
+                <span id="p-toast-msg">Status updated</span>
+                <span class="text-[10px] text-emerald-400 font-bold ml-2">LIVE</span>
+              </div>
+            </div>
+
+            <!-- =========================================================
+                 THUMB-ZONE BOTTOM NAVIGATION BAR (56px)
+            ========================================================== -->
+            <nav class="h-14 p-surface border-t grid grid-cols-5 items-center px-1 shrink-0 relative z-30">
+              <button onclick="switchPhoneTab('home')" id="bnav-home" class="flex flex-col items-center justify-center py-1 text-blue-600 font-semibold">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                <span class="text-[10px] mt-0.5">Equipment</span>
+              </button>
+
+              <button onclick="switchPhoneTab('requests')" id="bnav-requests" class="flex flex-col items-center justify-center py-1 p-text-2 relative">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+                <span class="text-[10px] mt-0.5">Requests</span>
+                <span id="bnav-req-badge" class="absolute top-0.5 right-3.5 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">1</span>
+              </button>
+
+              <!-- CENTER PROMINENT SCAN QR FAB -->
+              <div class="flex items-center justify-center">
+                <button onclick="openMobileScanner()" class="-mt-5 w-12 h-12 rounded-2xl text-white shadow-lg flex flex-col items-center justify-center transition transform active:scale-95" style="background: var(--grad-highlight); box-shadow: 0 6px 16px rgba(47, 91, 234, 0.45);">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                  <span class="text-[8px] font-bold uppercase tracking-wider mt-0.5">Scan</span>
+                </button>
+              </div>
+
+              <button onclick="switchPhoneTab('audit')" id="bnav-audit" class="flex flex-col items-center justify-center py-1 p-text-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg>
+                <span class="text-[10px] mt-0.5">Audit</span>
+              </button>
+
+              <button onclick="switchPhoneTab('more')" id="bnav-more" class="flex flex-col items-center justify-center py-1 p-text-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>
+                <span class="text-[10px] mt-0.5">Insights</span>
+              </button>
+            </nav>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: ANNOTATED DESIGN RATIONALE & KEY IMPROVEMENTS -->
+      <div class="xl:col-span-7 space-y-5">
+
+        <!-- Why this works card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-display font-bold text-base text-white">What Changed in This Mobile Render (And Why)</h3>
+            <span class="text-xs text-emerald-400 font-semibold">Same Supabase Backend · Same HTML/JS</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <!-- Improvement 1 -->
+            <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center gap-2 text-xs font-bold text-blue-400 mb-1">
+                <span class="w-5 h-5 rounded-md bg-blue-500/20 flex items-center justify-center">1</span>
+                <span>4-KPI Strip Saves 465px of Vertical Space</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                In your <code class="text-amber-300">styles.css</code> (line 395), <code class="text-slate-200">@media (max-width: 639px)</code> sets <code class="text-slate-200">.kpi-grid { grid-template-columns: 1fr }</code>. Stacking 4 large KPI cards vertically takes <strong>520px</strong>. Changing to a 4-column mini-strip (<code class="text-emerald-300">repeat(4, 1fr)</code>) takes only <strong>54px</strong> and acts as 1-tap status filters.
+              </p>
+            </div>
+
+            <!-- Improvement 2 -->
+            <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center gap-2 text-xs font-bold text-emerald-400 mb-1">
+                <span class="w-5 h-5 rounded-md bg-emerald-500/20 flex items-center justify-center">2</span>
+                <span>Horizontal Product Pills Save 280px</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                At line 1618 of <code class="text-amber-300">styles.css</code>, <code class="text-slate-200">.product-tiles-grid</code> uses a 2-column card grid on phones. With 6 product types, that’s 3 rows of tall tiles before the equipment list. Converting it to a single horizontal pill scroller keeps all product icons &amp; counts in <strong>36px</strong>.
+              </p>
+            </div>
+
+            <!-- Improvement 3 -->
+            <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center gap-2 text-xs font-bold text-purple-400 mb-1">
+                <span class="w-5 h-5 rounded-md bg-purple-500/20 flex items-center justify-center">3</span>
+                <span>2-Line Equipment Cards + 1-Tap Action</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Instead of a 3-row grid header that expands a huge inline QR code block inside the list, each mobile row is a compact <strong>58px card</strong> showing Name, Dept, Room/Holder, Status Pill, and a direct <strong>Check Out / Release</strong> button. Tapping the row opens a clean <strong>Bottom Sheet</strong>.
+              </p>
+            </div>
+
+            <!-- Improvement 4 -->
+            <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center gap-2 text-xs font-bold text-amber-400 mb-1">
+                <span class="w-5 h-5 rounded-md bg-amber-500/20 flex items-center justify-center">4</span>
+                <span>Thumb-Zone Bottom Bar + Room Chips</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Nurses and doctors hold phones one-handed in wards. Moving <strong>Scan QR</strong> to the center of a fixed bottom bar and replacing the native <code class="text-slate-200">&lt;select id="room-picker-select"&gt;</code> dropdown with tappable <strong>Room Chips</strong> cuts check-out time from 6 taps to 2 taps.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secondary Visual Renders: 3 Key Micro-Flows -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <h3 class="font-display font-bold text-sm text-white mb-3">Quick-Trigger Mobile Micro-Flows (Click any card to preview on the phone frame)</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button onclick="openDetailSheet(1)" class="text-left p-3.5 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition group">
+              <div class="text-xs font-bold text-white group-hover:text-blue-400 mb-1">📱 Bottom Sheet Item View</div>
+              <p class="text-[11px] text-slate-400 leading-snug">Replaces inline accordion expansion so the list scroll position never jumps.</p>
+              <span class="inline-block mt-2 text-[11px] font-semibold text-blue-400">Preview on Phone →</span>
+            </button>
+
+            <button onclick="openMobileScanner()" class="text-left p-3.5 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 transition group">
+              <div class="text-xs font-bold text-white group-hover:text-emerald-400 mb-1">📍 1-Tap Room Chip Picker</div>
+              <p class="text-[11px] text-slate-400 leading-snug">Uses your <code class="text-slate-300">DEPT_ROOMS</code> map as instant touch pills instead of a tiny select box.</p>
+              <span class="inline-block mt-2 text-[11px] font-semibold text-emerald-400">Preview on Phone →</span>
+            </button>
+
+            <button onclick="switchPhoneTab('requests')" class="text-left p-3.5 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 transition group">
+              <div class="text-xs font-bold text-white group-hover:text-amber-400 mb-1">🚨 Dedicated Requests Tab</div>
+              <p class="text-[11px] text-slate-400 leading-snug">Promotes <code class="text-slate-300">#requests-panel</code> from the bottom of the page to a badged nav tab.</p>
+              <span class="inline-block mt-2 text-[11px] font-semibold text-amber-400">Preview on Phone →</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Architectural Answer Summary Box -->
+        <div class="bg-gradient-to-br from-emerald-950/50 to-slate-900 border border-emerald-500/30 rounded-2xl p-5">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 shrink-0 font-bold">✓</div>
+            <div>
+              <h3 class="font-display font-bold text-sm text-white">Your Question: "Should we continue the web app or make a standalone Android app?"</h3>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                <strong>Short Answer: Keep your single Web App codebase and turn it into an installable PWA first.</strong> You do <u>not</u> need a separate Android codebase to have a completely different mobile UI while keeping your desktop website identical. CSS media queries (<code class="text-emerald-300">@media (max-width: 767px)</code>) allow the exact same <code class="text-slate-200">index.html</code> and <code class="text-slate-200">app.js</code> to render your current 2-column table dashboard on desktop (<code class="text-slate-200">&gt;= 768px</code>) and this compact app-like UI on mobile (<code class="text-slate-200">&lt;= 767px</code>).
+              </p>
+              <button onclick="setStudioView('report')" class="mt-2.5 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 underline">
+                Read the full Web/PWA vs. Android comparison &amp; copy the CSS patch →
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- =====================================================================
+       VIEW 2: SIDE-BY-SIDE BEFORE VS. AFTER VIEWPORT COMPARISON
+  ====================================================================== -->
+  <section id="view-compare" class="flex-1 max-w-[1440px] w-full mx-auto px-4 lg:px-8 py-6 hidden">
+    <div class="mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <h2 class="font-display font-bold text-lg text-white">Visual Root-Cause Analysis: Why Your Current Mobile App Feels "Zoomed Up"</h2>
+      <p class="text-xs text-slate-300 mt-1 max-w-4xl">
+        Look at where the <strong>First Equipment Row</strong> appears on a standard 375×780 phone screen. In your current <code class="text-amber-300">styles.css</code>, stacking full-width action buttons, 4 single-column KPI cards (<code class="text-amber-300">36px</code> font), 2-column product tiles, and stacked search/sort inputs pushes the equipment list <strong>1,290px down the page</strong> (nearly 2 full screen heights!).
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start justify-items-center">
+
+      <!-- LEFT: CURRENT MOBILE RENDER (Exact simulation of their current styles.css @media max-width: 639px) -->
+      <div class="flex flex-col items-center">
+        <div class="mb-3 text-center">
+          <span class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold">BEFORE: Current Mobile CSS (max-width: 639px)</span>
+          <p class="text-xs text-slate-400 mt-1">0 equipment items visible above the fold · Requires ~1,290px scroll</p>
+        </div>
+
+        <div class="phone-frame">
+          <div class="phone-screen bg-[#F3F4F6] text-[#14161A]">
+            <div class="phone-notch"></div>
+            <div class="fold-marker"><span>690px Screen Fold (0 Items Visible!)</span></div>
+
+            <!-- Scrollable reproduction of current mobile layout -->
+            <div class="flex-1 overflow-y-auto thin-scroll p-4 space-y-3">
+              <!-- Current Header (64px) -->
+              <div class="bg-white border border-[#E8EAEE] rounded-xl p-3 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="p-1.5 border rounded-lg text-xs">☰</span>
+                  <span class="font-bold text-sm">MediTrack</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-xs">🌙</span>
+                  <span class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-xs">🔔</span>
+                  <span class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">A</span>
+                </div>
+              </div>
+
+              <!-- Current .page-title-row (flex-direction: column; buttons min-height: 44px) -->
+              <div>
+                <div class="text-2xl font-bold mb-2">Dashboard</div>
+                <div class="flex flex-wrap gap-2">
+                  <div class="flex-1 min-h-[44px] bg-[#2F5BEA] text-white rounded-xl flex items-center justify-center text-xs font-semibold px-3">Scan QR</div>
+                  <div class="flex-1 min-h-[44px] bg-white border border-[#E8EAEE] rounded-xl flex items-center justify-center text-xs font-semibold px-3">Add Product</div>
+                  <div class="w-full min-h-[44px] bg-white border border-[#E8EAEE] rounded-xl flex items-center justify-center text-xs font-semibold px-3">Print All QR</div>
+                </div>
+              </div>
+
+              <!-- Current .kpi-grid (grid-template-columns: minmax(0, 1fr) -> 4 giant stacked cards!) -->
+              <div class="space-y-3">
+                <div class="bg-white border border-[#E8EAEE] rounded-2xl p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">✓</span>
+                    <span class="text-sm font-medium">Available</span>
+                  </div>
+                  <div class="text-4xl font-bold">39</div>
+                  <div class="text-xs text-slate-500 mt-1">of 61 items ready to use</div>
+                </div>
+
+                <div class="bg-white border border-[#E8EAEE] rounded-2xl p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold">⏱</span>
+                    <span class="text-sm font-medium">In Use</span>
+                  </div>
+                  <div class="text-4xl font-bold">22</div>
+                  <div class="text-xs text-slate-500 mt-1">Currently checked out</div>
+                </div>
+
+                <div class="bg-white border border-[#E8EAEE] rounded-2xl p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">⚠</span>
+                    <span class="text-sm font-medium">Needs Attention</span>
+                  </div>
+                  <div class="text-4xl font-bold">3</div>
+                  <div class="text-xs text-slate-500 mt-1">Maintenance or out of order</div>
+                </div>
+
+                <div class="bg-white border border-[#E8EAEE] rounded-2xl p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">📥</span>
+                    <span class="text-sm font-medium">Pending Requests</span>
+                  </div>
+                  <div class="text-4xl font-bold">1</div>
+                  <div class="text-xs text-slate-500 mt-1">Waiting for approval</div>
+                </div>
+              </div>
+
+              <!-- Product tiles 2-col grid (still above equipment!) -->
+              <div class="bg-white border border-[#E8EAEE] rounded-2xl p-3">
+                <div class="text-[11px] font-bold text-slate-500 uppercase mb-2">Filter by Product Type (2-col grid)</div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="bg-slate-50 border rounded-xl p-3 text-center text-xs font-semibold">🏥 All (61)</div>
+                  <div class="bg-slate-50 border rounded-xl p-3 text-center text-xs font-semibold">🫁 Ventilator</div>
+                  <div class="bg-slate-50 border rounded-xl p-3 text-center text-xs font-semibold">♿ Wheelchair</div>
+                  <div class="bg-slate-50 border rounded-xl p-3 text-center text-xs font-semibold">💉 Infusion Pump</div>
+                </div>
+              </div>
+
+              <!-- Finally the Equipment header after scrolling 1,100px+ -->
+              <div class="bg-white border border-[#E8EAEE] rounded-2xl p-3">
+                <div class="font-bold text-sm mb-2">Equipment (Finally visible after scrolling!)</div>
+                <input disabled placeholder="Search equipment (44px tall)..." class="w-full min-h-[44px] border rounded-xl px-3 text-xs mb-2 bg-slate-50" />
+                <select disabled class="w-full min-h-[44px] border rounded-xl px-3 text-xs bg-slate-50"><option>Name A–Z (44px tall)</option></select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: REDESIGNED HIGH-DENSITY MOBILE RENDER -->
+      <div class="flex flex-col items-center">
+        <div class="mb-3 text-center">
+          <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold">AFTER: Redesigned Mobile CSS (max-width: 767px)</span>
+          <p class="text-xs text-slate-400 mt-1">7–8 equipment items + KPIs + filters + Scan FAB visible immediately!</p>
+        </div>
+
+        <div class="phone-frame">
+          <div class="phone-screen bg-[#F3F4F6] text-[#14161A]">
+            <div class="phone-notch"></div>
+            <div class="fold-marker"><span>690px Screen Fold (7 Items Visible!)</span></div>
+
+            <!-- Compact Header -->
+            <div class="px-3.5 py-2 bg-white border-b border-[#E8EAEE] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">+</div>
+                <span class="font-bold text-sm">MediTrack</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">● Live</span>
+              </div>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Manager</span>
+            </div>
+
+            <!-- 4-in-1 KPI Strip -->
+            <div class="grid grid-cols-4 gap-1.5 px-3 pt-2 pb-1.5">
+              <div class="bg-white border border-[#E8EAEE] rounded-xl py-1.5 px-2">
+                <div class="text-[10px] text-slate-500 font-semibold">Avail</div>
+                <div class="text-base font-bold text-emerald-600">39</div>
+              </div>
+              <div class="bg-white border border-[#E8EAEE] rounded-xl py-1.5 px-2">
+                <div class="text-[10px] text-slate-500 font-semibold">In Use</div>
+                <div class="text-base font-bold text-rose-600">22</div>
+              </div>
+              <div class="bg-white border border-[#E8EAEE] rounded-xl py-1.5 px-2">
+                <div class="text-[10px] text-slate-500 font-semibold">Alerts</div>
+                <div class="text-base font-bold text-amber-600">3</div>
+              </div>
+              <div class="bg-white border border-[#E8EAEE] rounded-xl py-1.5 px-2">
+                <div class="text-[10px] text-slate-500 font-semibold">Reqs</div>
+                <div class="text-base font-bold text-blue-600">1</div>
+              </div>
+            </div>
+
+            <!-- Product Pills Horizontal Strip -->
+            <div class="px-3 py-1 flex gap-1.5 overflow-hidden">
+              <span class="px-2.5 py-1 rounded-full bg-blue-600 text-white text-[11px] font-semibold shrink-0">All 61</span>
+              <span class="px-2.5 py-1 rounded-full bg-white border text-[11px] font-medium shrink-0">🫁 Vent (8)</span>
+              <span class="px-2.5 py-1 rounded-full bg-white border text-[11px] font-medium shrink-0">♿ Wheel (12)</span>
+              <span class="px-2.5 py-1 rounded-full bg-white border text-[11px] font-medium shrink-0">💉 Pump (15)</span>
+            </div>
+
+            <!-- Compact Search + Filter Row -->
+            <div class="px-3 py-1.5 bg-white border-y border-[#E8EAEE] flex items-center gap-1.5">
+              <input disabled placeholder="🔍 Search equipment..." class="flex-1 h-7 px-2.5 rounded-lg bg-slate-100 text-xs" />
+              <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold">All Depts ▾</span>
+            </div>
+
+            <!-- 7 Compact Equipment Cards Visible Above the Fold -->
+            <div class="flex-1 divide-y divide-[#E8EAEE] bg-white overflow-hidden">
+              <div class="px-3 py-2 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold">Anaesthesia Machine A <span class="text-[10px] font-mono-code text-slate-400">MT-OT-001</span></div>
+                  <div class="text-[11px] text-slate-500">Operation Theatre · Usable</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">● Available</span>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold">Ventilator A <span class="text-[10px] font-mono-code text-slate-400">MT-ICU-001</span></div>
+                  <div class="text-[11px] text-rose-600 font-medium">ICU · Bed 4 · raju (2h 15m)</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">● In Use</span>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold">Birthing Bed A <span class="text-[10px] font-mono-code text-slate-400">MT-MW-006</span></div>
+                  <div class="text-[11px] text-slate-500">Maternity Ward · Usable</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">● Available</span>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold">Bladder Scanner A <span class="text-[10px] font-mono-code text-slate-400">MT-RD-006</span></div>
+                  <div class="text-[11px] text-slate-500">Radiology · Usable</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">● Available</span>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold">Crash Cart A <span class="text-[10px] font-mono-code text-slate-400">MT-EM-005</span></div>
+                  <div class="text-[11px] text-amber-600 font-medium">Emergency · Needs Maintenance</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">⚠ Maint</span>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold">Defibrillator B <span class="text-[10px] font-mono-code text-slate-400">MT-EM-004</span></div>
+                  <div class="text-[11px] text-slate-500">Emergency · Usable</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">● Available</span>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold">Infusion Pump A <span class="text-[10px] font-mono-code text-slate-400">MT-ICU-009</span></div>
+                  <div class="text-[11px] text-rose-600 font-medium">ICU · Bed 2 · vinayaka (45m)</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">● In Use</span>
+              </div>
+            </div>
+
+            <!-- Bottom Nav -->
+            <div class="h-12 bg-white border-t border-[#E8EAEE] grid grid-cols-5 items-center text-center text-[10px] font-semibold text-slate-500">
+              <span class="text-blue-600">Equipment</span>
+              <span>Requests (1)</span>
+              <span class="bg-blue-600 text-white py-1.5 rounded-xl mx-1 font-bold">📷 Scan</span>
+              <span>Audit</span>
+              <span>Insights</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       VIEW 3: FULL REPORT, ANDROID VS. WEB DECISION & DROP-IN CSS PATCH
+  ====================================================================== -->
+  <section id="view-report" class="flex-1 max-w-[1200px] w-full mx-auto px-4 lg:px-8 py-6 hidden space-y-6">
+
+    <!-- 1. Code Audit of styles.css, index.html, app.js -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">Part 1 · Codebase Audit</div>
+      <h2 class="font-display font-bold text-xl text-white mb-4">Exact Causes of the "Zoomed-In" Mobile Feel in Your Uploaded Files</h2>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400 uppercase">
+              <th class="py-2.5 pr-4">File &amp; Line</th>
+              <th class="py-2.5 px-4">Current Rule / Behavior</th>
+              <th class="py-2.5 px-4">Why It Hurts Mobile UX</th>
+              <th class="py-2.5 pl-4">Mobile Fix (Desktop Untouched)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/80 text-slate-200">
+            <tr>
+              <td class="py-3 pr-4 font-mono-code text-amber-300 whitespace-nowrap">styles.css : 395</td>
+              <td class="py-3 px-4"><code class="text-slate-300">.kpi-grid { grid-template-columns: minmax(0, 1fr); }</code> at <code class="text-slate-300">max-width: 639px</code></td>
+              <td class="py-3 px-4">Stacks all 4 KPI cards in 1 vertical column with <code class="text-slate-300">36px</code> numbers. Consumes <strong>520px</strong> (70% of viewport height).</td>
+              <td class="py-3 pl-4 text-emerald-300">Use <code class="font-mono-code">grid-template-columns: repeat(4, 1fr)</code> with compact padding and <code class="font-mono-code">18px</code> numbers (54px total height).</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-mono-code text-amber-300 whitespace-nowrap">styles.css : 1618</td>
+              <td class="py-3 px-4"><code class="text-slate-300">.product-tiles-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }</code></td>
+              <td class="py-3 px-4">6–7 product tiles wrap into 3–4 rows of tall cards (~320px height) above the equipment table.</td>
+              <td class="py-3 pl-4 text-emerald-300">Convert <code class="font-mono-code">.product-tiles-grid</code> on mobile to <code class="font-mono-code">display: flex; overflow-x: auto;</code> horizontal pill strip.</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-mono-code text-amber-300 whitespace-nowrap">styles.css : 384 &amp; 1068</td>
+              <td class="py-3 px-4"><code class="text-slate-300">.page-actions .btn { flex: 1 }</code> and global <code class="text-slate-300">min-height: 44px</code> on all buttons/inputs</td>
+              <td class="py-3 px-4">Top action buttons ("Scan QR", "Add Product", "Print All QR") and filter chips puff up and wrap across multiple rows.</td>
+              <td class="py-3 pl-4 text-emerald-300">Move "Scan QR" to a fixed Bottom Bar; tuck desktop-only "Print All QR" into the More menu on mobile.</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-mono-code text-amber-300 whitespace-nowrap">styles.css : 736–791</td>
+              <td class="py-3 px-4"><code class="text-slate-300">.eq-row-header</code> 3-row grid (<code class="text-slate-300">"name status" "meta meta" "cond held"</code>) + inline <code class="text-slate-300">.eq-row-details</code></td>
+              <td class="py-3 px-4">Each row takes ~90px even collapsed, and expanding a row renders a 96×96 QR code inline, pushing the list down.</td>
+              <td class="py-3 pl-4 text-emerald-300">Use a 2-line 56px row on mobile and style <code class="font-mono-code">.eq-row.open .eq-row-details</code> as a fixed <strong>Bottom Sheet</strong> on phones!</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-mono-code text-amber-300 whitespace-nowrap">index.html : 368 &amp; app.js : 1125</td>
+              <td class="py-3 px-4"><code class="text-slate-300">&lt;aside&gt;</code> Request Queue at bottom of DOM; <code class="text-slate-300">#room-picker-select</code> dropdown</td>
+              <td class="py-3 px-4">Managers must scroll past all 61 items to reach Pending Requests; native select dropdown requires extra taps after QR scan.</td>
+              <td class="py-3 pl-4 text-emerald-300">Add a bottom nav bar that jumps/switches to Requests, and render <code class="font-mono-code">DEPT_ROOMS</code> as tappable chips.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. Architectural Decision: Continue Web App (PWA) vs. Standalone Android App -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+      <div class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">Part 2 · Architecture Decision</div>
+      <h2 class="font-display font-bold text-xl text-white mb-2">Should You Continue the Web App or Build a Standalone Android App?</h2>
+      <p class="text-xs text-slate-300 leading-relaxed mb-4">
+        Your main concern is: <em>"We might change the mobile UI, but we want to keep the website on desktop the same as now."</em>
+        Here is why you <strong>do not</strong> need a separate Android codebase to achieve that:
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-emerald-950/30 border-2 border-emerald-500/50 rounded-xl p-4 relative">
+          <span class="absolute -top-2.5 right-3 bg-emerald-500 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">Recommended Now</span>
+          <h3 class="font-display font-bold text-sm text-white mb-1">Option 1: Responsive Web + PWA</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-2">
+            Keep your single <code class="text-emerald-300">vujwalved5/meditrack</code> repo. Scope all mobile UI changes inside <code class="text-emerald-300">@media (max-width: 767px)</code>. Add a <code class="text-emerald-300">manifest.json</code> so staff can "Add to Home Screen" on Android with a full-screen icon (no browser URL bar).
+          </p>
+          <ul class="text-[11px] text-emerald-300 space-y-1">
+            <li>✓ Desktop UI stays 100% identical</li>
+            <li>✓ Zero duplicate Supabase/JS logic</li>
+            <li>✓ Instant Vercel deploys for both</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+          <h3 class="font-display font-bold text-sm text-white mb-1">Option 2: Capacitor Android APK</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-2">
+            If you want an installable <code class="text-slate-200">.apk</code> or Google Play Store app later, wrap your exact web app with <strong>CapacitorJS</strong>. It packages your existing <code class="text-slate-200">index.html</code> + <code class="text-slate-200">app.js</code> into an Android app and unlocks native MLKit barcode scanning &amp; push notifications.
+          </p>
+          <ul class="text-[11px] text-slate-400 space-y-1">
+            <li>• Reuses 95% of your current code</li>
+            <li>• Good if hospital IT requires an APK</li>
+            <li>• Takes ~1 day to wrap when ready</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 opacity-80">
+          <h3 class="font-display font-bold text-sm text-white mb-1">Option 3: Separate Native Android App</h3>
+          <p class="text-xs text-slate-300 leading-relaxed mb-2">
+            Building a separate Kotlin/Jetpack Compose or Flutter app from scratch means rewriting login, Supabase realtime channels, room pickers, AI insights, and audit logs twice.
+          </p>
+          <ul class="text-[11px] text-rose-400 space-y-1">
+            <li>✕ Double maintenance for every feature</li>
+            <li>✕ Overkill for a 61-item hospital tracker</li>
+            <li>✕ Not needed just to separate mobile UI</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Drop-In CSS Override Patch for styles.css -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-0.5">Part 3 · Ready-to-Paste Code</div>
+          <h2 class="font-display font-bold text-lg text-white">Drop-In Mobile CSS Patch (Paste at the bottom of your <code class="text-purple-300">styles.css</code>)</h2>
+        </div>
+        <button onclick="copyCssPatch()" id="copy-css-btn" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow">
+          📋 Copy Mobile CSS Patch
+        </button>
+      </div>
+      <p class="text-xs text-slate-400 mb-3">
+        Because every rule below is wrapped in <code class="text-slate-200">@media (max-width: 767px)</code>, your desktop website (<code class="text-slate-200">768px</code> and wider) will not change by a single pixel, while phones immediately get the compact 4-KPI ribbon, horizontal product type scroller, high-density rows, and bottom-sheet details!
+      </p>
+
+      <pre id="css-patch-code" class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs font-mono-code text-slate-200 overflow-x-auto leading-relaxed"><code>/* ==========================================================================
+   MEDITRACK MOBILE HIGH-DENSITY PATCH (Desktop >= 768px 100% Untouched)
+   Paste at the very end of styles.css
+========================================================================== */
+@media (max-width: 767px) {
+  .container {
+    padding: 10px 12px 84px 12px; /* Leave space for thumb-zone bottom bar */
+  }
+
+  /* 1. Compact Header & Title Row */
+  .header { height: 52px; }
+  .page-title-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .page-title { font-size: 20px; }
+  #print-all-btn { display: none; } /* Keep in '...' menu on phones */
+
+  /* 2. 4-in-1 Compact KPI Strip (56px height instead of 520px!) */
+  .kpi-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .kpi-card {
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+  .kpi-chip, .kpi-arrow-btn, .kpi-caption {
+    display: none !important;
+  }
+  .kpi-top { margin-bottom: 2px; }
+  .kpi-title {
+    font-size: 11px;
+    color: var(--text-2);
+  }
+  .kpi-num {
+    font-size: 20px;
+    margin-bottom: 0;
+  }
+
+  /* 3. Horizontal Product Type Pill Strip (Saves ~280px vertical height) */
+  .product-tiles-section {
+    padding: 8px 10px;
+    margin-bottom: 10px;
+  }
+  .product-tiles-header { display: none; }
+  .product-tiles-grid {
+    display: flex !important;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .product-tiles-grid::-webkit-scrollbar { display: none; }
+  .product-tile {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .pt-img-wrap { width: 20px; height: 20px; }
+  .pt-emoji-fallback { font-size: 14px; }
+  .pt-summary { display: none; }
+
+  /* 4. Compact Sticky Search & Filter Header */
+  .eq-panel-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .eq-panel-controls {
+    flex-direction: row;
+    gap: 6px;
+  }
+  .eq-search-wrap { flex: 1; }
+  .eq-search-input, .eq-sort-select {
+    height: 36px;
+    min-height: 36px;
+    font-size: 13px;
+  }
+  .eq-sort-select { width: auto; max-width: 115px; }
+  .eq-filter-row { padding: 8px 12px; gap: 8px; }
+
+  /* 5. High-Density 2-Line Equipment Cards + Bottom Sheet Details */
+  .eq-row-header {
+    padding: 10px 12px;
+    row-gap: 3px;
+    min-height: 54px;
+  }
+  .eq-row.open > .eq-row-details {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1100;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.28);
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}</code></pre>
+    </div>
+
+  </section>
+
+  <!-- =====================================================================
+       INTERACTIVE PROTOTYPE SCRIPT (Mirrors MediTrack's real data & logic)
+  ====================================================================== -->
+  <script>
+    // Real department rooms from your app.js DEPT_ROOMS constant
+    const DEPT_ROOMS = {
+      'ICU':               ['Bed 1','Bed 2','Bed 3','Bed 4','Bed 5','Bed 6',"Nurses' Station"],
+      'General Ward':      ['Room 101','Room 102','Room 103','Room 104','Corridor',"Nurses' Station"],
+      'Emergency':         ['Bay 1','Bay 2','Bay 3','Resus Bay','Triage','Trauma Room'],
+      'Operation Theatre': ['Theatre 1','Theatre 2','Theatre 3','Recovery Room','Scrub Area'],
+      'Maternity Ward':    ['Labour Room 1','Delivery Room 1','Post-natal Bay','NICU'],
+      'Radiology':         ['X-Ray Room','CT Suite','Ultrasound Room','Reporting Room']
+    };
+
+    // Representative equipment items from your screenshots & app.js
+    let phoneEquipment = [
+      { id: 1, name: 'Anaesthesia Machine A', qr: 'MT-OT-001', dept: 'Operation Theatre', type: 'Monitor', status: 'Available', cond: 'Usable', holder: null, room: null, since: null },
+      { id: 2, name: 'Ventilator A', qr: 'MT-ICU-001', dept: 'ICU', type: 'Ventilator', status: 'In Use', cond: 'Usable', holder: 'raju', room: 'Bed 4', since: '2h 15m' },
+      { id: 3, name: 'Birthing Bed A', qr: 'MT-MW-006', dept: 'Maternity Ward', type: 'Wheelchair', status: 'Available', cond: 'Usable', holder: null, room: null, since: null },
+      { id: 4, name: 'Bladder Scanner A', qr: 'MT-RD-006', dept: 'Radiology', type: 'Monitor', status: 'Available', cond: 'Usable', holder: null, room: null, since: null },
+      { id: 5, name: 'Crash Cart A', qr: 'MT-EM-005', dept: 'Emergency', type: 'Defibrillator', status: 'Available', cond: 'Needs Maintenance', holder: null, room: null, since: null },
+      { id: 6, name: 'Defibrillator B', qr: 'MT-EM-004', dept: 'Emergency', type: 'Defibrillator', status: 'Available', cond: 'Usable', holder: null, room: null, since: null },
+      { id: 7, name: 'Infusion Pump A', qr: 'MT-ICU-009', dept: 'ICU', type: 'Infusion Pump', status: 'In Use', cond: 'Usable', holder: 'vinayaka', room: 'Bed 2', since: '45m' },
+      { id: 8, name: 'Wheelchair A', qr: 'MT-GW-002', dept: 'General Ward', type: 'Wheelchair', status: 'Available', cond: 'Usable', holder: null, room: null, since: null },
+      { id: 9, name: 'ECG Machine A', qr: 'MT-EM-008', dept: 'Emergency', type: 'Monitor', status: 'Available', cond: 'Usable', holder: null, room: null, since: null },
+      { id: 10, name: 'Ventilator B', qr: 'MT-ICU-004', dept: 'ICU', type: 'Ventilator', status: 'In Use', cond: 'Usable', holder: 'vinayaka', room: 'Bed 1', since: '5h 10m' }
+    ];
+
+    let phoneRequests = [
+      { id: 101, eqId: 2, eqName: 'Ventilator A', qr: 'MT-ICU-001', dept: 'ICU', by: 'raju', priority: 'Urgent', time: '14 Oct, 09:39 pm' }
+    ];
+
+    let phoneAudit = [
+      { id: 1, eq: 'Ventilator A', action: 'Request Submitted', by: 'raju', room: 'ICU', time: '21h ago', type: 'warn' },
+      { id: 2, eq: 'Anaesthesia Machine A', action: 'Released', by: 'admin', room: null, time: '21h ago', type: 'avail' },
+      { id: 3, eq: 'Anaesthesia Machine A', action: 'Checked Out', by: 'admin', room: 'Theatre 1', time: '22h ago', type: 'inuse' },
+      { id: 4, eq: 'Infusion Pump A', action: 'Checked Out', by: 'vinayaka', room: 'Bed 2', time: '45m ago', type: 'inuse' },
+      { id: 5, eq: 'Foetal Monitor B', action: 'Released', by: 'admin', room: null, time: '4d ago', type: 'avail' }
+    ];
+
+    let pFilterStatus = 'all';
+    let pFilterDept = 'all';
+    let pFilterType = 'all';
+    let simRole = 'Manager';
+    let scannedEq = phoneEquipment[0];
+    let scannedRoom = 'Theatre 1';
+
+    // Switch Top-Level Studio View
+    function setStudioView(view) {
+      ['prototype', 'compare', 'report'].forEach(v => {
+        document.getElementById('view-' + v).classList.toggle('hidden', v !== view);
+        const tab = document.getElementById('tab-' + v);
+        if (v === view) {
+          tab.className = 'studio-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-blue-600 text-white shadow';
+        } else {
+          tab.className = 'studio-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white';
+        }
+      });
+    }
+
+    // Toggle Dark/Light Theme on the Interactive Phone
+    function togglePhoneTheme() {
+      const phone = document.getElementById('interactive-phone');
+      const isDark = phone.getAttribute('data-phone-theme') === 'dark';
+      phone.setAttribute('data-phone-theme', isDark ? 'light' : 'dark');
+      document.getElementById('phone-theme-icon').textContent = isDark ? '🌙' : '☀️';
+      document.getElementById('phone-theme-label').textContent = isDark ? 'Dark Phone' : 'Light Phone';
+    }
+
+    // Role Switcher
+    function changeSimRole(role) {
+      simRole = role;
+      document.getElementById('phone-role-pill').textContent = role;
+      const initials = role === 'Manager' ? 'AD' : role === 'Senior Doctor' ? 'VI' : 'RA';
+      document.getElementById('phone-avatar-txt').textContent = initials;
+      const mgrCard = document.getElementById('p-manager-card');
+      if (mgrCard) mgrCard.style.display = role === 'Manager' ? 'block' : 'none';
+      renderPhoneRequests();
+      showMobileToast('Switched view to ' + role);
+    }
+
+    // Switch Bottom Navigation Tabs inside the Phone
+    function switchPhoneTab(tabId) {
+      ['home', 'requests', 'audit', 'more'].forEach(t => {
+        document.getElementById('p-tab-' + t).classList.toggle('hidden', t !== tabId);
+        const btn = document.getElementById('bnav-' + t);
+        if (btn) {
+          if (t === tabId) {
+            btn.classList.add('text-blue-600', 'font-semibold');
+            btn.classList.remove('p-text-2');
+          } else {
+            btn.classList.remove('text-blue-600', 'font-semibold');
+            btn.classList.add('p-text-2');
+          }
+        }
+      });
+    }
+
+    // Render Product Type Horizontal Pills
+    function renderProductPills() {
+      const types = [
+        { key: 'all', label: 'All', emoji: '🏥', count: phoneEquipment.length },
+        { key: 'Ventilator', label: 'Ventilator', emoji: '🫁', count: phoneEquipment.filter(e => e.type === 'Ventilator').length },
+        { key: 'Wheelchair', label: 'Wheelchair', emoji: '♿', count: phoneEquipment.filter(e => e.type === 'Wheelchair').length },
+        { key: 'Infusion Pump', label: 'Pump', emoji: '💉', count: phoneEquipment.filter(e => e.type === 'Infusion Pump').length },
+        { key: 'Defibrillator', label: 'Defib', emoji: '⚡', count: phoneEquipment.filter(e => e.type === 'Defibrillator').length },
+        { key: 'Monitor', label: 'Monitor', emoji: '🖥️', count: phoneEquipment.filter(e => e.type === 'Monitor').length }
+      ];
+      const container = document.getElementById('p-product-pills');
+      container.innerHTML = types.map(t => {
+        const active = pFilterType === t.key;
+        return `<button onclick="setPhoneTypeFilter('${t.key}')" class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 shrink-0 border transition ${active ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'p-surface p-text-2'}">
+          <span>${t.emoji}</span>
+          <span>${t.label}</span>
+          <span class="opacity-75 tabular-nums">${t.count}</span>
+        </button>`;
+      }).join('');
+    }
+
+    // Render Department Chips
+    function renderDeptChips() {
+      const depts = ['all', 'ICU', 'Operation Theatre', 'Emergency', 'General Ward', 'Maternity Ward', 'Radiology'];
+      const container = document.getElementById('p-dept-chips');
+      container.innerHTML = depts.map(d => {
+        const active = pFilterDept === d;
+        const label = d === 'all' ? 'All Depts' : d;
+        return `<button onclick="setPhoneDeptFilter('${d}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 border transition ${active ? 'badge-primary border-blue-500' : 'p-surface-2 p-text-2'}">${label}</button>`;
+      }).join('');
+    }
+
+    function setPhoneStatusFilter(status) {
+      pFilterStatus = pFilterStatus === status && status !== 'all' ? 'all' : status;
+      ['all', 'Available', 'In Use'].forEach(s => {
+        const seg = document.getElementById('seg-' + s);
+        if (seg) {
+          seg.className = pFilterStatus === s
+            ? 'px-2 py-1 rounded-md transition bg-blue-600 text-white'
+            : 'px-2 py-1 rounded-md transition p-text-2';
+        }
+      });
+      renderPhoneEquipment();
+    }
+
+    function setPhoneDeptFilter(dept) {
+      pFilterDept = dept;
+      renderDeptChips();
+      renderPhoneEquipment();
+    }
+
+    function setPhoneTypeFilter(type) {
+      pFilterType = pFilterType === type && type !== 'all' ? 'all' : type;
+      renderProductPills();
+      renderPhoneEquipment();
+    }
+
+    // Render Compact Equipment List
+    function renderPhoneEquipment() {
+      const q = (document.getElementById('p-search')?.value || '').toLowerCase().trim();
+      const filtered = phoneEquipment.filter(eq => {
+        const matchStatus =
+          pFilterStatus === 'all' ? true :
+          pFilterStatus === 'Attention' ? eq.cond !== 'Usable' :
+          eq.status === pFilterStatus;
+        const matchDept = pFilterDept === 'all' || eq.dept === pFilterDept;
+        const matchType = pFilterType === 'all' || eq.type === pFilterType;
+        const matchQ = !q || eq.name.toLowerCase().includes(q) || eq.qr.toLowerCase().includes(q) || (eq.holder || '').toLowerCase().includes(q);
+        return matchStatus && matchDept && matchType && matchQ;
+      });
+
+      // Update KPI counts
+      document.getElementById('p-stat-avail').textContent = phoneEquipment.filter(e => e.status === 'Available').length;
+      document.getElementById('p-stat-inuse').textContent = phoneEquipment.filter(e => e.status === 'In Use').length;
+      document.getElementById('p-stat-alert').textContent = phoneEquipment.filter(e => e.cond !== 'Usable').length;
+      document.getElementById('p-stat-reqs').textContent = phoneRequests.length;
+
+      const list = document.getElementById('p-eq-list');
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="p-8 text-center text-xs p-text-2">No equipment matches your filter. <button onclick="pFilterStatus='all';pFilterDept='all';pFilterType='all';renderProductPills();renderDeptChips();renderPhoneEquipment();" class="text-blue-500 font-bold underline block mx-auto mt-2">Reset filters</button></div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(eq => {
+        const isAvail = eq.status === 'Available';
+        const isMaint = eq.cond !== 'Usable';
+        const pill = isMaint
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold badge-warn">⚠ Maint</span>`
+          : isAvail
+            ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold badge-avail">● Avail</span>`
+            : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold badge-inuse">● In Use</span>`;
+
+        const subline = isAvail
+          ? `<span>${eq.dept}</span> · <span>${eq.cond}</span>`
+          : `<span class="font-semibold" style="color:var(--danger)">${eq.dept} · ${eq.room || 'Ward'}</span> · <span>${eq.holder} (${eq.since})</span>`;
+
+        return `<div onclick="openDetailSheet(${eq.id})" class="px-3 py-2.5 p-surface hover:bg-blue-500/5 transition flex items-center justify-between gap-2 cursor-pointer">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-bold p-text truncate">${eq.name}</span>
+              <span class="text-[10px] font-mono-code p-text-3 shrink-0">${eq.qr}</span>
+            </div>
+            <div class="text-[11px] p-text-2 truncate mt-0.5">${subline}</div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            ${pill}
+            <svg class="w-3.5 h-3.5 p-text-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Open Equipment Detail Bottom Sheet
+    function openDetailSheet(eqId) {
+      const eq = phoneEquipment.find(e => e.id === eqId);
+      if (!eq) return;
+      const isAvail = eq.status === 'Available';
+      const rooms = DEPT_ROOMS[eq.dept] || ['Main Ward'];
+
+      const roomChipsHtml = isAvail ? `
+        <div class="mt-3 pt-2.5 border-t p-border">
+          <div class="text-[11px] font-semibold p-text-2 mb-1.5">Select Room to Check Out Immediately:</div>
+          <div class="flex flex-wrap gap-1.5 mb-3">
+            ${rooms.map((r, i) => `<button onclick="selectSheetRoom(this, '${r}')" class="sheet-room-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${i===0 ? 'bg-blue-600 text-white border-blue-600' : 'p-surface-2 p-text'}">${r}</button>`).join('')}
+          </div>
+          <button onclick="quickToggleEq(${eq.id}, window._selectedSheetRoom || '${rooms[0]}')" class="w-full py-2.5 rounded-xl font-display font-bold text-xs text-white shadow" style="background: var(--primary);">
+            ✓ Mark In Use (${rooms[0]})
+          </button>
+        </div>
+      ` : `
+        <div class="mt-3 pt-2.5 border-t p-border flex gap-2">
+          <button onclick="quickToggleEq(${eq.id}, null)" class="flex-1 py-2.5 rounded-xl font-display font-bold text-xs badge-inuse border border-rose-500/30">
+            ✔ Release Equipment
+          </button>
+          ${simRole !== 'Manager' ? `<button onclick="submitQuickRequest(${eq.id})" class="flex-1 py-2.5 rounded-xl font-display font-bold text-xs badge-primary border border-blue-500/30">
+            ✋ Request Access
+          </button>` : ''}
+        </div>
+      `;
+
+      window._selectedSheetRoom = rooms[0];
+
+      document.getElementById('p-detail-content').innerHTML = `
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <div>
+            <span class="text-[10px] font-mono-code px-2 py-0.5 rounded p-surface-2 border p-text-2">${eq.qr}</span>
+            <h3 class="font-display font-bold text-base p-text mt-1">${eq.name}</h3>
+            <p class="text-xs p-text-2">${eq.dept} · Condition: <strong>${eq.cond}</strong></p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold ${isAvail ? 'badge-avail' : 'badge-inuse'}">${eq.status}</span>
+        </div>
+
+        ${!isAvail ? `<div class="p-2.5 rounded-xl p-surface-2 border text-xs mb-2">
+          <div>📍 <strong>Location:</strong> ${eq.dept} — ${eq.room}</div>
+          <div class="mt-0.5">👤 <strong>Held by:</strong> ${eq.holder} (${eq.since})</div>
+        </div>` : ''}
+
+        ${roomChipsHtml}
+      `;
+
+      document.getElementById('p-detail-sheet').classList.add('open');
+    }
+
+    function selectSheetRoom(btn, room) {
+      window._selectedSheetRoom = room;
+      document.querySelectorAll('.sheet-room-chip').forEach(b => {
+        b.className = 'sheet-room-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold border p-surface-2 p-text';
+      });
+      btn.className = 'sheet-room-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold border bg-blue-600 text-white border-blue-600';
+      const mainBtn = btn.parentElement.nextElementSibling;
+      if (mainBtn) mainBtn.textContent = '✓ Mark In Use (' + room + ')';
+    }
+
+    function closeDetailSheet() {
+      document.getElementById('p-detail-sheet').classList.remove('open');
+    }
+
+    function quickToggleEq(eqId, room) {
+      const eq = phoneEquipment.find(e => e.id === eqId);
+      if (!eq) return;
+      if (eq.status === 'Available') {
+        eq.status = 'In Use';
+        eq.room = room || 'Ward';
+        eq.holder = simRole === 'Manager' ? 'admin' : simRole === 'Senior Doctor' ? 'vinayaka' : 'raju';
+        eq.since = 'just now';
+        phoneAudit.unshift({ id: Date.now(), eq: eq.name, action: 'Checked Out', by: eq.holder, room: eq.room, time: 'just now', type: 'inuse' });
+        showMobileToast(`${eq.name} checked out to ${eq.room}`);
+      } else {
+        eq.status = 'Available';
+        eq.room = null;
+        eq.holder = null;
+        eq.since = null;
+        phoneAudit.unshift({ id: Date.now(), eq: eq.name, action: 'Released', by: 'admin', room: null, time: 'just now', type: 'avail' });
+        showMobileToast(`${eq.name} released & available`);
+      }
+      closeDetailSheet();
+      renderPhoneEquipment();
+      renderPhoneAudit();
+    }
+
+    function submitQuickRequest(eqId) {
+      const eq = phoneEquipment.find(e => e.id === eqId);
+      if (!eq) return;
+      phoneRequests.unshift({
+        id: Date.now(),
+        eqId: eq.id,
+        eqName: eq.name,
+        qr: eq.qr,
+        dept: eq.dept,
+        by: simRole === 'Senior Doctor' ? 'vinayaka' : 'raju',
+        priority: 'Urgent',
+        time: 'Just now'
+      });
+      closeDetailSheet();
+      renderPhoneRequests();
+      renderPhoneEquipment();
+      showMobileToast(`Urgent request submitted for ${eq.name}`);
+    }
+
+    // QR Scanner Modal + 1-Tap Room Chip Checkout
+    function openMobileScanner() {
+      simulateQrScan('MT-OT-001');
+      document.getElementById('p-scanner-sheet').classList.add('open');
+    }
+
+    function closeMobileScanner() {
+      document.getElementById('p-scanner-sheet').classList.remove('open');
+    }
+
+    function simulateQrScan(qrCode) {
+      const eq = phoneEquipment.find(e => e.qr === qrCode) || phoneEquipment[0];
+      scannedEq = eq;
+      const box = document.getElementById('p-scan-room-picker');
+
+      if (eq.status === 'In Use') {
+        box.innerHTML = `
+          <div class="p-2.5 rounded-xl badge-inuse border border-rose-500/30 text-xs">
+            <div class="font-bold">⚠️ CONFLICT DETECTED: ${eq.name}</div>
+            <p class="text-[11px] mt-0.5">Already In Use by <strong>${eq.holder}</strong> in <strong>${eq.room}</strong> (${eq.since}).</p>
+            <div class="flex gap-2 mt-2">
+              <button onclick="quickToggleEq(${eq.id}, null);closeMobileScanner();" class="flex-1 py-1.5 rounded-lg bg-rose-600 text-white font-bold text-[11px]">Force Release</button>
+              <button onclick="submitQuickRequest(${eq.id});closeMobileScanner();" class="flex-1 py-1.5 rounded-lg bg-white text-rose-700 font-bold text-[11px] border">Request Handover</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const rooms = DEPT_ROOMS[eq.dept] || ['Main Ward'];
+      scannedRoom = rooms[0];
+      box.innerHTML = `
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs font-bold p-text">Found: ${eq.name}</span>
+          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded badge-avail">${eq.dept}</span>
+        </div>
+        <div class="text-[11px] p-text-2 mb-2">Tap Room / Location for 1-Tap Check-Out:</div>
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          ${rooms.map((r, idx) => `<button onclick="pickScanRoom(this, '${r}')" class="scan-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${idx===0 ? 'bg-blue-600 text-white border-blue-600' : 'p-surface p-text'}">${r}</button>`).join('')}
+        </div>
+        <button onclick="confirmScanCheckout()" id="scan-confirm-btn" class="w-full py-2.5 rounded-xl font-display font-bold text-xs text-white shadow-md transition" style="background: var(--primary);">
+          ✓ Confirm Check-Out to ${scannedRoom}
+        </button>
+      `;
+    }
+
+    function pickScanRoom(btn, room) {
+      scannedRoom = room;
+      document.querySelectorAll('.scan-chip').forEach(b => {
+        b.className = 'scan-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold border p-surface p-text';
+      });
+      btn.className = 'scan-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold border bg-blue-600 text-white border-blue-600';
+      const confirmBtn = document.getElementById('scan-confirm-btn');
+      if (confirmBtn) confirmBtn.textContent = '✓ Confirm Check-Out to ' + room;
+    }
+
+    function confirmScanCheckout() {
+      if (!scannedEq) return;
+      quickToggleEq(scannedEq.id, scannedRoom);
+      closeMobileScanner();
+    }
+
+    // Render Requests Queue Tab
+    function renderPhoneRequests() {
+      const container = document.getElementById('p-requests-container');
+      const badge = document.getElementById('bnav-req-badge');
+      const tabCount = document.getElementById('req-tab-count');
+      if (badge) {
+        badge.textContent = phoneRequests.length;
+        badge.style.display = phoneRequests.length > 0 ? 'flex' : 'none';
+      }
+      if (tabCount) tabCount.textContent = phoneRequests.length;
+
+      if (phoneRequests.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-xs p-text-2 p-surface border rounded-2xl">🎉 No pending requests in queue.</div>`;
+        return;
+      }
+
+      const canApprove = simRole === 'Manager' || simRole === 'Senior Doctor';
+      container.innerHTML = phoneRequests.map(r => `
+        <div class="p-surface border rounded-2xl p-3.5 shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold badge-inuse uppercase">${r.priority}</span>
+            <span class="text-[10px] p-text-3">${r.time}</span>
+          </div>
+          <div class="font-display font-bold text-sm p-text">${r.eqName} <span class="text-xs font-mono-code p-text-3">${r.qr}</span></div>
+          <div class="text-xs p-text-2 mt-0.5">Requested by <strong>${r.by}</strong> · ${r.dept}</div>
+          ${canApprove ? `
+            <div class="grid grid-cols-2 gap-2 mt-3">
+              <button onclick="resolvePhoneReq(${r.id}, 'Approved')" class="py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-sm">✓ Approve</button>
+              <button onclick="armRejectBtn(this, ${r.id})" class="py-2 rounded-xl border p-surface-2 p-text text-xs font-bold">✕ Reject</button>
+            </div>
+          ` : `<div class="mt-2 text-[11px] italic p-text-3">Awaiting approval by Senior Doctor or Manager</div>`}
+        </div>
+      `).join('');
+    }
+
+    function armRejectBtn(btn, reqId) {
+      if (!btn.dataset.armed) {
+        btn.dataset.armed = '1';
+        btn.textContent = 'Tap again to confirm';
+        btn.className = 'py-2 rounded-xl bg-rose-600 text-white text-xs font-bold';
+        return;
+      }
+      resolvePhoneReq(reqId, 'Rejected');
+    }
+
+    function resolvePhoneReq(reqId, status) {
+      phoneRequests = phoneRequests.filter(r => r.id !== reqId);
+      renderPhoneRequests();
+      renderPhoneEquipment();
+      showMobileToast('Request ' + status);
+    }
+
+    // Render Audit Log Tab
+    function renderPhoneAudit() {
+      const container = document.getElementById('p-audit-container');
+      container.innerHTML = phoneAudit.map(a => `
+        <div class="p-surface border rounded-xl p-2.5 flex items-start justify-between gap-2">
+          <div class="flex items-start gap-2">
+            <span class="w-2 h-2 rounded-full mt-1.5 shrink-0" style="background: ${a.type === 'inuse' ? 'var(--danger)' : a.type === 'avail' ? 'var(--success)' : 'var(--warning)'}"></span>
+            <div>
+              <div class="text-xs font-bold p-text">${a.eq}</div>
+              <div class="text-[11px] p-text-2">${a.action} by <strong>${a.by}</strong> ${a.room ? `· 📍 ${a.room}` : ''}</div>
+            </div>
+          </div>
+          <span class="text-[10px] p-text-3 shrink-0 tabular-nums">${a.time}</span>
+        </div>
+      `).join('');
+    }
+
+    // Toast helper inside phone
+    let toastTimer = null;
+    function showMobileToast(msg) {
+      const t = document.getElementById('p-toast');
+      document.getElementById('p-toast-msg').textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.add('hidden'), 2600);
+    }
+
+    // Copy CSS Patch
+    function copyCssPatch() {
+      const code = document.getElementById('css-patch-code').innerText;
+      navigator.clipboard.writeText(code);
+      const btn = document.getElementById('copy-css-btn');
+      btn.textContent = '✓ Copied to Clipboard!';
+      setTimeout(() => { btn.textContent = '📋 Copy Mobile CSS Patch'; }, 2500);
+    }
+
+    // Initialize interactive prototype
+    renderProductPills();
+    renderDeptChips();
+    renderPhoneEquipment();
+    renderPhoneRequests();
+    renderPhoneAudit();
+  </script>
+</body>
+</html>
