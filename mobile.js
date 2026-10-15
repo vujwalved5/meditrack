@@ -111,7 +111,7 @@
     }
 
     renderMobileShell();
-    renderAllViews();
+    renderActiveView();
   }
 
   function unmountMobile() {
@@ -291,6 +291,18 @@
       else availCount++;
     });
 
+    const productCountsById = new Map();
+    const productCountsByName = new Map();
+    equipment.forEach(eq => {
+      if (eq.product_type_id !== null && eq.product_type_id !== undefined) {
+        productCountsById.set(eq.product_type_id, (productCountsById.get(eq.product_type_id) || 0) + 1);
+      }
+      const typeName = eq.product_types ? eq.product_types.name : (eq.product_type_name || '');
+      if (typeName) {
+        productCountsByName.set(typeName, (productCountsByName.get(typeName) || 0) + 1);
+      }
+    });
+
     // Filter equipment
     const q = currentSearchQuery.toLowerCase().trim();
     const filtered = equipment.filter(eq => {
@@ -353,7 +365,7 @@
             <span class="m-pill-count">${equipment.length}</span>
           </button>
           ${productTypes.map(pt => {
-            const count = equipment.filter(e => e.product_type_id === pt.id || (e.product_types && e.product_types.name === pt.name)).length;
+            const count = productCountsById.get(pt.id) || productCountsByName.get(pt.name) || 0;
             const isSelected = String(currentFilterType) === String(pt.id) || currentFilterType === pt.name;
             return `
               <button class="m-pill" data-ptype="${escapeHtml(pt.id)}" aria-pressed="${isSelected}">
@@ -2172,7 +2184,8 @@
         sync();
         return;
       }
-      renderAllViews();
+      refreshMobileNavState();
+      renderActiveView();
 
       // In-place conflict check if sheet is open (PL-17)
       if (activeSheet && activeSheet.id === 'equipment-detail' && activeEqId) {
@@ -2200,11 +2213,39 @@
 
   function renderAllViews() {
     if (!isActive) return;
-    renderMobileShell();
+    if (!document.getElementById('m-app')?.firstElementChild) {
+      renderMobileShell();
+    } else {
+      refreshMobileNavState();
+    }
+    renderActiveView();
+  }
+
+  function renderActiveView() {
     if (activeTab === 'home') renderHomeView();
     else if (activeTab === 'requests') renderRequestsView();
     else if (activeTab === 'audit') renderAuditView();
     else if (activeTab === 'more') renderMoreView();
+  }
+
+  function refreshMobileNavState() {
+    const state = getState();
+    const pendingReqCount = (state.allRequests || []).length;
+    const reqNavBtn = document.querySelector('.m-nav-item[data-tab="requests"]');
+    if (!reqNavBtn) return;
+    reqNavBtn.setAttribute('aria-label', `Requests, ${pendingReqCount} pending`);
+    let badge = document.getElementById('m-nav-req-count');
+    if (pendingReqCount > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'm-nav-badge';
+        badge.id = 'm-nav-req-count';
+        reqNavBtn.appendChild(badge);
+      }
+      badge.textContent = String(pendingReqCount);
+    } else if (badge) {
+      badge.remove();
+    }
   }
 
   function escapeHtml(str) {

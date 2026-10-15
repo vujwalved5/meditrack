@@ -715,6 +715,14 @@ initTheme();
       }
     }
 
+    let sidebarAuditRefreshTimer = null;
+    function scheduleSidebarRecentAuditRefresh(delayMs = 300) {
+      clearTimeout(sidebarAuditRefreshTimer);
+      sidebarAuditRefreshTimer = setTimeout(() => {
+        loadSidebarRecentAudit();
+      }, delayMs);
+    }
+
     function openAuditForEquipment(eqId) {
       showPage('auditlog');
       if (eqId) {
@@ -1021,11 +1029,8 @@ initTheme();
     let openEqRowId = null; // Currently open accordion row id
 
     // v4 — Room/location tracking
-    // Maps equipment_id → room string from the most recent 'Checked Out' audit entry.
+    // Maps equipment_id → room string from latest_checkout_rooms DB view.
     // Populated on load by loadLatestCheckoutRooms() and updated immediately in doToggle().
-    // NOTE: At current scale (~58 items) this is loaded as a full JS-side groupBy.
-    // If the audit_log grows significantly, replace with a DISTINCT ON (equipment_id)
-    // query at the DB level (e.g. a view or RPC) rather than a full table fetch + JS filter.
     let latestCheckoutRoom = {}; // { equipment_id: room_string }
     let roomPickerCallback = null; // pending room-selection callback
 
@@ -1140,26 +1145,15 @@ initTheme();
       renderProductTiles(); // v3 — safe: renderProductTiles has its own try/catch
     }
 
-    // v4 — Room tracking: fetch the most recent 'Checked Out' audit entry per equipment
-    // and cache the room value so status pills and detail views can display it instantly
-    // without additional per-item queries.
-    // NOTE: This performs a full fetch + JS groupBy at current scale (~58 items).
-    // If audit_log data volume grows significantly, replace with a DB-level
-    // DISTINCT ON (equipment_id) query or a materialised view instead.
+    // v4 — Room tracking: fetch latest room per equipment from DB-side view.
     async function loadLatestCheckoutRooms() {
-      const { data, error } = await db.from('audit_log')
-        .select('equipment_id, room, timestamp')
-        .eq('action', 'Checked Out')
-        .order('timestamp', { ascending: false });
+      const { data, error } = await db.from('latest_checkout_rooms')
+        .select('equipment_id, room');
       if (error) { console.warn('loadLatestCheckoutRooms failed:', error.message); return; }
 
-      // Group by equipment_id — keep only the most-recent (first) entry per item
-      // because results are sorted descending by timestamp.
       const map = {};
       (data || []).forEach(row => {
-        if (!(row.equipment_id in map) && row.room) {
-          map[row.equipment_id] = row.room;
-        }
+        if (row.room) map[row.equipment_id] = row.room;
       });
       latestCheckoutRoom = map;
 
@@ -2132,12 +2126,12 @@ initTheme();
             renderEquipment();
             updateStats();
             renderProductTiles(); // v3 — keep tile counts live
-            loadSidebarRecentAudit();
+            scheduleSidebarRecentAuditRefresh();
             const eq = allEquipment.find(e => e.id === payload.new.id);
             showToast((eq ? eq.name : 'Equipment') + ' updated: ' + payload.new.status, 'info');
           } else {
             await loadEquipment();
-            loadSidebarRecentAudit();
+            scheduleSidebarRecentAuditRefresh(450);
           }
         }).subscribe(handleStatus);
 
@@ -2179,7 +2173,7 @@ initTheme();
 
           // Update collapsed summary counts
           renderAuditPage();
-          loadSidebarRecentAudit();
+          scheduleSidebarRecentAuditRefresh();
         }).subscribe();
       }
     }
@@ -3465,31 +3459,32 @@ initTheme();
         else if (dateFilter === '7') { cutoff = new Date(Date.now() - 7 * 86400000); }
         else if (dateFilter === '30') { cutoff = new Date(Date.now() - 30 * 86400000); }
 
-        // Filter audit entries per equipment
-        function filteredEntries(eqId) {
-          const raw = (allAuditLogs[eqId] || { entries: [] }).entries;
-          return raw.filter(e => {
-            const matchDate = !cutoff || new Date(e.timestamp) >= cutoff;
-            const matchAction = actionFilter === 'all' || e.action === actionFilter;
-            const matchUser = !q || (e.performed_by || '').toLowerCase().includes(q.toLowerCase());
-            return matchDate && matchAction && matchUser;
-          });
-        }
+        const rawEqList = [];
+        const equipmentList = allEquipment || [];
+        for (const eq of equipmentList) {
+          const rawEntries = (allAuditLogs[eq.id] || { entries: [] }).entries;
+          const entries = [];
+          let checkoutCount = 0;
+          let last = null;
 
-        // Build prepared equipment list with audit stats
-        const rawEqList = (allEquipment || []).map(eq => {
-          const entries = filteredEntries(eq.id);
-          const checkoutCount = entries.filter(e => e.action === 'Checked Out').length;
-          const last = entries.length > 0 ? entries[0] : null;
-          return {
+          for (const entry of rawEntries) {
+            if (cutoff && new Date(entry.timestamp) < cutoff) continue;
+            if (actionFilter !== 'all' && entry.action !== actionFilter) continue;
+            if (q && !String(entry.performed_by || '').toLowerCase().includes(q)) continue;
+            entries.push(entry);
+            if (!last) last = entry;
+            if (entry.action === 'Checked Out') checkoutCount++;
+          }
+
+          rawEqList.push({
             ...eq,
             entries,
             uses: checkoutCount,
             last_activity: last ? last.timestamp : null,
             last_user: last ? (last.performed_by || '—') : null,
             dept_name: eq.departments ? eq.departments.name : 'Unknown'
-          };
-        });
+          });
+        }
 
         let eqList = rawEqList.filter(eq => {
           const matchSearch = !q || eq.name.toLowerCase().includes(q) || eq.dept_name.toLowerCase().includes(q) || (eq.last_user && eq.last_user.toLowerCase().includes(q));
@@ -3703,6 +3698,20 @@ initTheme();
 
       timelineEl.innerHTML = '';
 
+      const nearestOlderCheckoutIdx = new Array(entries.length).fill(-1);
+      let nextCheckoutIdx = -1;
+      for (let i = entries.length - 1; i >= 0; i--) {
+        nearestOlderCheckoutIdx[i] = nextCheckoutIdx;
+        if (entries[i].action === 'Checked Out') nextCheckoutIdx = i;
+      }
+
+      const nearestNewerReleasedIdx = new Array(entries.length).fill(-1);
+      let lastReleasedIdx = -1;
+      for (let i = 0; i < entries.length; i++) {
+        nearestNewerReleasedIdx[i] = lastReleasedIdx;
+        if (entries[i].action === 'Released') lastReleasedIdx = i;
+      }
+
       entries.forEach((entry, idx) => {
         const dotClass = getDotClass(entry.action);
         const item = document.createElement('div');
@@ -3710,9 +3719,8 @@ initTheme();
 
         let durationHtml = '';
         if (entry.action === 'Released') {
-          // Find the preceding Checked Out for same eq
-          const allForEq = cache.entries;
-          const checkoutBefore = allForEq.find((e, i) => i > idx && e.action === 'Checked Out');
+          const checkoutIdx = nearestOlderCheckoutIdx[idx];
+          const checkoutBefore = checkoutIdx >= 0 ? entries[checkoutIdx] : null;
           if (checkoutBefore) {
             const durMs = new Date(entry.timestamp).getTime() - new Date(checkoutBefore.timestamp).getTime();
             if (durMs > 0) {
@@ -3720,10 +3728,7 @@ initTheme();
             }
           }
         } else if (entry.action === 'Checked Out') {
-          // Check if there's no Released after it (still in use)
-          const allForEq = cache.entries;
-          const releasedAfter = allForEq.find((e, i) => i < idx && e.action === 'Released');
-          if (!releasedAfter) {
+          if (nearestNewerReleasedIdx[idx] === -1) {
             durationHtml = '<div class="timeline-duration"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>still in use</div>';
           }
         }
@@ -4821,4 +4826,3 @@ initTheme();
       },
       DEPT_ROOMS: typeof DEPT_ROOMS !== 'undefined' ? DEPT_ROOMS : {}
     };
-
