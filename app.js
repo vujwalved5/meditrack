@@ -2317,7 +2317,7 @@ initTheme();
         const allTile = document.createElement('button');
         allTile.className = 'product-tile' + (currentProductFilter === 'all' ? ' selected' : '');
         allTile.setAttribute('aria-pressed', currentProductFilter === 'all' ? 'true' : 'false');
-        allTile.setAttribute('aria-label', 'All Equipment — ' + allCount + ' items');
+        allTile.setAttribute('aria-label', 'All Equipment: ' + allCount + ' items');
         allTile.type = 'button';
         allTile.onclick = () => setProductFilter('all');
         allTile.innerHTML =
@@ -2339,7 +2339,7 @@ initTheme();
             (isSelected ? ' selected' : '') +
             (!hasAvail && totalCount > 0 ? ' dimmed' : '');
           tile.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-          tile.setAttribute('aria-label', esc(pt.name) + ' — ' + totalCount + ' items, ' + availCount + ' available');
+          tile.setAttribute('aria-label', esc(pt.name) + ': ' + totalCount + ' items, ' + availCount + ' available');
           tile.type = 'button';
           tile.onclick = () => setProductFilter(pt.name);
 
@@ -2628,6 +2628,16 @@ initTheme();
       row.className = 'eq-row' + (isOpen ? ' open' : '');
       row.id = 'eq-row-' + eq.id;
 
+      const currentRoom = (!isAvail && latestCheckoutRoom[eq.id]) ? latestCheckoutRoom[eq.id] : null;
+      const mobileMetaParts = [esc(deptName)];
+      if (currentRoom) {
+        mobileMetaParts.push(esc(currentRoom));
+      }
+      if (eq.qr_code_id) {
+        mobileMetaParts.push(esc(eq.qr_code_id));
+      }
+      const mobileMetaText = mobileMetaParts.join(' · ');
+
       const header = document.createElement('div');
       header.className = 'eq-row-header';
       header.id = 'eq-header-' + eq.id;
@@ -2644,8 +2654,8 @@ initTheme();
         </div>
         <div class="eq-cell eq-cell-name">
           <div class="eq-name-title">${esc(eq.name)}</div>
-          <div class="eq-id-caption">${esc(eq.qr_code_id || '—')}</div>
-          <div class="eq-mobile-meta">${esc(deptName)}${eq.qr_code_id ? ' · ' + esc(eq.qr_code_id) : ''}</div>
+          <div class="eq-id-caption">${esc(eq.qr_code_id || 'None')}</div>
+          <div class="eq-mobile-meta">${mobileMetaText}</div>
         </div>
         <div class="eq-cell eq-cell-dept">
           <span class="eq-dept-name">${esc(deptName)}</span>
@@ -2695,7 +2705,7 @@ initTheme();
       const condIcon = condition === 'Usable' ? 'i-check' : condition === 'Needs Maintenance' ? 'i-wrench' : 'i-x-octagon';
       const condBadge = '<span class="pill ' + condClass + '"><svg class="icon" aria-hidden="true"><use href="#' + condIcon + '"/></svg><span>' + esc(condition) + '</span></span>';
       const condWarning = condition !== 'Usable'
-        ? '<div class="condition-warning"><svg class="icon" aria-hidden="true" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg> ' + esc(condition) + ' \u2014 check before use</div>'
+        ? '<div class="condition-warning"><svg class="icon" aria-hidden="true" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg> ' + esc(condition) + ' : check before use</div>'
         : '';
 
       // Status info
@@ -2703,12 +2713,12 @@ initTheme();
       if (!isAvail) {
         const heldBy = eq.held_by || 'Unknown';
         const sinceStr = eq.in_use_since ? fmtTime(eq.in_use_since) : '';
-        // v4: show room alongside status (e.g. "In Use — ICU, Bed 4 — since 14:32")
+        // v4: show room alongside status
         const currentRoom = latestCheckoutRoom[eq.id] || null;
         statusInfo =
           '<span style="color:var(--inuse);font-weight:600;">In Use</span>' +
-          (currentRoom ? ' — <span style="color:var(--inuse);">' + esc(currentRoom) + '</span>' : '') +
-          (sinceStr ? ' — since ' + sinceStr : '') +
+          (currentRoom ? ', <span style="color:var(--inuse);">' + esc(currentRoom) + '</span>' : '') +
+          (sinceStr ? ' (since ' + sinceStr + ')' : '') +
           ' <span class="duration-live" id="dur-' + eq.id + '"></span>';
       } else {
         statusInfo = '<span style="color:var(--available);font-weight:600;">Available</span>';
@@ -2744,7 +2754,7 @@ initTheme();
           helperText = '<div class="btn-request-helper">You are currently using this item</div>';
         } else if (condition === 'Out of Order') {
           btnDisabled = 'disabled';
-          helperText = '<div class="btn-request-helper">Not available — Out of Order</div>';
+          helperText = '<div class="btn-request-helper">Not available: Out of Order</div>';
         }
         requestSection =
           '<div>' +
@@ -3023,7 +3033,7 @@ initTheme();
       const sel = document.getElementById('room-picker-select');
 
       const deptName = (eq.departments && eq.departments.name) ? eq.departments.name : '';
-      infoEl.textContent = eq.name + (deptName ? ' — ' + deptName : '');
+      infoEl.textContent = eq.name + (deptName ? ' (' + deptName + ')' : '');
 
       // Populate room options scoped to the equipment's department
       const rooms = DEPT_ROOMS[deptName] || ['Other / Unspecified'];
@@ -4263,7 +4273,7 @@ initTheme();
           pwBox.classList.add('show');
         }
         if (pwLabel) {
-          pwLabel.textContent = 'Share this password once — it will not be shown again.';
+          pwLabel.textContent = 'Share this password once. It will not be shown again.';
         }
         if (usernameInput) usernameInput.value = '';
         showToast('User "' + username + '" created!', 'success');
@@ -4508,6 +4518,12 @@ initTheme();
           colorDark: '#0f172a', colorLight: '#ffffff',
           correctLevel: QRCode.CorrectLevel.H
         });
+        const setStickerAlt = () => {
+          const img = qrCont.querySelector('img');
+          if (img) img.setAttribute('alt', 'QR Code for equipment asset ' + eq.qr_code_id);
+        };
+        setStickerAlt();
+        setTimeout(setStickerAlt, 50);
       } catch (e) { console.warn('QR gen error', e); }
 
       document.getElementById('sticker-modal').style.display = 'flex';
@@ -4655,11 +4671,18 @@ initTheme();
           '<div class="print-item-id">' + esc(eq.qr_code_id) + '</div>';
         grid.appendChild(item);
 
-        new QRCode(item.querySelector('#prev-qr-' + eq.id), {
+        const qrWrapper = item.querySelector('#prev-qr-' + eq.id);
+        new QRCode(qrWrapper, {
           text: eq.qr_code_id, width: 90, height: 90,
           colorDark: '#0f172a', colorLight: '#ffffff',
           correctLevel: QRCode.CorrectLevel.M
         });
+        const setPrevAlt = () => {
+          const img = qrWrapper.querySelector('img');
+          if (img) img.setAttribute('alt', 'QR Code for equipment asset ' + eq.qr_code_id);
+        };
+        setPrevAlt();
+        setTimeout(setPrevAlt, 50);
       });
     }
 

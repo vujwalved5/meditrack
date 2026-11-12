@@ -172,7 +172,7 @@
       </header>
 
       <div class="m-offline-banner ${isOffline ? 'show' : ''}" id="m-offline-banner" role="alert">
-        You're offline — showing last known data. Actions are temporarily disabled.
+        You're offline. Showing last known data. Actions are temporarily disabled.
       </div>
 
       <main id="m-main" style="flex:1; display:flex; flex-direction:column; width:100%;">
@@ -676,7 +676,7 @@
 
       ${!isAvail ? `
         <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:14px; font-size:12.5px;">
-          <div><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-map-pin"/></svg><strong>Location:</strong> ${escapeHtml(deptName)} — ${escapeHtml((state.latestCheckoutRoom && state.latestCheckoutRoom[eq.id]) || 'Ward')}</div>
+          <div><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-map-pin"/></svg><strong>Location:</strong> ${escapeHtml(deptName)} (${escapeHtml((state.latestCheckoutRoom && state.latestCheckoutRoom[eq.id]) || 'Ward')})</div>
           <div style="margin-top:4px;"><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-user"/></svg><strong>Held by:</strong> ${escapeHtml(eq.held_by || 'Unknown')}</div>
           ${eq.in_use_since ? `<div style="margin-top:4px; color:var(--text-2);"><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-clock"/></svg><strong>In use since:</strong> ${new Date(eq.in_use_since).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</div>` : ''}
         </div>
@@ -744,6 +744,12 @@
               colorLight: '#ffffff',
               correctLevel: QRCode.CorrectLevel.M
             });
+            const setSheetQrAlt = () => {
+              const img = qrBox.querySelector('img');
+              if (img) img.setAttribute('alt', 'QR Code for equipment asset ' + eq.qr_code_id);
+            };
+            setSheetQrAlt();
+            setTimeout(setSheetQrAlt, 50);
           } catch (e) {
             console.warn('QR render error', e);
           }
@@ -1495,7 +1501,7 @@
         <div>
           <label for="m-new-dept" style="display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px;">Department</label>
           <select id="m-new-dept" style="width:100%; height:44px; padding:0 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:16px; box-sizing:border-box;">
-            <option value="">— No Department —</option>
+            <option value="">No Department</option>
             ${depts.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('')}
           </select>
         </div>
@@ -1617,7 +1623,7 @@
         </button>
 
         <p style="font-size:11.5px; color:var(--text-2); margin:0; line-height:1.4; display:flex; align-items:center; justify-content:center; gap:4px;">
-          <svg class="icon" aria-hidden="true" width="14" height="14" style="flex-shrink:0;"><use href="#i-alert-triangle"/></svg> Share this password once with the user — it will not be shown again.
+          <svg class="icon" aria-hidden="true" width="14" height="14" style="flex-shrink:0;"><use href="#i-alert-triangle"/></svg> Share this password once with the user. It will not be shown again.
         </p>
       </div>
     `;
@@ -2179,7 +2185,7 @@
       if (label) label.textContent = 'Offline';
       const banner = document.getElementById('m-offline-banner');
       if (banner) banner.classList.add('show');
-      mToast('Connection lost — running in offline mode', 'error');
+      mToast('Connection lost: running in offline mode', 'error');
     });
 
     // Listen to real app render updates (Section 2.5)

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>MediTrack — Hospital Equipment Tracking</title>
+  <title>MediTrack · Hospital Equipment Tracking</title>
   <meta name="description" content="Real-time hospital equipment visibility with role-based access control." />
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#F5F7FA" id="theme-color-meta" />
@@ -589,8 +589,8 @@
                 <span class="kpi-title">Available</span>
               </div>
             </div>
-            <div class="kpi-num" id="stat-available">—</div>
-            <div class="kpi-caption">of <span id="stat-total">—</span> items ready to use</div>
+            <div class="kpi-num" id="stat-available">0</div>
+            <div class="kpi-caption">of <span id="stat-total">0</span> items ready to use</div>
           </div>
 
           <!-- Card 2: In Use -->
@@ -607,7 +607,7 @@
                 <span class="kpi-title">In Use</span>
               </div>
             </div>
-            <div class="kpi-num" id="stat-inuse">—</div>
+            <div class="kpi-num" id="stat-inuse">0</div>
             <div class="kpi-caption">Currently checked out</div>
           </div>
 
@@ -970,7 +970,7 @@
                 <span class="kpi-title">Total events</span>
               </div>
             </div>
-            <div class="kpi-num" id="audit-total-events">—</div>
+            <div class="kpi-num" id="audit-total-events">0</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-top">
@@ -985,7 +985,7 @@
                 <span class="kpi-title">Items used today</span>
               </div>
             </div>
-            <div class="kpi-num" id="audit-used-today">—</div>
+            <div class="kpi-num" id="audit-used-today">0</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-top">
@@ -999,7 +999,7 @@
                 <span class="kpi-title">In use now</span>
               </div>
             </div>
-            <div class="kpi-num" id="audit-in-use-now">—</div>
+            <div class="kpi-num" id="audit-in-use-now">0</div>
           </div>
         </div>
 
@@ -1264,7 +1264,7 @@
           <label class="form-label">Requested By</label>
           <div
             style="padding:10px 12px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text-secondary);"
-            id="req-user-display">—</div>
+            id="req-user-display">None</div>
         </div>
         <div class="form-group">
           <span class="form-label" id="pri-label">Priority</span>
@@ -1535,7 +1535,7 @@
       </div>
       <div class="modal-footer" style="justify-content:space-between; align-items:center;">
         <select id="weekly-history-select" class="form-select" style="width:auto; padding:6px; font-size:13px;"
-          onchange="loadSelectedWeeklyReport()">
+          onchange="loadSelectedWeeklyReport()" aria-label="Select historical weekly analysis report">
           <option value="">Latest Report</option>
         </select>
         <div style="display:flex; gap:8px;">
@@ -1560,7 +1560,8 @@
           <use href="#i-search" />
         </svg>
         <input type="text" id="cmd-palette-input" class="cmd-palette-input"
-          placeholder="Search equipment, navigate pages, run actions..." autocomplete="off">
+          placeholder="Search equipment, navigate pages, run actions..." autocomplete="off"
+          aria-label="Search equipment, navigate pages, or run actions">
         <span class="cmd-palette-esc-hint">Esc</span>
       </div>
       <div class="cmd-palette-list" id="cmd-palette-list" role="listbox"></div>
