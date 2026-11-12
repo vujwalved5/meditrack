@@ -41,6 +41,11 @@ typography:
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1.4
+  code:
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+    fontSize: "0.875rem"
+    fontWeight: 500
+    lineHeight: 1.4
 rounded:
   sm: "4px"
   md: "10px"

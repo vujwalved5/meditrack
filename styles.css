@@ -30,7 +30,8 @@
   --border: #E8EAEE;
   --text: #14161A;
   --text-2: #5B616B;
-  --text-3: #8B919B;
+  --text-3: #596172;
+  --primary-chip-fg: var(--primary);
 
   --primary: #2F5BEA;
   --primary-strong: #2548C4;
@@ -163,11 +164,12 @@
   --border: #2C2D32;
   --text: #F2F3F5;
   --text-2: #B0B4BC;
-  --text-3: #7E838D;
+  --text-3: #94A3B8;
 
-  --primary: #4F7BFF;
-  --primary-strong: #6D93FF;
+  --primary: #2563EB;
+  --primary-strong: #1D4ED8;
   --primary-tint: #1E2A4F;
+  --primary-chip-fg: #93C5FD;
 
   --success: #34D399;
   --success-tint: #12301F;
@@ -177,6 +179,10 @@
   --warning-tint: #3A2A0E;
   --neutral: #9CA3AF;
   --neutral-tint: #2A2C31;
+
+  --manager-color: #93C5FD;
+  --manager-bg: #1E2A4F;
+  --manager-border: #3B82F6;
 
   --srdoctor-color: #818CF8;
   --srdoctor-bg: #1E1B4B;
@@ -199,11 +205,12 @@
     --border: #2C2D32;
     --text: #F2F3F5;
     --text-2: #B0B4BC;
-    --text-3: #7E838D;
+    --text-3: #94A3B8;
 
-    --primary: #4F7BFF;
-    --primary-strong: #6D93FF;
+    --primary: #2563EB;
+    --primary-strong: #1D4ED8;
     --primary-tint: #1E2A4F;
+    --primary-chip-fg: #93C5FD;
 
     --success: #34D399;
     --success-tint: #12301F;
@@ -213,6 +220,10 @@
     --warning-tint: #3A2A0E;
     --neutral: #9CA3AF;
     --neutral-tint: #2A2C31;
+
+    --manager-color: #93C5FD;
+    --manager-bg: #1E2A4F;
+    --manager-border: #3B82F6;
 
     --srdoctor-color: #818CF8;
     --srdoctor-bg: #1E1B4B;
@@ -1344,7 +1355,7 @@
     .dept-filter-group .filter-btn.active {
       background: var(--primary-tint);
       border-color: var(--primary);
-      color: var(--primary-strong);
+      color: var(--primary-chip-fg, var(--primary-strong));
       font-weight: 600;
     }
 
@@ -2065,7 +2076,7 @@
       height: 36px;
       border-radius: var(--r-pill);
       background: var(--primary-tint);
-      color: var(--primary);
+      color: var(--primary-chip-fg, var(--primary));
       font-size: 12px;
       font-weight: 600;
       display: flex;
@@ -3966,7 +3977,7 @@
       white-space: nowrap;
       border: 1px solid var(--primary);
       background: var(--primary-tint);
-      color: var(--primary);
+      color: var(--primary-chip-fg, var(--primary));
       font-size: 12px;
       font-weight: 600;
       text-decoration: none;

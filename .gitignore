@@ -32,6 +32,9 @@ test-results/
 playwright-report/
 tests/
 *.log
+video/
+*.mp4
+demo.js
 
 # Environment files (commit the placeholder template only)
 .env*

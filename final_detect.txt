@@ -1,0 +1,1080 @@
+
+67 files scanned with regex matching only (.cjs, .css, .js, .ts).
+Rules that need a parsed page (tiny-text, low-contrast and other element rules) did not run on them; findings are an undercount, not a clean bill of health.
+For the full check, scan the running dev server (npx impeccable detect http://localhost:PORT) or a static site's built .html.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\_archive\docs\meditrack_mobile_ui_design.html.html
+  [low-contrast] 2.9:1 (need 4.5:1) — text #16a34a on #e7f6ec (and 1 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 2.9:1 (need 4.5:1) — text #d97706 on #fef3e2 (and 2 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.0:1 (need 4.5:1) — text #8b919b on #f7f8fa (and 5 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.3:1 (need 4.5:1) — text #16a34a on #ffffff (and 2 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.2:1 (need 4.5:1) — text #8b919b on #ffffff
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.3:1 (need 4.5:1) — text #14161a on #2f5bea
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.7:1 (need 4.5:1) — text #ffffff on #f43f5e (and 1 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [dark-glow] Zero-offset box-shadow glow (#38bdf8)
+    → Colored glow shadows — a zero-offset chromatic halo (box- or text-shadow) on any background, or any colored blurred shadow on a dark background — are the default "cool" look of AI-generated UIs. Use neutral elevation shadows and subtle, purposeful lighting instead.
+  [cramped-padding] <div> "px-3.5": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "flex": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "sticky": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "flex": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "px-3.5": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "px-3.5": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface-2": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface-2": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "flex": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "flex": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-3": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "phone-screen": children flush against bg on bottom (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "phone-screen": children flush against bg on bottom (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  line 64: [design-system-font] span "MediTrack Mobile UI Studio" uses plus jakarta sans; not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 57: [design-system-font] span "v5 Mobile Concept" uses inter; not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 67: [design-system-font] span "MT-OT-001" uses jetbrains mono; not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 9: [design-system-font] Google Fonts: Inter is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 9: [design-system-font] Google Fonts: Plus Jakarta Sans is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 9: [design-system-font] Google Fonts: JetBrains Mono is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  [overused-font] Primary font: plus jakarta sans
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  [overused-font] Primary font: inter
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  [flat-type-hierarchy] Role sizes: body 16px, h2 16px, h3 16px, h4 16px (largest adjacent step 1.00:1; target 1.25:1)
+    → Dominant heading and body roles are separated by less than 1.25× at every step, leaving the size hierarchy flat. Add at least one stronger size step.
+  [nested-cards] Card inside card (div) (and 3 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 1 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 1 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 1 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 3 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 7 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 3 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 3 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 2 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [pulsing-dot] animate-pulse on tiny rounded-full element
+    → Small pulsing status dots simulate liveness decoratively. Reserve pulse animation for indicators tied to genuinely live, changing data; a static indicator with clear labeling is honest and calmer.
+  [dark-glow] Zero-offset box-shadow glow (#38bdf8)
+    → Colored glow shadows — a zero-offset chromatic halo (box- or text-shadow) on any background, or any colored blurred shadow on a dark background — are the default "cool" look of AI-generated UIs. Use neutral elevation shadows and subtle, purposeful lighting instead.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\_archive\scratch\index.backup.html
+  [side-tab] border-left: 4px + border-radius: 12px
+    → Thick colored border on one side of a card — the most recognizable tell of AI-generated UIs. Use a subtler accent or remove it entirely.
+  line 28: [design-system-font] Google Fonts: Inter is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 28: [design-system-font] Google Fonts: Plus Jakarta Sans is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 228: [design-system-font] font-family: Inter is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 238: [design-system-font] font-family: Plus Jakarta Sans is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 929: [design-system-font] font-family: Courier New is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  [overused-font] Primary font: plus jakarta sans
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  [overused-font] Primary font: inter
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  [pulsing-dot] .live-dot — 8x8px dot with infinite "pulse-live" animation in header/nav
+    → Small pulsing status dots simulate liveness decoratively. Reserve pulse animation for indicators tied to genuinely live, changing data; a static indicator with clear labeling is honest and calmer.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\demo.js
+  line 131: [overused-font] font-family:Inter
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  line 180: [overused-font] font-family:Inter
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  line 210: [overused-font] font-family:Inter
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  line 131: [design-system-font] font-family: Inter is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 180: [design-system-font] font-family: Inter is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 210: [design-system-font] font-family: Inter is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\docs\mobile\meditrack_mobile_ui_design.html
+  [low-contrast] 2.9:1 (need 4.5:1) — text #16a34a on #e7f6ec (and 1 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 2.9:1 (need 4.5:1) — text #d97706 on #fef3e2 (and 2 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.0:1 (need 4.5:1) — text #8b919b on #f7f8fa (and 5 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.3:1 (need 4.5:1) — text #16a34a on #ffffff (and 2 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.2:1 (need 4.5:1) — text #8b919b on #ffffff
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.3:1 (need 4.5:1) — text #14161a on #2f5bea
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [low-contrast] 3.7:1 (need 4.5:1) — text #ffffff on #f43f5e (and 1 more)
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  [dark-glow] Zero-offset box-shadow glow (#38bdf8)
+    → Colored glow shadows — a zero-offset chromatic halo (box- or text-shadow) on any background, or any colored blurred shadow on a dark background — are the default "cool" look of AI-generated UIs. Use neutral elevation shadows and subtle, purposeful lighting instead.
+  [cramped-padding] <div> "px-3.5": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "flex": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "sticky": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "flex": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "px-3.5": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "px-3.5": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface-2": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface-2": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-surface": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "flex": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "flex": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "p-3": children flush against bg on all sides (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "phone-screen": children flush against bg on bottom (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  [cramped-padding] <div> "phone-screen": children flush against bg on bottom (no inset)
+    → Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the space between the rendered text and the border box is too small for the font size, and (2) a wrapper whose children's text lands flush against a visible boundary (border, outline, or non-transparent background) with nothing to inset it. Add at least 8px (ideally 12–16px) of space inside bordered, outlined, or colored containers.
+  line 64: [design-system-font] span "MediTrack Mobile UI Studio" uses plus jakarta sans; not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 57: [design-system-font] span "v5 Mobile Concept" uses inter; not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 67: [design-system-font] span "MT-OT-001" uses jetbrains mono; not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 9: [design-system-font] Google Fonts: Inter is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 9: [design-system-font] Google Fonts: Plus Jakarta Sans is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  line 9: [design-system-font] Google Fonts: JetBrains Mono is not declared in DESIGN.md typography
+    → A font is used that is not declared in DESIGN.md typography. Use the documented type system or update DESIGN.md if this is an intentional brand addition.
+  [overused-font] Primary font: plus jakarta sans
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  [overused-font] Primary font: inter
+    → Inter, Roboto, Fraunces, Geist, Plus Jakarta Sans, and Space Grotesk are used on so many sites they no longer feel distinctive. Each new wave of AI-generated UIs converges on the same handful of faces. Choose a face that gives your interface personality.
+  [flat-type-hierarchy] Role sizes: body 16px, h2 16px, h3 16px, h4 16px (largest adjacent step 1.00:1; target 1.25:1)
+    → Dominant heading and body roles are separated by less than 1.25× at every step, leaving the size hierarchy flat. Add at least one stronger size step.
+  [nested-cards] Card inside card (div) (and 3 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 1 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 1 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 1 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 3 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 7 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 3 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 3 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [nested-cards] Card inside card (div) (and 2 more)
+    → Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.
+  [pulsing-dot] animate-pulse on tiny rounded-full element
+    → Small pulsing status dots simulate liveness decoratively. Reserve pulse animation for indicators tied to genuinely live, changing data; a static indicator with clear labeling is honest and calmer.
+  [dark-glow] Zero-offset box-shadow glow (#38bdf8)
+    → Colored glow shadows — a zero-offset chromatic halo (box- or text-shadow) on any background, or any colored blurred shadow on a dark background — are the default "cool" look of AI-generated UIs. Use neutral elevation shadows and subtle, purposeful lighting instead.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\index.html
+  [wide-tracking] letter-spacing: 0.10em on body text
+    → Letter spacing above 0.05em on body text disrupts natural character groupings and slows reading. Reserve wide tracking for short uppercase labels only.
+
+104 anti-patterns found.
+
+── Advisory (not counted as failures) ──
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\_archive\docs\meditrack_mobile_ui_design.html.html
+  [low-contrast] 4.2:1 (need 4.5:1) — text #6b7280 on #eef0f3
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  line 58: [design-system-color] background rgb(11, 15, 25) on body "MediTrack Mobile UI Studio v5 Mobile Con" is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 74: [design-system-radius] border-radius 46px on div "MediTrack Live Manager AD Avail 39 In Us" is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 88: [design-system-radius] border-radius 36px on div "MediTrack Live Manager AD Avail 39 In Us" is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 100: [design-system-color] background rgb(9, 13, 22) on div is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 163: [design-system-color] border-top rgb(244, 63, 94) on div "690px Screen Fold (0 Items Visible!)" is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 31: [design-system-color] Undocumented color #4C7BFF is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 76: [design-system-color] Undocumented color #334155 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 76: [design-system-color] Undocumented color #0f172a is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 76: [design-system-color] Undocumented color #1e293b is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 116: [design-system-color] Undocumented color #38bdf8 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 116: [design-system-color] Undocumented color #0284c7 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 126: [design-system-color] Undocumented color rgba(148, 163, 184, 0.35) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 173: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 185: [design-system-color] Undocumented color rgba(0, 0, 0, 0.52) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 200: [design-system-radius] border-radius: 22px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 233: [design-system-font-size] text-[…] class: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 645: [design-system-font-size] text-[…] class: 9px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 652: [design-system-font-size] text-[…] class: 8px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1155: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1209: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1228: [design-system-radius] border-radius: 20px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\_archive\scratch\index.backup.html
+  [low-contrast] :hover state 4.4:1 (need 4.5:1) — text #64748a on #f3f6f8
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  line 280: [design-system-color] Undocumented color #0D7F9E is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 280: [design-system-color] Undocumented color #073D50 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 313: [design-system-font-size] font-size: 28px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 314: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 365: [design-system-font-size] font-size: 24px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 366: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 367: [design-system-font-size] font-size: 17px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 392: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 451: [design-system-font-size] font-size: 18px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 496: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 679: [design-system-radius] border-radius: 20px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 795: [design-system-color] Undocumented color rgba(11,110,138,.15) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1155: [design-system-color] Undocumented color rgba(0, 0, 0, .5) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1789: [design-system-font-size] font-size: 36px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1884: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1905: [design-system-color] Undocumented color #cbd5e1 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1905: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1927: [design-system-color] Undocumented color #334155 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1932: [design-system-color] Undocumented color #94a3b8 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1937: [design-system-radius] border-radius: 3px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2748: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2800: [design-system-color] Undocumented color #b3cef5 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2899: [design-system-color] Undocumented color rgba(15, 157, 107, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2905: [design-system-color] Undocumented color rgba(47, 111, 235, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2911: [design-system-color] Undocumented color rgba(217, 138, 0, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2917: [design-system-color] Undocumented color rgba(214, 69, 69, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2923: [design-system-color] Undocumented color rgba(132, 147, 160, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2944: [design-system-color] Undocumented color rgba(11, 86, 111, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2952: [design-system-color] Undocumented color rgba(59, 63, 158, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2960: [design-system-color] Undocumented color rgba(74, 91, 104, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3047: [design-system-color] Undocumented color #961D1D is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3421: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 3634: [design-system-color] Undocumented color rgba(15, 27, 36, 0.5) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6021: [design-system-color] Undocumented color #4338ca is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6401: [design-system-font-size] font-size: 19px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 6415: [design-system-color] Undocumented color #dbeafe is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6415: [design-system-color] Undocumented color #bfdbfe is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6417: [design-system-color] Undocumented color #f3e8ff is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6417: [design-system-color] Undocumented color #7c3aed is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6417: [design-system-color] Undocumented color #ddd6fe is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6449: [design-system-font-size] font-size: 26px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 6478: [design-system-radius] border-radius: 2px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 6527: [design-system-color] Undocumented color #ef444420 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6528: [design-system-color] Undocumented color #f59e0b20 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6528: [design-system-color] Undocumented color #b45309 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6824: [design-system-color] Undocumented color #e0e7ff is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 6824: [design-system-color] Undocumented color #4f46e5 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 8062: [design-system-color] Undocumented color #e11d48 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 8874: [design-system-color] Undocumented color #555 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  [codex-grid-background] two-axis grid-line gradient background
+    → A decorative grid or line-field background drawn with hairline linear-gradient layers tiled by a fixed pixel cell is a recurring generated-UI signature. Reserve grid overlays for actual canvas, map, blueprint, or measurement surfaces; elsewhere use product structure or a plain surface.
+  [em-dash-overuse] 8 em-dashes in body text
+    → Em-dash saturation in body copy is an AI cadence tell. Advisory only: humans use em-dashes legitimately, so this fires only on saturation — at least 8 em-dashes (— or --) at a density near one per 500 characters of body text — never on a long article that uses a few. Prefer commas, colons, periods, or parentheses.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\app.js
+  line 613: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 634: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 697: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1346: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1383: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1393: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1411: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1414: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1418: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1422: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1426: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1434: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1443: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1464: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1476: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1478: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1485: [design-system-color] Undocumented color #4338ca is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1498: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1507: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1540: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1549: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1555: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1556: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1570: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1579: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1773: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1865: [design-system-font-size] font-size: 19px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1876: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1879: [design-system-color] Undocumented color #dbeafe is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1879: [design-system-color] Undocumented color #bfdbfe is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1881: [design-system-color] Undocumented color #f3e8ff is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1881: [design-system-color] Undocumented color #7c3aed is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1881: [design-system-color] Undocumented color #ddd6fe is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1885: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1886: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1907: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1913: [design-system-font-size] font-size: 26px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1914: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1918: [design-system-font-size] font-size: 26px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1934: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1942: [design-system-radius] border-radius: 2px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1943: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1955: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1961: [design-system-radius] border-radius: 3px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1981: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1991: [design-system-color] Undocumented color #ef444420 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1991: [design-system-color] Undocumented color #ef444440 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1991: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1992: [design-system-color] Undocumented color #f59e0b20 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1992: [design-system-color] Undocumented color #b45309 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1992: [design-system-color] Undocumented color #f59e0b40 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1997: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2016: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2037: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2324: [design-system-color] Undocumented color #e0e7ff is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2324: [design-system-color] Undocumented color #4f46e5 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2324: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2556: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2736: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3692: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3803: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3878: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 4165: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 4649: [design-system-color] Undocumented color #555 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 4649: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 4735: [design-system-color] Undocumented color #555 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 4735: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\demo.js
+  line 117: [design-system-color] Undocumented color rgba(59,130,246,0.9) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 117: [design-system-color] Undocumented color rgba(0,0,0,0.45) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 131: [design-system-color] Undocumented color rgba(10,12,25,0.88) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 131: [design-system-color] Undocumented color rgba(0,0,0,0.45) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 131: [design-system-radius] border-radius: 50px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 180: [design-system-color] Undocumented color #0a0c19 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 180: [design-system-color] Undocumented color #0d2247 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 180: [design-system-color] Undocumented color #0a3d6e is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 182: [design-system-font-size] font-size: 58px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 183: [design-system-color] Undocumented color #3b82f6 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 185: [design-system-font-size] font-size: 24px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 210: [design-system-color] Undocumented color #0a0c19 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 210: [design-system-color] Undocumented color #0d2247 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 210: [design-system-color] Undocumented color #0a3d6e is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 212: [design-system-font-size] font-size: 58px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 213: [design-system-color] Undocumented color #3b82f6 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 215: [design-system-font-size] font-size: 24px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 220: [design-system-color] Undocumented color #3b82f6 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 220: [design-system-font-size] font-size: 36px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 221: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 224: [design-system-color] Undocumented color #22c55e is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 224: [design-system-font-size] font-size: 36px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 225: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 228: [design-system-color] Undocumented color #f59e0b is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 228: [design-system-font-size] font-size: 36px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 229: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\docs\mobile\meditrack_mobile_ui_design.html
+  [low-contrast] 4.2:1 (need 4.5:1) — text #6b7280 on #eef0f3
+    → Text does not meet WCAG AA contrast requirements (4.5:1 for body, 3:1 for large text). Increase the contrast between text and background.
+  line 58: [design-system-color] background rgb(11, 15, 25) on body "MediTrack Mobile UI Studio v5 Mobile Con" is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 74: [design-system-radius] border-radius 46px on div "MediTrack Live Manager AD Avail 39 In Us" is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 88: [design-system-radius] border-radius 36px on div "MediTrack Live Manager AD Avail 39 In Us" is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 100: [design-system-color] background rgb(9, 13, 22) on div is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 163: [design-system-color] border-top rgb(244, 63, 94) on div "690px Screen Fold (0 Items Visible!)" is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 31: [design-system-color] Undocumented color #4C7BFF is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 76: [design-system-color] Undocumented color #334155 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 76: [design-system-color] Undocumented color #0f172a is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 76: [design-system-color] Undocumented color #1e293b is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 116: [design-system-color] Undocumented color #38bdf8 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 116: [design-system-color] Undocumented color #0284c7 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 126: [design-system-color] Undocumented color rgba(148, 163, 184, 0.35) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 173: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 185: [design-system-color] Undocumented color rgba(0, 0, 0, 0.52) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 200: [design-system-radius] border-radius: 22px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 233: [design-system-font-size] text-[…] class: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 645: [design-system-font-size] text-[…] class: 9px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 652: [design-system-font-size] text-[…] class: 8px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1155: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1209: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1228: [design-system-radius] border-radius: 20px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\index.html
+  [design-system-color] background rgb(15, 16, 18) on body "MediTrack Real-time hospital equipment v" is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 663: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 665: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 668: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 727: [design-system-color] Undocumented color rgba(214,69,69,0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\mobile.css
+  line 77: [design-system-font-size] font-size: 16px !important is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 132: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 143: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 154: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 268: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 284: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 287: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 307: [design-system-radius] border-radius: 18px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 316: [design-system-color] Undocumented color rgba(16, 24, 40, 0.15) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 323: [design-system-color] Undocumented color rgba(16, 24, 40, 0.1) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 332: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 523: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 577: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 598: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 624: [design-system-radius] border-radius: 7px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 643: [design-system-color] Undocumented color rgba(16, 24, 40, 0.1) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 649: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 748: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 828: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 838: [design-system-color] Undocumented color rgba(0, 0, 0, 0.55) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 859: [design-system-color] Undocumented color rgba(0, 0, 0, 0.28) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 904: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 922: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 966: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 986: [design-system-color] Undocumented color #090D16 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1032: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1033: [design-system-color] Undocumented color #cbd5e1 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1037: [design-system-color] Undocumented color rgba(0, 0, 0, 0.65) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1040: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1042: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1053: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1069: [design-system-radius] border-radius: 14px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1087: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1101: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1129: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1141: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1218: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1226: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1281: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1284: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1286: [design-system-color] Undocumented color rgba(0, 0, 0, 0.24) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 1324: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\mobile.js
+  line 465: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 651: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 651: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 652: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 663: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 665: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 667: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 668: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 672: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 678: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 873: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 881: [design-system-radius] border-radius: 14px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 898: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 985: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 988: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 996: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1000: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1004: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1060: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1060: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1061: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1067: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1072: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1087: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1156: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1182: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1184: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1185: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1188: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1190: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1191: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1195: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1195: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1293: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1296: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1309: [design-system-radius] border-radius: 7px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1312: [design-system-radius] border-radius: 7px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1315: [design-system-radius] border-radius: 7px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1323: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1326: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1335: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1339: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1339: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1346: [design-system-radius] border-radius: 6px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1346: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1355: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1358: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1460: [design-system-font-size] font-size: 24px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1465: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1499: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1505: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1515: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1625: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1626: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1628: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1629: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1630: [design-system-font-size] font-size: 22px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1692: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1697: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1811: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1812: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1814: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 1827: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2115: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2118: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\src\styles\tokens.css
+  line 163: [design-system-color] Undocumented color rgba(15, 157, 107, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 169: [design-system-color] Undocumented color rgba(15, 157, 107, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 175: [design-system-color] Undocumented color rgba(47, 111, 235, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 181: [design-system-color] Undocumented color rgba(217, 138, 0, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 187: [design-system-color] Undocumented color rgba(214, 69, 69, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 193: [design-system-color] Undocumented color rgba(132, 147, 160, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\styles.css
+  line 271: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 376: [design-system-font-size] font-size: 28px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 384: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 475: [design-system-font-size] font-size: 22px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 508: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 648: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 670: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 750: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 795: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 844: [design-system-color] Undocumented color rgba(0, 0, 0, 0.45) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 870: [design-system-color] Undocumented color rgba(0, 0, 0, 0.12) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 930: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 988: [design-system-font-size] font-size: 28px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1086: [design-system-font-size] font-size: 36px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1140: [design-system-font-size] font-size: 24px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1144: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1175: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1282: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1341: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1370: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1621: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1634: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1658: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1676: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1702: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1722: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1741: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 1812: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2045: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2108: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2118: [design-system-radius] border-radius: 2px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2126: [design-system-radius] border-radius: 2px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2148: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2186: [design-system-font-size] font-size: 24px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2214: [design-system-radius] border-radius: 2px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2219: [design-system-radius] border-radius: 2px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2267: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2395: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2407: [design-system-color] Undocumented color rgba(0, 0, 0, 0.45) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2418: [design-system-radius] border-radius: 20px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2419: [design-system-color] Undocumented color rgba(0, 0, 0, 0.2) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2442: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2492: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2505: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2536: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2580: [design-system-radius] border-radius: 20px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2641: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2660: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2679: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2689: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 2695: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2719: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2736: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2763: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2863: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 2878: [design-system-color] Undocumented color rgba(0, 0, 0, 0.12) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 2895: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3028: [design-system-font-size] font-size: 28px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3145: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3172: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3188: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3269: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3277: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3475: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3477: [design-system-color] Undocumented color rgba(0, 0, 0, 0.08) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3508: [design-system-font-size] font-size: 36px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3509: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3601: [design-system-font-size] font-size: 22px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3625: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3632: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3643: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3654: [design-system-color] Undocumented color #000 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3655: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 3657: [design-system-color] Undocumented color #000 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3663: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3666: [design-system-color] Undocumented color #000 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3670: [design-system-font-size] font-size: 16px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3671: [design-system-color] Undocumented color #444 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3673: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3687: [design-system-color] Undocumented color #000 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3703: [design-system-color] Undocumented color #000000 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3704: [design-system-color] Undocumented color #1e293b is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3705: [design-system-radius] border-radius: 12px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 3708: [design-system-color] Undocumented color rgba(0,0,0,0.1) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3711: [design-system-color] Undocumented color #0f172a is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3713: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3720: [design-system-font-size] font-size: 15px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3721: [design-system-color] Undocumented color #475569 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3726: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 3729: [design-system-color] Undocumented color #0f172a is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3729: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3741: [design-system-color] Undocumented color #cbd5e1 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3742: [design-system-radius] border-radius: 8px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+  line 3747: [design-system-font-size] font-size: 11px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3748: [design-system-color] Undocumented color #64748b is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3748: [design-system-font-size] font-size: 10px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3786: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3794: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3803: [design-system-color] Undocumented color rgba(0, 0, 0, 0.45) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3814: [design-system-color] Undocumented color rgba(0,0,0,0.25) is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+  line 3869: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 3947: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 4033: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 4048: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+  line 4061: [design-system-font-size] font-size: 13px is off the DESIGN.md type ramp
+    → A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\vendor\html5-qrcode.min.js
+  line 1: [design-system-radius] borderRadius: 5px is outside the DESIGN.md rounded scale
+    → A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.
+
+C:\Users\aruko\OneDrive\Desktop\Documents\ccdtfinal\vendor\qrcode.min.js
+  line 1: [design-system-color] Undocumented color #000000 is outside DESIGN.md colors
+    → A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.
+
+414 advisory notes. Suppress with --no-advisory.

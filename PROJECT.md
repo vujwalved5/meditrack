@@ -25,8 +25,8 @@
 |---|------|-------|-------------|--------|
 | 1 | Phase 1: Setup, Baseline & QR/Core Fixes | Branching, baseline detect, QR scanner fixes, vendoring, code cleanup, Playwright mock test | none | DONE |
 | 2 | Phase 2: Multi-Agent Design Review | Parallel read-only critique & audit (Agents A, B, C) -> FINDINGS.md | Phase 1 | DONE |
-| 3 | Phase 3: Phased UI/UX Fixes | Sequential design refactoring based on approved FINDINGS.md | Phase 2 | IN_PROGRESS |
-| 4 | Phase 4: Final Polish & Verification | Polish, before/after metrics, end-to-end verification, phone checklist | Phase 3 | PLANNED |
+| 3 | Phase 3: Phased UI/UX Fixes | Sequential design refactoring based on approved FINDINGS.md | Phase 2 | DONE |
+| 4 | Phase 4: Final Polish & Verification | Polish, before/after metrics, end-to-end verification, phone checklist | Phase 3 | DONE |
 
 ## Code Layout
 - `index.html`: Main SPA markup, modals, SVG sprite symbols

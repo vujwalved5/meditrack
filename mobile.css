@@ -181,8 +181,8 @@
     font-weight: 600;
     padding: 3px 8px;
     border-radius: var(--m-radius-pill);
-    background: var(--primary-tint);
-    color: var(--primary);
+    background: var(--manager-bg, var(--primary-tint));
+    color: var(--manager-color, var(--primary-chip-fg, var(--primary)));
   }
   .m-role-pill.doctor {
     background: var(--srdoctor-bg);
@@ -212,7 +212,7 @@
     height: 34px;
     border-radius: 50%;
     background: var(--primary-tint);
-    color: var(--primary);
+    color: var(--primary-chip-fg, var(--primary));
     border: 1.5px solid var(--primary);
     display: flex;
     align-items: center;
@@ -271,7 +271,7 @@
   }
 
   .m-nav-item[aria-current="page"] {
-    color: var(--primary);
+    color: var(--primary-chip-fg, var(--primary));
   }
 
   .m-nav-badge {
@@ -685,7 +685,7 @@
   .m-dept-chip.active {
     background: var(--primary-tint);
     border-color: var(--primary);
-    color: var(--primary);
+    color: var(--primary-chip-fg, var(--primary));
   }
 
   .m-filter-summary-line {
@@ -1002,9 +1002,8 @@
     position: absolute;
     width: 140px;
     height: 140px;
-    border: 2px solid #38bdf8;
+    border: 2px solid var(--primary);
     border-radius: 16px;
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
     pointer-events: none;
   }
 
@@ -1013,8 +1012,7 @@
     left: 8%;
     right: 8%;
     height: 2px;
-    background: #38bdf8;
-    box-shadow: 0 0 12px 3px rgba(56, 189, 248, 0.75);
+    background: var(--primary);
     animation: mScanLaser 2.2s ease-in-out infinite;
   }
 
