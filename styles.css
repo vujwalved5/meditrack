@@ -415,10 +415,12 @@
 
     .login-theme-toggle {
       position: absolute;
-      top: 24px;
-      right: 24px;
-      width: 40px;
-      height: 40px;
+      top: max(16px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       border-radius: var(--r-ctl);
       border: 1px solid var(--border);
       background: var(--surface-2);
@@ -505,7 +507,7 @@
     }
     .pw-toggle {
       position: absolute;
-      right: 12px;
+      right: 4px;
       top: 50%;
       transform: translateY(-50%);
       background: none;
@@ -514,7 +516,12 @@
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
-      padding: 4px;
+      padding: 0 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .pw-toggle:hover {
       color: var(--text);
@@ -886,6 +893,30 @@
       }
       .header-user-meta {
         display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .header-inner {
+        padding: 0 10px;
+        gap: 6px;
+      }
+      .header-right {
+        gap: 6px;
+      }
+      #live-badge {
+        display: none;
+      }
+      .header-icon-btn,
+      .avatar-btn {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+        flex-shrink: 0;
+      }
+      .header-title {
+        font-size: 15px;
       }
     }
 
@@ -1282,6 +1313,8 @@
       scrollbar-width: none;
       -ms-overflow-style: none;
       min-width: 0;
+      -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%);
+      mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%);
     }
 
     .dept-filter-group::-webkit-scrollbar {
@@ -2550,8 +2583,17 @@
       .nav-tab,
       .filter-btn,
       .priority-option,
-      .tbl-action-btn {
+      .tbl-action-btn,
+      .pw-toggle,
+      .btn-save-condition,
+      .segmented-btn,
+      .m-user-reset-btn,
+      .btn-qr-sticker,
+      .btn-request-access,
+      .btn-cancel,
+      .btn-action-secondary {
         min-height: 44px;
+        min-width: 44px;
       }
       .modal-close {
         min-width: 44px;
@@ -2819,6 +2861,14 @@
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       width: 100%;
+      background:
+        linear-gradient(to right, var(--surface) 30%, rgba(255, 255, 255, 0)),
+        linear-gradient(to right, rgba(255, 255, 255, 0), var(--surface) 70%) 100% 0,
+        radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0)),
+        radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0)) 100% 0;
+      background-repeat: no-repeat;
+      background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+      background-attachment: local, local, scroll, scroll;
     }
 
     .users-table {
