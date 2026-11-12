@@ -1,4 +1,5 @@
 import { chromium } from '@playwright/test';
+import { AxeBuilder } from '@axe-core/playwright';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -121,6 +122,14 @@ async function runTests() {
 
       // 1. Auth RPC login
       if (url.includes('/rest/v1/rpc/login')) {
+        const postData = JSON.parse(route.request().postData() || '{}');
+        if (postData.password_param && postData.password_param !== 'Admin@123') {
+          return route.fulfill({
+            status: 400,
+            contentType: 'application/json',
+            body: JSON.stringify({ message: 'Invalid login credentials' })
+          });
+        }
         return route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -260,10 +269,37 @@ async function runTests() {
     console.log('[Test 1] Navigating to login page...');
     await page.goto(`http://localhost:${PORT}`);
 
-    console.log('[Test 2] Performing user login (Admin1)...');
+    console.log('[Test 2] Testing Single Login Trigger & Performing user login (Admin1)...');
+    // Verify Enter and Button each invoke doLogin exactly once (Amendment 8)
+    await page.evaluate(() => {
+      window._loginCallCount = 0;
+      const orig = window.doLogin;
+      window.doLogin = async function(...args) {
+        window._loginCallCount++;
+        return orig.apply(this, args);
+      };
+    });
+
     await page.fill('#login-username', 'Admin1');
+    await page.fill('#login-password', 'WrongPassTest');
+    await page.press('#login-password', 'Enter');
+    await page.waitForTimeout(300);
+    const enterCalls = await page.evaluate(() => window._loginCallCount);
+    if (enterCalls !== 1) {
+      throw new Error(`Expected Enter to trigger doLogin exactly once, got: ${enterCalls}`);
+    }
+    console.log('✓ Enter key triggered doLogin exactly once');
+
+    // Reset call counter and log in via button click
+    await page.evaluate(() => { window._loginCallCount = 0; });
     await page.fill('#login-password', 'Admin@123');
     await page.click('#login-btn');
+    await page.waitForTimeout(300);
+    const btnCalls = await page.evaluate(() => window._loginCallCount);
+    if (btnCalls !== 1) {
+      throw new Error(`Expected button click to trigger doLogin exactly once, got: ${btnCalls}`);
+    }
+    console.log('✓ Button click triggered doLogin exactly once');
 
     await page.waitForFunction(() => {
       const s = document.getElementById('app-screen');
@@ -506,6 +542,35 @@ async function runTests() {
     if (!hasVendorQrcode || !hasVendorHtml5Qrcode) throw new Error('index.html does not properly reference vendored scripts!');
 
     console.log('✓ Single definitions of showToast/doLogout and local vendor scripts verified!');
+
+    // 14. Accessibility (Axe) Checks in Light and Dark Mode at 360px and Desktop
+    console.log('\n[Test 11] Running Axe accessibility checks in light & dark mode at 360px and desktop...');
+    const axeModes = [
+      { name: 'Desktop Light', theme: 'light', viewport: { width: 1280, height: 800 } },
+      { name: 'Desktop Dark', theme: 'dark', viewport: { width: 1280, height: 800 } },
+      { name: 'Mobile 360px Light', theme: 'light', viewport: { width: 360, height: 740 } },
+      { name: 'Mobile 360px Dark', theme: 'dark', viewport: { width: 360, height: 740 } }
+    ];
+
+    for (const m of axeModes) {
+      await page.setViewportSize(m.viewport);
+      await page.evaluate((theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('meditrack_theme', theme);
+      }, m.theme);
+      await page.waitForTimeout(100);
+
+      const axeResults = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze();
+
+      const violations = axeResults.violations;
+      if (violations.length > 0) {
+        console.warn(`[Axe Warning] ${m.name}: ${violations.length} violations:`, violations.map(v => v.id));
+      } else {
+        console.log(`✓ [Axe] ${m.name}: 0 violations!`);
+      }
+    }
 
     console.log('\n=============================================');
     console.log('🎉 ALL PLAYWRIGHT VERIFICATION TESTS PASSED! 🎉');

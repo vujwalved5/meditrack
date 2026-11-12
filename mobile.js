@@ -437,7 +437,7 @@
           <div class="m-search-wrap">
             <svg class="m-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="search" class="m-search-input" id="m-search-input" placeholder="Search equipment, ID…" value="${escapeHtml(currentSearchQuery)}" autocomplete="off" autocapitalize="off">
-            <button class="m-search-clear ${q ? 'show' : ''}" id="m-search-clear" aria-label="Clear search">✕</button>
+            <button class="m-search-clear ${q ? 'show' : ''}" id="m-search-clear" aria-label="Clear search"><svg class="icon" aria-hidden="true" width="14" height="14"><use href="#i-x"/></svg></button>
           </div>
 
           <div class="m-segmented" role="radiogroup" aria-label="Filter status">
@@ -1939,7 +1939,7 @@
         </div>
         <div class="m-sheet-header">
           <div class="m-sheet-title">${escapeHtml(title)}</div>
-          <button class="m-sheet-close-btn" id="m-sheet-close" aria-label="Close sheet">✕</button>
+          <button class="m-sheet-close-btn" id="m-sheet-close" aria-label="Close sheet"><svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-x"/></svg></button>
         </div>
         <div class="m-sheet-body" id="m-sheet-body-content">
           ${bodyHtml}
@@ -2046,7 +2046,7 @@
         </div>
         <div class="m-sheet-header">
           <div class="m-sheet-title">${escapeHtml(title)}</div>
-          <button class="m-sheet-close-btn" id="m-confirm-close">✕</button>
+          <button class="m-sheet-close-btn" id="m-confirm-close" aria-label="Close dialog"><svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-x"/></svg></button>
         </div>
         <div class="m-sheet-body" style="font-size:13.5px; color:var(--text-2); line-height:1.5;">
           ${escapeHtml(body)}

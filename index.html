@@ -12,7 +12,7 @@
     if (window.matchMedia('(max-width: 767px)').matches) document.documentElement.classList.add('m-boot');
   </script>
   <script>
-    (function() {
+    (function () {
       try {
         var theme = localStorage.getItem('meditrack_theme');
         var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -25,12 +25,14 @@
           var meta = document.getElementById('theme-color-meta');
           if (meta) meta.setAttribute('content', '#F5F7FA');
         }
-      } catch (e) {}
+      } catch (e) { }
     })();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
+    rel="stylesheet" />
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- QR Code Generator -->
@@ -46,58 +48,281 @@
 <body>
   <!-- Icon Sprite -->
   <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></symbol>
-    <symbol id="i-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></symbol>
-    <symbol id="i-x-octagon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></symbol>
-    <symbol id="i-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></symbol>
-    <symbol id="i-layout-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></symbol>
-    <symbol id="i-scroll-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"></path><path d="M19 17V5a2 2 0 0 0-2-2H4"></path><path d="M15 8h-5"></path><path d="M15 12h-5"></path></symbol>
-    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
-    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></symbol>
-    <symbol id="i-boxes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"></path><path d="m7 16.5-4.74-2.85"></path><path d="m7 16.5 5-3"></path><path d="M7 16.5v5.17"></path><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"></path><path d="m17 16.5-5-3"></path><path d="m17 16.5 4.74-2.85"></path><path d="M17 16.5v5.17"></path><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"></path><path d="M12 8 7.26 5.15"></path><path d="m12 8 4.74-2.85"></path><path d="M12 13.5V8"></path></symbol>
-    <symbol id="i-clipboard-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></symbol>
-    <symbol id="i-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></symbol>
-    <symbol id="i-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></symbol>
-    <symbol id="i-scan-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><line x1="7" y1="12" x2="17" y2="12"></line></symbol>
-    <symbol id="i-log-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></symbol>
-    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
-    <symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></symbol>
-    <symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></symbol>
-    <symbol id="i-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></symbol>
-    <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></symbol>
-    <symbol id="i-building-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></symbol>
-    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></symbol>
-    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></symbol>
-    <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></symbol>
-    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
-    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></symbol>
-    <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></symbol>
-    <symbol id="i-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect><path d="M12 8v8"></path><path d="M8 12h8"></path><path d="M6 16l3-4 2 2 3-5 4 4"></path></symbol>
-  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
-    <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></symbol>
-    <symbol id="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></symbol>
-    <symbol id="i-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></symbol>
-    <symbol id="i-chevron-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></symbol>
-    <symbol id="i-more-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></symbol>
-    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol>
-    <symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></symbol>
-    <symbol id="i-arrow-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></symbol>
-    <symbol id="i-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></symbol>
-    <symbol id="i-slash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></symbol>
-    <symbol id="i-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 6 12 12 16 14"></polyline>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path
+        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+      </path>
+    </symbol>
+    <symbol id="i-x-octagon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+      <line x1="15" y1="9" x2="9" y2="15"></line>
+      <line x1="9" y1="9" x2="15" y2="15"></line>
+    </symbol>
+    <symbol id="i-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+      <line x1="12" y1="9" x2="12" y2="13"></line>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </symbol>
+    <symbol id="i-layout-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+      <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+      <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+      <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+    </symbol>
+    <symbol id="i-scroll-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"></path>
+      <path d="M19 17V5a2 2 0 0 0-2-2H4"></path>
+      <path d="M15 8h-5"></path>
+      <path d="M15 12h-5"></path>
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+      <circle cx="12" cy="7" r="4"></circle>
+    </symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </symbol>
+    <symbol id="i-boxes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z">
+      </path>
+      <path d="m7 16.5-4.74-2.85"></path>
+      <path d="m7 16.5 5-3"></path>
+      <path d="M7 16.5v5.17"></path>
+      <path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z">
+      </path>
+      <path d="m17 16.5-5-3"></path>
+      <path d="m17 16.5 4.74-2.85"></path>
+      <path d="M17 16.5v5.17"></path>
+      <path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"></path>
+      <path d="M12 8 7.26 5.15"></path>
+      <path d="m12 8 4.74-2.85"></path>
+      <path d="M12 13.5V8"></path>
+    </symbol>
+    <symbol id="i-clipboard-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+      <path d="M12 11h4"></path>
+      <path d="M12 16h4"></path>
+      <path d="M8 11h.01"></path>
+      <path d="M8 16h.01"></path>
+    </symbol>
+    <symbol id="i-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"></polyline>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+      <rect x="6" y="14" width="12" height="8"></rect>
+    </symbol>
+    <symbol id="i-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+      <circle cx="12" cy="10" r="3"></circle>
+    </symbol>
+    <symbol id="i-scan-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+      <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+      <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+      <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+      <line x1="7" y1="12" x2="17" y2="12"></line>
+    </symbol>
+    <symbol id="i-log-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+      <polyline points="16 17 21 12 16 7"></polyline>
+      <line x1="21" y1="12" x2="9" y2="12"></line>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+      stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path
+        d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z">
+      </path>
+      <path d="M5 3v4"></path>
+      <path d="M19 17v4"></path>
+      <path d="M3 5h4"></path>
+      <path d="M17 19h4"></path>
+    </symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+    </symbol>
+    <symbol id="i-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <line x1="10" y1="9" x2="8" y2="9"></line>
+    </symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+    </symbol>
+    <symbol id="i-building-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+      <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+      <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+      <path d="M10 6h4"></path>
+      <path d="M10 10h4"></path>
+      <path d="M10 14h4"></path>
+      <path d="M10 18h4"></path>
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+      stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2"></path>
+      <path d="M12 20v2"></path>
+      <path d="m4.93 4.93 1.41 1.41"></path>
+      <path d="m17.66 17.66 1.41 1.41"></path>
+      <path d="M2 12h2"></path>
+      <path d="M20 12h2"></path>
+      <path d="m6.34 17.66-1.41 1.41"></path>
+      <path d="m19.07 4.93-1.41 1.41"></path>
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+    </symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+      <line x1="8" y1="21" x2="16" y2="21"></line>
+      <line x1="12" y1="17" x2="12" y2="21"></line>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+      stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7 10 12 15 17 10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </symbol>
+    <symbol id="i-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+      <path d="M12 8v8"></path>
+      <path d="M8 12h8"></path>
+      <path d="M6 16l3-4 2 2 3-5 4 4"></path>
+    </symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+      stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+      <circle cx="12" cy="13" r="3"></circle>
+    </symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+      <path
+        d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z">
+      </path>
+    </symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </symbol>
+    <symbol id="i-chevron-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </symbol>
+    <symbol id="i-more-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="1.5"></circle>
+      <circle cx="12" cy="5" r="1.5"></circle>
+      <circle cx="12" cy="19" r="1.5"></circle>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+      stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+      <polyline points="12 5 19 12 12 19"></polyline>
+    </symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="19" x2="12" y2="5"></line>
+      <polyline points="5 12 12 5 19 12"></polyline>
+    </symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <polyline points="19 12 12 19 5 12"></polyline>
+    </symbol>
+    <symbol id="i-slash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+    </symbol>
+    <symbol id="i-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+      <line x1="6" y1="1" x2="6" y2="4"></line>
+      <line x1="10" y1="1" x2="10" y2="4"></line>
+      <line x1="14" y1="1" x2="14" y2="4"></line>
+    </symbol>
   </svg>
 
   <!-- ============================================================
        LOGIN SCREEN
   ============================================================ -->
-  <div id="login-screen">
+  <div id="login-screen" role="main">
     <!-- Left brand panel (hidden on mobile) -->
     <div class="login-brand-panel" aria-hidden="true">
       <div class="login-brand-logo">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 5v14M5 12h14"></path>
         </svg>
       </div>
@@ -105,19 +330,22 @@
       <p class="login-brand-tagline">Real-time hospital equipment visibility with role-based access control.</p>
       <ul class="login-brand-points">
         <li>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           <span>Scan a QR code to check equipment in or out</span>
         </li>
         <li>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           <span>See live status across every department</span>
         </li>
         <li>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           <span>Full audit trail of every action</span>
@@ -127,37 +355,52 @@
 
     <!-- Right form panel -->
     <div class="login-form-panel">
-      <button class="theme-toggle login-theme-toggle" id="login-theme-btn" onclick="cycleTheme()" aria-label="Toggle color theme" title="Toggle theme">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sun"/></svg>
+      <button class="theme-toggle login-theme-toggle" id="login-theme-btn" onclick="cycleTheme()"
+        aria-label="Toggle color theme" title="Toggle theme">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+          stroke-linecap="round" stroke-linejoin="round">
+          <use href="#i-sun" />
+        </svg>
       </button>
       <div class="login-logo" aria-hidden="true">
         <div class="login-logo-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14"></path>
           </svg>
         </div>
         <div class="login-app-name">MediTrack</div>
       </div>
       <div class="login-card panel">
-        <div class="login-title">Sign in to your account</div>
+        <h1 class="login-title">Sign in to your account</h1>
         <!-- Security notice: client-side auth – flag for production hardening (Spec §8 item 4) -->
         <div class="login-security-notice" role="note">
-          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>Demo mode: client-side auth only. Not for production patient data.</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+            stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>Hospital Demonstration Environment · Clinical Simulation Mode</span>
         </div>
         <div class="login-error" id="login-error" role="alert"></div>
-        <div class="form-group">
-          <label class="form-label" for="login-username">Username</label>
-          <input id="login-username" class="form-input" type="text" placeholder="Enter username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="login-password">Password</label>
-          <div class="pw-wrap">
-            <input id="login-password" class="form-input" type="password" placeholder="Enter password" autocomplete="current-password" />
-            <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Show password" onclick="togglePasswordVisibility(this, 'login-password')">Show</button>
+        <form id="login-form" onsubmit="event.preventDefault(); doLogin();" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="login-username">Username</label>
+            <input id="login-username" class="form-input" type="text" placeholder="Enter username" autocomplete="username"
+              autocapitalize="none" autocorrect="off" spellcheck="false" />
           </div>
-        </div>
-        <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <div class="pw-wrap">
+              <input id="login-password" class="form-input" type="password" placeholder="Enter password"
+                autocomplete="current-password" />
+              <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Show password"
+                onclick="togglePasswordVisibility(this, 'login-password')">Show</button>
+            </div>
+          </div>
+          <button type="submit" class="login-btn" id="login-btn">Sign In</button>
+        </form>
         <div class="login-footer">Authorized hospital staff only</div>
       </div>
     </div>
@@ -174,8 +417,10 @@
     <header class="header" role="banner">
       <div class="header-inner">
         <div class="header-left">
-          <button type="button" class="nav-toggle" id="nav-toggle" onclick="openNavDrawer()" aria-label="Open navigation menu">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <button type="button" class="nav-toggle" id="nav-toggle" onclick="openNavDrawer()"
+            aria-label="Open navigation menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="3" y1="12" x2="21" y2="12"></line>
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -183,7 +428,8 @@
           </button>
           <div class="header-brand">
             <div class="header-logo" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 5v14M5 12h14"></path>
               </svg>
             </div>
@@ -194,16 +440,20 @@
         <nav class="header-nav" id="header-nav" aria-label="Main navigation"></nav>
 
         <div class="header-right">
-          <div class="live-badge" id="live-badge" role="status" aria-label="Live: Realtime updates active" title="Live updates on · Connected">
+          <div class="live-badge" id="live-badge" role="status" aria-label="Live: Realtime updates active"
+            title="Live updates on · Connected">
             <div class="live-dot" aria-hidden="true"></div>
             <span id="live-badge-text">Live</span>
           </div>
 
-          <button type="button" class="header-icon-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-            <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <button type="button" class="header-icon-btn" id="theme-toggle" onclick="toggleTheme()"
+            aria-label="Toggle theme">
+            <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
-            <svg class="theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg class="theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="4"></circle>
               <line x1="12" y1="2" x2="12" y2="4"></line>
               <line x1="12" y1="20" x2="12" y2="22"></line>
@@ -216,8 +466,11 @@
             </svg>
           </button>
 
-          <button type="button" class="header-icon-btn" id="notif-btn" onclick="showPage('dashboard'); const el = document.getElementById('requests-list'); if (el) el.scrollIntoView({ behavior: 'smooth' });" aria-label="Pending requests">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <button type="button" class="header-icon-btn" id="notif-btn"
+            onclick="showPage('dashboard'); const el = document.getElementById('requests-list'); if (el) el.scrollIntoView({ behavior: 'smooth' });"
+            aria-label="Pending requests">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
@@ -225,7 +478,8 @@
           </button>
 
           <div class="header-user-block" style="position:relative;">
-            <button type="button" class="avatar-btn" id="header-avatar-btn" aria-haspopup="menu" aria-expanded="false" aria-label="User account menu" onclick="toggleAvatarMenu(event)">
+            <button type="button" class="avatar-btn" id="header-avatar-btn" aria-haspopup="menu" aria-expanded="false"
+              aria-label="User account menu" onclick="toggleAvatarMenu(event)">
               <span id="header-avatar-initials">A</span>
             </button>
             <div class="header-avatar" id="header-avatar" style="display:none;" aria-hidden="true"></div>
@@ -238,19 +492,27 @@
                 <div id="avatar-menu-name" style="font-weight:600;color:var(--text);">User</div>
                 <div id="avatar-menu-role" style="font-size:12px;color:var(--text-2);margin-top:2px;">Role</div>
               </div>
-              <button type="button" class="menu-btn-item" id="menu-theme-btn" role="menuitem" onclick="toggleThemeFromMenu()">
-                <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-sun"/></svg>
+              <button type="button" class="menu-btn-item" id="menu-theme-btn" role="menuitem"
+                onclick="toggleThemeFromMenu()">
+                <svg class="icon" aria-hidden="true" width="16" height="16">
+                  <use href="#i-sun" />
+                </svg>
                 <span id="menu-theme-text">Toggle Theme</span>
               </button>
-              <button type="button" class="menu-btn-item danger" id="menu-logout-btn" role="menuitem" onclick="doLogout()">
-                <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-log-out"/></svg>
+              <button type="button" class="menu-btn-item danger" id="menu-logout-btn" role="menuitem"
+                onclick="doLogout()">
+                <svg class="icon" aria-hidden="true" width="16" height="16">
+                  <use href="#i-log-out" />
+                </svg>
                 <span>Log out</span>
               </button>
             </div>
           </div>
 
-          <button type="button" class="header-icon-btn logout-btn" id="logout-btn" onclick="doLogout()" aria-label="Log out">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <button type="button" class="header-icon-btn logout-btn" id="logout-btn" onclick="doLogout()"
+            aria-label="Log out">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -273,7 +535,8 @@
           <h1 class="page-title">Dashboard</h1>
           <div class="page-actions" style="position:relative;">
             <button type="button" class="btn btn-primary" onclick="openScanner()" aria-label="Scan QR Code">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
                 <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
                 <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
@@ -282,33 +545,35 @@
               </svg>
               <span>Scan QR</span>
             </button>
-            <button type="button" class="btn btn-secondary" id="add-eq-btn" onclick="openAddEquipmentModal()" style="display:none;" aria-label="Add Equipment">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <button type="button" class="btn btn-secondary" id="add-eq-btn" onclick="openAddEquipmentModal()"
+              style="display:none;" aria-label="Add Equipment">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
               <span>Add Product</span>
             </button>
-            <button type="button" class="btn btn-secondary" id="print-all-btn" onclick="openPrintAllModal()" aria-label="Print All QR Codes">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <button type="button" class="btn btn-secondary" id="print-all-btn" onclick="openPrintAllModal()"
+              aria-label="Print All QR Codes">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                 <rect x="6" y="14" width="12" height="8"></rect>
               </svg>
               <span>Print All QR</span>
             </button>
-            <button type="button" class="btn btn-secondary" id="more-actions-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More actions" onclick="toggleMoreActionsMenu(event)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <button type="button" class="btn btn-secondary" id="more-actions-btn" aria-haspopup="menu"
+              aria-expanded="false" aria-label="More actions" onclick="toggleMoreActionsMenu(event)" style="display:none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="1"></circle>
                 <circle cx="12" cy="5" r="1"></circle>
                 <circle cx="12" cy="19" r="1"></circle>
               </svg>
             </button>
-            <div class="avatar-dropdown-menu" id="more-actions-menu" role="menu" aria-labelledby="more-actions-btn">
-              <button type="button" class="menu-btn-item" role="menuitem" onclick="openPrintAllModal()">
-                <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-printer"/></svg>
-                <span>Print all QR codes</span>
-              </button>
+            <div class="avatar-dropdown-menu" id="more-actions-menu" role="menu" aria-labelledby="more-actions-btn" style="display:none;">
             </div>
           </div>
         </div>
@@ -320,19 +585,14 @@
             <div class="kpi-top">
               <div class="kpi-header-left">
                 <div class="kpi-chip kpi-chip-green">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                   </svg>
                 </div>
                 <span class="kpi-title">Available</span>
               </div>
-              <button type="button" class="kpi-arrow-btn" onclick="setFilter('Available')" aria-label="Filter by Available">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <line x1="7" y1="17" x2="17" y2="7"></line>
-                  <polyline points="7 7 17 7 17 17"></polyline>
-                </svg>
-              </button>
             </div>
             <div class="kpi-num" id="stat-available">—</div>
             <div class="kpi-caption">of <span id="stat-total">—</span> items ready to use</div>
@@ -343,19 +603,14 @@
             <div class="kpi-top">
               <div class="kpi-header-left">
                 <div class="kpi-chip kpi-chip-red">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                 </div>
                 <span class="kpi-title">In Use</span>
               </div>
-              <button type="button" class="kpi-arrow-btn" onclick="setFilter('In Use')" aria-label="Filter by In Use">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <line x1="7" y1="17" x2="17" y2="7"></line>
-                  <polyline points="7 7 17 7 17 17"></polyline>
-                </svg>
-              </button>
             </div>
             <div class="kpi-num" id="stat-inuse">—</div>
             <div class="kpi-caption">Currently checked out</div>
@@ -366,7 +621,8 @@
             <div class="kpi-top">
               <div class="kpi-header-left">
                 <div class="kpi-chip kpi-chip-amber">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
                     <line x1="12" y1="9" x2="12" y2="13"></line>
                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -384,19 +640,16 @@
             <div class="kpi-top">
               <div class="kpi-header-left">
                 <div class="kpi-chip kpi-chip-primary">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-                    <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                    <path
+                      d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z">
+                    </path>
                   </svg>
                 </div>
                 <span class="kpi-title">Pending Requests</span>
               </div>
-              <button type="button" class="kpi-arrow-btn" onclick="const el = document.getElementById('requests-list'); if (el) el.scrollIntoView({ behavior: 'smooth' });" aria-label="View Pending Requests">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <line x1="7" y1="17" x2="17" y2="7"></line>
-                  <polyline points="7 7 17 7 17 17"></polyline>
-                </svg>
-              </button>
             </div>
             <div class="kpi-num" id="stat-requests">0</div>
             <div class="kpi-caption">Waiting for approval</div>
@@ -404,20 +657,23 @@
         </div>
 
         <!-- AI DAILY INSIGHTS PANEL (Manager + Senior Doctor only; hidden for Staff by JS) -->
-        <section class="ai-insights-section" id="ai-insights-section" aria-label="AI Daily Insights" style="display:none; margin-bottom:16px;">
+        <section class="ai-insights-section" id="ai-insights-section" aria-label="AI Daily Insights"
+          style="display:none; margin-bottom:16px;">
           <div class="ai-insights-header" style="cursor:pointer;" onclick="toggleAiInsights()">
             <div class="ai-insights-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <div style="display:flex;align-items:center;gap:6px;">
-                <svg class="icon" aria-hidden="true" style="width:16px;height:16px;color:var(--brand-600);"><use href="#i-sparkles"/></svg>
+                <svg class="icon" aria-hidden="true" style="width:16px;height:16px;color:var(--brand-600);">
+                  <use href="#i-sparkles" />
+                </svg>
                 <span style="font-weight:600;font-size:15px;color:var(--ink-900);">AI Daily Insights</span>
               </div>
-              <span class="status-badge badge-status-neutral" style="font-size:11px;padding:2px 8px;">Daily Analysis</span>
-              <span id="ai-summary-text" style="font-size:13px;color:var(--ink-500);font-weight:400;margin-left:4px;"></span>
+              <span class="status-badge badge-status-neutral" style="font-size:11px;padding:2px 8px;">Daily
+                Analysis</span>
+              <span id="ai-summary-text"
+                style="font-size:13px;color:var(--ink-500);font-weight:400;margin-left:4px;"></span>
             </div>
-            <button class="btn btn-secondary btn-sm" id="ai-collapse-btn"
-              type="button"
-              onclick="event.stopPropagation(); toggleAiInsights()"
-              aria-expanded="false"
+            <button class="btn btn-secondary btn-sm" id="ai-collapse-btn" type="button"
+              onclick="event.stopPropagation(); toggleAiInsights()" aria-expanded="false"
               aria-controls="ai-insights-body">
               <span id="ai-collapse-icon">▼</span>
               <span id="ai-collapse-text">Expand</span>
@@ -425,42 +681,56 @@
           </div>
           <div id="ai-insights-body" style="display:none;">
             <div class="ai-empty-state" id="ai-insights-loading">Loading insights…</div>
-            
+
             <!-- WEEKLY CARD (P0-02) -->
             <div class="ai-card" id="weekly-overview-card" style="display:none; margin-bottom: 16px;">
               <div class="weekly-header-row">
                 <div class="weekly-header-left">
                   <span class="weekly-title">
-                    <svg class="icon" aria-hidden="true" width="20" height="20" style="color:var(--brand-600);"><use href="#i-layout-dashboard"/></svg>
+                    <svg class="icon" aria-hidden="true" width="20" height="20" style="color:var(--brand-600);">
+                      <use href="#i-layout-dashboard" />
+                    </svg>
                     Weekly Deep Analysis
                   </span>
-                  <span class="status-badge badge-status-neutral" style="font-size:12px;padding:2px 8px;">Manager only</span>
+                  <span class="status-badge badge-status-neutral" style="font-size:12px;padding:2px 8px;">Manager
+                    only</span>
                 </div>
                 <div class="weekly-header-right" id="weekly-actions">
-                  <span id="weekly-countdown" style="font-size:12px; color:var(--st-critical-fg); margin-right:4px; font-weight:600;"></span>
-                  <button type="button" id="btn-view-weekly" class="btn btn-secondary btn-sm" style="display:none;" onclick="openWeeklyModal()" aria-label="View Report">
+                  <span id="weekly-countdown"
+                    style="font-size:12px; color:var(--st-critical-fg); margin-right:4px; font-weight:600;"></span>
+                  <button type="button" id="btn-view-weekly" class="btn btn-secondary btn-sm" style="display:none;"
+                    onclick="openWeeklyModal()" aria-label="View Report">
                     <span>View report</span>
-                    <svg class="icon" aria-hidden="true" width="14" height="14"><use href="#i-chevron-right"/></svg>
+                    <svg class="icon" aria-hidden="true" width="14" height="14">
+                      <use href="#i-chevron-right" />
+                    </svg>
                   </button>
-                  <button type="button" id="btn-run-weekly" class="btn btn-primary btn-sm" onclick="requestWeeklyAnalysis()" aria-label="Run Weekly Analysis">Run Weekly Analysis</button>
+                  <button type="button" id="btn-run-weekly" class="btn btn-primary btn-sm"
+                    onclick="requestWeeklyAnalysis()" aria-label="Run Weekly Analysis">Run Weekly Analysis</button>
                 </div>
               </div>
-              
+
               <div id="weekly-status-area" style="margin-top:12px;">
                 <div id="weekly-idle-info" style="font-size:13px; color:var(--ink-600);">No weekly report yet.</div>
-                
+
                 <div id="weekly-progress-container" style="display:none; margin-top:8px;">
                   <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
                     <span id="weekly-progress-step" style="font-weight:600; color:var(--ink-900);">Starting...</span>
-                    <span id="weekly-progress-text" style="color:var(--ink-500); font-variant-numeric:tabular-nums;">0 / 0 steps</span>
+                    <span id="weekly-progress-text" style="color:var(--ink-500); font-variant-numeric:tabular-nums;">0 /
+                      0 steps</span>
                   </div>
-                  <div style="background: var(--surface-2); border-radius: var(--radius-sm); height: 6px; width: 100%; overflow: hidden; margin-bottom: 6px;">
-                    <div id="weekly-progress-bar" style="background: var(--brand-600); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                  <div
+                    style="background: var(--surface-2); border-radius: var(--radius-sm); height: 6px; width: 100%; overflow: hidden; margin-bottom: 6px;">
+                    <div id="weekly-progress-bar"
+                      style="background: var(--brand-600); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
                   </div>
-                  <div id="weekly-progress-note" style="font-size:12px; color:var(--ink-500);">This runs in the background and takes about 1–2 minutes. You can keep using the app.</div>
+                  <div id="weekly-progress-note" style="font-size:12px; color:var(--ink-500);">This runs in the
+                    background and takes about 1–2 minutes. You can keep using the app.</div>
                 </div>
-                
-                <div id="weekly-error-container" style="display:none; margin-top:8px; color:var(--st-critical-fg); font-size:13px; padding:8px 12px; background:var(--st-critical-bg); border-radius:var(--radius-sm); border:1px solid rgba(214,69,69,0.2);"></div>
+
+                <div id="weekly-error-container"
+                  style="display:none; margin-top:8px; color:var(--st-critical-fg); font-size:13px; padding:8px 12px; background:var(--st-critical-bg); border-radius:var(--radius-sm); border:1px solid rgba(214,69,69,0.2);">
+                </div>
               </div>
             </div>
 
@@ -473,8 +743,12 @@
             <!-- Product Type Tiles -->
             <div class="product-tiles-section" id="product-tiles-section" style="display:none;">
               <div class="product-tiles-header">
-                <span class="product-tiles-label"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-camera"/></svg> Filter by Product Type</span>
-                <button type="button" class="product-tiles-toggle" id="tiles-collapse-btn" onclick="toggleTilesCollapse()" aria-label="Collapse or expand tile grid" title="Collapse / expand">
+                <span class="product-tiles-label"><svg class="icon" aria-hidden="true"
+                    style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    <use href="#i-camera" />
+                  </svg> Filter by Product Type</span>
+                <button type="button" class="product-tiles-toggle" id="tiles-collapse-btn"
+                  onclick="toggleTilesCollapse()" aria-label="Collapse or expand tile grid" title="Collapse / expand">
                   <span id="tiles-collapse-icon">▲</span> <span id="tiles-collapse-text">Collapse</span>
                 </button>
               </div>
@@ -484,10 +758,12 @@
             </div>
 
             <!-- Breadcrumb bar (shown when a tile is selected) -->
-            <div class="product-breadcrumb" id="product-breadcrumb" role="navigation" aria-label="Product filter breadcrumb">
+            <div class="product-breadcrumb" id="product-breadcrumb" role="navigation"
+              aria-label="Product filter breadcrumb">
               <span class="breadcrumb-path" id="breadcrumb-path">All Equipment</span>
               <span class="breadcrumb-count" id="breadcrumb-count"></span>
-              <button type="button" class="btn-breadcrumb-back" onclick="clearProductFilter()" aria-label="Back to all equipment">← Back to all</button>
+              <button type="button" class="btn-breadcrumb-back" onclick="clearProductFilter()"
+                aria-label="Back to all equipment">← Back to all</button>
             </div>
 
             <div class="panel eq-table-panel">
@@ -496,15 +772,22 @@
                 <div class="eq-panel-title-wrap">
                   <h2 class="eq-panel-title">Equipment</h2>
                   <span class="eq-count-pill" id="eq-count">0</span>
-                  <a class="jump-requests" id="jump-requests" href="#requests-panel" onclick="jumpToRequests(event)"><span aria-hidden="true"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-clipboard-list"/></svg></span> <span id="jump-req-count">0</span> pending</a>
+                  <a class="jump-requests" id="jump-requests" href="#requests-panel"
+                    onclick="jumpToRequests(event)"><span aria-hidden="true"><svg class="icon" aria-hidden="true"
+                        style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                        <use href="#i-clipboard-list" />
+                      </svg></span> <span id="jump-req-count">0</span> pending</a>
                 </div>
                 <div class="eq-panel-controls">
                   <div class="eq-search-wrap">
-                    <svg class="icon eq-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <svg class="icon eq-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+                      aria-hidden="true">
                       <circle cx="11" cy="11" r="8"></circle>
                       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input type="search" id="eq-search" class="eq-search-input" placeholder="Search equipment..." oninput="renderEquipment()" aria-label="Search equipment" />
+                    <input type="search" id="eq-search" class="eq-search-input" placeholder="Search equipment..."
+                      oninput="renderEquipment()" aria-label="Search equipment" />
                   </div>
                   <select id="eq-sort" class="eq-sort-select" onchange="renderEquipment()" aria-label="Sort equipment">
                     <option value="name" selected>Name A–Z</option>
@@ -518,18 +801,23 @@
               <!-- 2. Filter row -->
               <div class="eq-filter-row">
                 <div class="segmented-control" role="group" aria-label="Filter by status">
-                  <button type="button" class="filter-btn active" id="filter-all" onclick="setFilter('all')">All</button>
-                  <button type="button" class="filter-btn" id="filter-available" onclick="setFilter('Available')">Available</button>
-                  <button type="button" class="filter-btn" id="filter-inuse" onclick="setFilter('In Use')">In use</button>
+                  <button type="button" class="filter-btn active" id="filter-all"
+                    onclick="setFilter('all')">All</button>
+                  <button type="button" class="filter-btn" id="filter-available"
+                    onclick="setFilter('Available')">Available</button>
+                  <button type="button" class="filter-btn" id="filter-inuse" onclick="setFilter('In Use')">In
+                    use</button>
                 </div>
-                <div class="dept-filter-group" id="dept-filter-group" role="group" aria-label="Filter by department"></div>
+                <div class="dept-filter-group" id="dept-filter-group" role="group" aria-label="Filter by department">
+                </div>
               </div>
 
               <!-- Filter Summary Bar -->
               <div class="filter-summary-bar" id="filter-summary-bar" style="display:none;">
                 <span id="filter-summary-text"><span id="filter-summary-count"></span></span>
                 <span>·</span>
-                <button type="button" class="btn-clear-link" id="clear-filters-btn" onclick="clearAllFilters()">Clear filters</button>
+                <button type="button" class="btn-clear-link" id="clear-filters-btn" onclick="clearAllFilters()">Clear
+                  filters</button>
               </div>
 
               <!-- Equipment list (contains eq-col-head and .eq-row items) -->
@@ -547,18 +835,22 @@
               <!-- 1. ALERT ROW #attention-banner (NEW) -->
               <div class="panel attention-banner" id="attention-banner" style="display:none;" role="status">
                 <div class="attention-chip" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
                     <line x1="12" y1="9" x2="12" y2="13"></line>
                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                   </svg>
                 </div>
                 <div class="attention-info">
-                  <div class="attention-title" id="attention-banner-text"><span id="attention-banner-count">0</span> items need attention</div>
+                  <div class="attention-title" id="attention-banner-text"><span id="attention-banner-count">0</span>
+                    items need attention</div>
                   <div class="attention-sub">Check condition before use</div>
                 </div>
-                <button type="button" class="attention-dismiss-btn" aria-label="Dismiss alert" onclick="window.attentionBannerDismissed=true;document.getElementById('attention-banner').style.display='none';">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <button type="button" class="attention-dismiss-btn" aria-label="Dismiss alert"
+                  onclick="window.attentionBannerDismissed=true;document.getElementById('attention-banner').style.display='none';">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
@@ -577,7 +869,8 @@
               <div class="request-queue-card" id="requests-panel" tabindex="-1">
                 <div class="req-queue-header">
                   <div class="req-queue-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                       <path d="M12 11h4"></path>
@@ -602,9 +895,12 @@
                 <div class="req-queue-list" id="requests-list" aria-live="polite">
                   <div class="req-empty-state">
                     <div class="req-empty-icon">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-                        <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                        <path
+                          d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z">
+                        </path>
                       </svg>
                     </div>
                     <div class="req-empty-title">No pending requests</div>
@@ -617,7 +913,8 @@
               <div id="audit-log-link-panel" class="panel audit-link-panel" style="display:none;">
                 <div class="panel-header">
                   <div class="panel-title" style="display:flex;align-items:center;gap:8px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"></path>
                       <path d="M19 17V5a2 2 0 0 0-2-2H4"></path>
                       <path d="M15 8h-5"></path>
@@ -630,9 +927,11 @@
                   <div style="font-size:13px;color:var(--text-3);margin-bottom:12px;">Loading recent events...</div>
                 </div>
                 <div style="padding:0 16px 14px 16px;">
-                  <button type="button" class="btn btn-secondary btn-sm" style="width:100%;" onclick="showPage('auditlog')">
+                  <button type="button" class="btn btn-secondary btn-sm" style="width:100%;"
+                    onclick="showPage('auditlog')">
                     <span>View full audit log</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                       <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
@@ -649,7 +948,8 @@
         <div class="audit-page-header">
           <h1 class="page-title">Audit Log</h1>
           <button type="button" class="btn btn-secondary" onclick="exportAuditCSV()" id="audit-export-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -663,7 +963,8 @@
             <div class="kpi-top">
               <div class="kpi-header-left">
                 <div class="kpi-chip kpi-chip-primary">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -680,7 +981,8 @@
             <div class="kpi-top">
               <div class="kpi-header-left">
                 <div class="kpi-chip kpi-chip-green">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
@@ -694,7 +996,8 @@
             <div class="kpi-top">
               <div class="kpi-header-left">
                 <div class="kpi-chip kpi-chip-red">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                   </svg>
                 </div>
@@ -707,22 +1010,27 @@
 
         <div class="panel audit-filters-panel">
           <div class="audit-search-wrap">
-            <svg class="audit-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg class="audit-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="search" id="audit-search" class="audit-filter-input" placeholder="Search equipment or user..." oninput="renderAuditPage()" aria-label="Search audit log" />
+            <input type="search" id="audit-search" class="audit-filter-input" placeholder="Search equipment or user..."
+              oninput="renderAuditPage()" aria-label="Search audit log" />
           </div>
-          <select id="audit-dept-filter" class="audit-filter-select" onchange="renderAuditPage()" aria-label="Filter by department">
+          <select id="audit-dept-filter" class="audit-filter-select" onchange="renderAuditPage()"
+            aria-label="Filter by department">
             <option value="all">All Departments</option>
           </select>
-          <select id="audit-date-filter" class="audit-filter-select" onchange="renderAuditPage()" aria-label="Filter by date">
+          <select id="audit-date-filter" class="audit-filter-select" onchange="renderAuditPage()"
+            aria-label="Filter by date">
             <option value="all">All Time</option>
             <option value="today">Today</option>
             <option value="7">Last 7 Days</option>
             <option value="30">Last 30 Days</option>
           </select>
-          <select id="audit-action-filter" class="audit-filter-select" onchange="renderAuditPage()" aria-label="Filter by action">
+          <select id="audit-action-filter" class="audit-filter-select" onchange="renderAuditPage()"
+            aria-label="Filter by action">
             <option value="all">All Actions</option>
             <option value="Checked Out">Checked Out</option>
             <option value="Released">Released</option>
@@ -732,7 +1040,8 @@
             <option value="Condition Changed">Condition Changed</option>
           </select>
           <label class="audit-filter-check">
-            <input type="checkbox" id="audit-hide-never-used" onchange="auditHideNeverUsed = this.checked; renderAuditPage();">
+            <input type="checkbox" id="audit-hide-never-used"
+              onchange="auditHideNeverUsed = this.checked; renderAuditPage();">
             <span>Hide never used</span>
           </label>
         </div>
@@ -755,7 +1064,8 @@
           <!-- CREATE USER FORM -->
           <div class="create-user-panel">
             <div class="create-user-title">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
@@ -763,7 +1073,8 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="new-username">Username</label>
-              <input id="new-username" class="form-input" type="text" placeholder="e.g. dr.smith" maxlength="40" oninput="onUsernameInput()" />
+              <input id="new-username" class="form-input" type="text" placeholder="e.g. dr.smith" maxlength="40"
+                oninput="onUsernameInput()" />
               <span class="field-hint">Letters, numbers, dots and underscores. Used to sign in.</span>
             </div>
             <div class="form-group">
@@ -783,14 +1094,16 @@
             </div>
             <div class="temp-password-box" id="new-temp-pw-box"></div>
             <div class="temp-password-label" id="new-temp-pw-label"></div>
-            <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="createUser()" id="create-user-btn" disabled>Create User</button>
+            <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="createUser()"
+              id="create-user-btn" disabled>Create User</button>
           </div>
 
           <!-- USERS TABLE -->
           <div class="users-table-panel">
             <div class="users-table-header">
               <div class="users-table-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                   <circle cx="9" cy="7" r="4"></circle>
                   <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -800,13 +1113,22 @@
                 <span class="count-pill" id="users-count">0</span>
               </div>
               <div class="users-table-controls" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <input type="search" id="user-search-input" class="form-input" style="width:180px;height:var(--h-ctl);font-size:13px;" placeholder="Search users…" oninput="renderUsersTable()" aria-label="Search users">
+                <input type="search" id="user-search-input" class="form-input"
+                  style="width:180px;height:var(--h-ctl);font-size:13px;" placeholder="Search users…"
+                  oninput="renderUsersTable()" aria-label="Search users">
                 <div class="segmented-control" role="radiogroup" aria-label="Filter users by status">
-                  <button type="button" class="segmented-btn active" id="user-filter-all" onclick="setUserStatusFilter('all')" role="radio" aria-checked="true">All <span id="users-filter-count-all" style="font-variant-numeric:tabular-nums;">0</span></button>
-                  <button type="button" class="segmented-btn" id="user-filter-active" onclick="setUserStatusFilter('active')" role="radio" aria-checked="false">Active <span id="users-filter-count-active" style="font-variant-numeric:tabular-nums;">0</span></button>
-                  <button type="button" class="segmented-btn" id="user-filter-inactive" onclick="setUserStatusFilter('inactive')" role="radio" aria-checked="false">Inactive <span id="users-filter-count-inactive" style="font-variant-numeric:tabular-nums;">0</span></button>
+                  <button type="button" class="segmented-btn active" id="user-filter-all"
+                    onclick="setUserStatusFilter('all')" role="radio" aria-checked="true">All <span
+                      id="users-filter-count-all" style="font-variant-numeric:tabular-nums;">0</span></button>
+                  <button type="button" class="segmented-btn" id="user-filter-active"
+                    onclick="setUserStatusFilter('active')" role="radio" aria-checked="false">Active <span
+                      id="users-filter-count-active" style="font-variant-numeric:tabular-nums;">0</span></button>
+                  <button type="button" class="segmented-btn" id="user-filter-inactive"
+                    onclick="setUserStatusFilter('inactive')" role="radio" aria-checked="false">Inactive <span
+                      id="users-filter-count-inactive" style="font-variant-numeric:tabular-nums;">0</span></button>
                 </div>
-                <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer;user-select:none;">
+                <label
+                  style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer;user-select:none;">
                   <input type="checkbox" id="user-hide-demo" onchange="renderUsersTable()">
                   <span>Hide demo accounts</span>
                 </label>
@@ -824,7 +1146,9 @@
                   </tr>
                 </thead>
                 <tbody id="users-tbody">
-                  <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-3);">Loading...</td></tr>
+                  <tr>
+                    <td colspan="5" style="text-align:center;padding:24px;color:var(--text-3);">Loading...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -842,12 +1166,29 @@
   <div id="scanner-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><line x1="7" y1="12" x2="17" y2="12"></line></svg><span>Scan Equipment QR Code</span></div>
-        <button class="modal-close" onclick="closeScanner()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+            <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+            <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+          </svg><span>Scan Equipment QR Code</span></div>
+        <button class="modal-close" onclick="closeScanner()" aria-label="Close"><svg width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg></button>
       </div>
       <div class="modal-body">
         <div class="conflict-alert" id="conflict-alert" role="alert">
-          <div class="conflict-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>CONFLICT DETECTED</span></div>
+          <div class="conflict-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg><span>CONFLICT DETECTED</span></div>
           <div class="conflict-msg" id="conflict-msg"></div>
         </div>
         <div id="scanner-container"></div>
@@ -855,7 +1196,9 @@
         <div class="manual-entry">
           <label class="form-label" for="manual-qr">Can't scan? Enter the asset ID</label>
           <div class="manual-entry-row">
-            <input id="manual-qr" class="form-input" type="text" placeholder="e.g. MT-ICU-003" autocapitalize="characters" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();submitManualQr();}" />
+            <input id="manual-qr" class="form-input" type="text" placeholder="e.g. MT-ICU-003"
+              autocapitalize="characters" autocorrect="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();submitManualQr();}" />
             <button type="button" class="btn-primary" onclick="submitManualQr()">Look up</button>
           </div>
         </div>
@@ -869,14 +1212,23 @@
   <!-- ============================================================
        ROOM PICKER MODAL  (v4 — shown before any 'In Use' checkout)
   ============================================================ -->
-  <div id="room-picker-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="room-picker-title">
+  <div id="room-picker-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true"
+    aria-labelledby="room-picker-title">
     <div class="modal" style="max-width:380px;">
       <div class="modal-header">
-        <div class="modal-title" id="room-picker-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-map-pin"/></svg> Select Room / Location</div>
-        <button class="modal-close" onclick="cancelRoomPicker()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <div class="modal-title" id="room-picker-title"><svg class="icon" aria-hidden="true"
+            style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+            <use href="#i-map-pin" />
+          </svg> Select Room / Location</div>
+        <button class="modal-close" onclick="cancelRoomPicker()" aria-label="Close"><svg class="icon" aria-hidden="true"
+            style="width:24px;height:24px;vertical-align:middle;">
+            <use href="#i-x" />
+          </svg></button>
       </div>
       <div class="modal-body">
-        <div id="room-picker-eq-info" style="padding:10px 12px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px;font-size:13px;color:var(--text-secondary);"></div>
+        <div id="room-picker-eq-info"
+          style="padding:10px 12px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px;font-size:13px;color:var(--text-secondary);">
+        </div>
         <div class="form-group">
           <label class="form-label" for="room-picker-select">Where is this equipment being used?</label>
           <select id="room-picker-select" class="form-select"></select>
@@ -884,7 +1236,10 @@
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="cancelRoomPicker()">Cancel</button>
-        <button class="btn-primary" id="room-picker-confirm" onclick="confirmRoomPicker()"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-check"/></svg> Confirm Check-Out</button>
+        <button class="btn-primary" id="room-picker-confirm" onclick="confirmRoomPicker()"><svg class="icon"
+            aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+            <use href="#i-check" />
+          </svg> Confirm Check-Out</button>
       </div>
     </div>
   </div>
@@ -895,26 +1250,47 @@
   <div id="request-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg><span>Request Equipment</span></div>
-        <button class="modal-close" onclick="closeRequestModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+          </svg><span>Request Equipment</span></div>
+        <button class="modal-close" onclick="closeRequestModal()" aria-label="Close"><svg width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg></button>
       </div>
       <div class="modal-body">
-        <div id="request-eq-info" style="padding:12px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:16px;font-size:13px;color:var(--text-secondary);"></div>
+        <div id="request-eq-info"
+          style="padding:12px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:16px;font-size:13px;color:var(--text-secondary);">
+        </div>
         <div class="form-group">
           <label class="form-label">Requested By</label>
-          <div style="padding:10px 12px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text-secondary);" id="req-user-display">—</div>
+          <div
+            style="padding:10px 12px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text-secondary);"
+            id="req-user-display">—</div>
         </div>
         <div class="form-group">
           <span class="form-label" id="pri-label">Priority</span>
           <div class="priority-toggle" role="radiogroup" aria-labelledby="pri-label">
-            <button class="priority-option selected-normal" id="pri-normal" role="radio" aria-checked="true" onclick="selectPriority('Normal')" type="button">Normal</button>
-            <button class="priority-option" id="pri-urgent" role="radio" aria-checked="false" onclick="selectPriority('Urgent')" type="button"><span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> Urgent</button>
+            <button class="priority-option selected-normal" id="pri-normal" role="radio" aria-checked="true"
+              onclick="selectPriority('Normal')" type="button">Normal</button>
+            <button class="priority-option" id="pri-urgent" role="radio" aria-checked="false"
+              onclick="selectPriority('Urgent')" type="button"><span aria-hidden="true"><svg width="16" height="16"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                  stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg></span> Urgent</button>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-cancel" onclick="closeRequestModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="submitRequest()" id="submit-req-btn">Submit Request</button>
+        <button type="button" class="btn btn-primary" onclick="submitRequest()" id="submit-req-btn">Submit
+          Request</button>
       </div>
     </div>
   </div>
@@ -925,8 +1301,17 @@
   <div id="reset-pw-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Reset Password</span></div>
-        <button class="modal-close" onclick="closeResetPwModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg><span>Reset Password</span></div>
+        <button class="modal-close" onclick="closeResetPwModal()" aria-label="Close"><svg width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg></button>
       </div>
       <div class="modal-body">
         <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
@@ -935,14 +1320,17 @@
         <div class="form-group">
           <label class="form-label" for="reset-pw-new">New Password</label>
           <div class="pw-wrap">
-            <input id="reset-pw-new" class="form-input" type="password" placeholder="Enter new password (min 6 chars)" />
-            <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Show password" onclick="togglePasswordVisibility(this, 'reset-pw-new')">Show</button>
+            <input id="reset-pw-new" class="form-input" type="password"
+              placeholder="Enter new password (min 6 chars)" />
+            <button type="button" class="pw-toggle" aria-pressed="false" aria-label="Show password"
+              onclick="togglePasswordVisibility(this, 'reset-pw-new')">Show</button>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-cancel" onclick="closeResetPwModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="doResetPassword()" id="reset-pw-btn">Reset Password</button>
+        <button type="button" class="btn btn-primary" onclick="doResetPassword()" id="reset-pw-btn">Reset
+          Password</button>
       </div>
     </div>
   </div>
@@ -953,13 +1341,23 @@
   <div id="add-equipment-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>Add New Product / Equipment</span></div>
-        <button class="modal-close" onclick="closeAddEquipmentModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg><span>Add New Product / Equipment</span></div>
+        <button class="modal-close" onclick="closeAddEquipmentModal()" aria-label="Close"><svg width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg></button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label" for="new-eq-name">Product / Equipment Name</label>
-          <input id="new-eq-name" class="form-input" type="text" placeholder="e.g. ECG Machine A, Wheelchair C" maxlength="60" />
+          <input id="new-eq-name" class="form-input" type="text" placeholder="e.g. ECG Machine A, Wheelchair C"
+            maxlength="60" />
         </div>
         <div class="form-group">
           <label class="form-label" for="new-eq-dept">Department</label>
@@ -970,7 +1368,8 @@
         <div class="form-group">
           <label class="form-label" for="new-eq-qr">QR Code ID (Asset Tag)</label>
           <input id="new-eq-qr" class="form-input" type="text" placeholder="e.g. MT-ICU-003" maxlength="40" />
-          <p style="font-size:11px;color:var(--text-muted);margin-top:4px;">Unique identifier encoded inside the QR sticker.</p>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:4px;">Unique identifier encoded inside the QR
+            sticker.</p>
         </div>
         <div class="form-group">
           <label class="form-label" for="new-eq-status">Initial Status</label>
@@ -994,7 +1393,8 @@
               <input id="new-pt-name" class="form-input" type="text" placeholder="e.g. ECG Monitor" maxlength="50" />
             </div>
             <div>
-              <label class="form-label" for="new-pt-img" style="margin-bottom:4px;">Image path / URL <span style="font-weight:400;text-transform:none;color:var(--text-muted);">(optional)</span></label>
+              <label class="form-label" for="new-pt-img" style="margin-bottom:4px;">Image path / URL <span
+                  style="font-weight:400;text-transform:none;color:var(--text-muted);">(optional)</span></label>
               <input id="new-pt-img" class="form-input" type="text" placeholder="e.g. images/ecg-monitor.png" />
             </div>
           </div>
@@ -1002,7 +1402,10 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-cancel" onclick="closeAddEquipmentModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="createEquipment()" id="create-eq-btn"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-plus"/></svg> Add Product &amp; Generate QR</button>
+        <button type="button" class="btn btn-primary" onclick="createEquipment()" id="create-eq-btn"><svg class="icon"
+            aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+            <use href="#i-plus" />
+          </svg> Add Product &amp; Generate QR</button>
       </div>
     </div>
   </div>
@@ -1013,13 +1416,26 @@
   <div id="sticker-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal" style="max-width:440px;">
       <div class="modal-header">
-        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Physical QR Sticker Label</span></div>
-        <button class="modal-close" onclick="closeStickerModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg><span>Physical QR Sticker Label</span></div>
+        <button class="modal-close" onclick="closeStickerModal()" aria-label="Close"><svg width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg></button>
       </div>
       <div class="modal-body" style="text-align:center;">
         <div class="sticker-badge" id="sticker-badge-preview">
           <div class="sticker-header">
-            <div class="sticker-header-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-brand"/></svg> MEDITRACK ASSET</div>
+            <div class="sticker-header-title"><svg class="icon" aria-hidden="true"
+                style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                <use href="#i-brand" />
+              </svg> MEDITRACK ASSET</div>
             <div class="sticker-header-sub">Hospital Equipment Visibility</div>
           </div>
           <div class="sticker-body">
@@ -1031,13 +1447,28 @@
           </div>
         </div>
         <p style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">
-          You can print this physical sticker directly or download a high-resolution PNG image for sticker/barcode printers.
+          You can print this physical sticker directly or download a high-resolution PNG image for sticker/barcode
+          printers.
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-cancel" onclick="closeStickerModal()">Close</button>
-        <button type="button" class="btn btn-secondary btn-action-secondary" id="sticker-download-btn" onclick="downloadCurrentStickerPng()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download PNG</button>
-        <button type="button" class="btn btn-primary" id="sticker-print-btn" onclick="printCurrentSticker()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print Sticker</button>
+        <button type="button" class="btn btn-secondary btn-action-secondary" id="sticker-download-btn"
+          onclick="downloadCurrentStickerPng()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+            style="vertical-align:middle;margin-right:4px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg> Download PNG</button>
+        <button type="button" class="btn btn-primary" id="sticker-print-btn" onclick="printCurrentSticker()"><svg
+            width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+            style="vertical-align:middle;margin-right:4px;">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg> Print Sticker</button>
       </div>
     </div>
   </div>
@@ -1048,15 +1479,29 @@
   <div id="print-all-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal" style="max-width:760px;">
       <div class="modal-header">
-        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print All Equipment QR Labels</span></div>
-        <button class="modal-close" onclick="closePrintAllModal()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg><span>Print All Equipment QR Labels</span></div>
+        <button class="modal-close" onclick="closePrintAllModal()" aria-label="Close"><svg width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg></button>
       </div>
       <div class="modal-body">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:13px;color:var(--text-secondary);">Preview of printable asset tags (<strong id="print-all-count">0</strong> items)</div>
+        <div
+          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:13px;color:var(--text-secondary);">Preview of printable asset tags (<strong
+              id="print-all-count">0</strong> items)</div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <label style="font-size:12px;color:var(--text-muted);font-weight:600;" for="print-all-dept-filter">FILTER DEPT:</label>
-            <select id="print-all-dept-filter" class="form-select" style="width:auto;padding:6px 10px;font-size:12px;" onchange="renderPrintAllPreview()">
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;" for="print-all-dept-filter">FILTER
+              DEPT:</label>
+            <select id="print-all-dept-filter" class="form-select" style="width:auto;padding:6px 10px;font-size:12px;"
+              onchange="renderPrintAllPreview()">
               <option value="all">All Departments</option>
             </select>
           </div>
@@ -1065,7 +1510,13 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-cancel" onclick="closePrintAllModal()">Close</button>
-        <button type="button" class="btn btn-primary" onclick="printAllStickersAction()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print Labels Sheet</button>
+        <button type="button" class="btn btn-primary" onclick="printAllStickersAction()"><svg width="16" height="16"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px;">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg> Print Labels Sheet</button>
       </div>
     </div>
   </div>
@@ -1074,14 +1525,22 @@
   <div id="weekly-report-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="modal" style="max-width:800px; width: 95%;">
       <div class="modal-header">
-        <div class="modal-title"><svg class="icon" aria-hidden="true" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;"><use href="#i-layout-dashboard"/></svg> Weekly Deep Analysis</div>
-        <button class="modal-close" onclick="closeWeeklyModal()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <div class="modal-title"><svg class="icon" aria-hidden="true"
+            style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+            <use href="#i-layout-dashboard" />
+          </svg> Weekly Deep Analysis</div>
+        <button class="modal-close" onclick="closeWeeklyModal()" aria-label="Close"><svg class="icon" aria-hidden="true"
+            style="width:24px;height:24px;vertical-align:middle;">
+            <use href="#i-x" />
+          </svg></button>
       </div>
-      <div class="modal-body" id="weekly-modal-body" style="max-height: 70vh; overflow-y: auto; padding: 20px; background: var(--bg);">
+      <div class="modal-body" id="weekly-modal-body"
+        style="max-height: 70vh; overflow-y: auto; padding: 20px; background: var(--bg);">
         <!-- Rendered via JS -->
       </div>
       <div class="modal-footer" style="justify-content:space-between; align-items:center;">
-        <select id="weekly-history-select" class="form-select" style="width:auto; padding:6px; font-size:13px;" onchange="loadSelectedWeeklyReport()">
+        <select id="weekly-history-select" class="form-select" style="width:auto; padding:6px; font-size:13px;"
+          onchange="loadSelectedWeeklyReport()">
           <option value="">Latest Report</option>
         </select>
         <div style="display:flex; gap:8px;">
@@ -1098,11 +1557,15 @@
   <div class="toast-container" id="toast-container" role="status" aria-live="polite"></div>
 
   <!-- Command Palette Modal (Ctrl+K / Cmd+K) -->
-  <div id="cmd-palette-backdrop" class="cmd-palette-backdrop" style="display:none;" role="dialog" aria-modal="true" aria-label="Command Palette">
+  <div id="cmd-palette-backdrop" class="cmd-palette-backdrop" style="display:none;" role="dialog" aria-modal="true"
+    aria-label="Command Palette">
     <div class="cmd-palette-box">
       <div class="cmd-palette-input-wrap">
-        <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-search"/></svg>
-        <input type="text" id="cmd-palette-input" class="cmd-palette-input" placeholder="Search equipment, navigate pages, run actions..." autocomplete="off">
+        <svg class="icon" aria-hidden="true" width="16" height="16">
+          <use href="#i-search" />
+        </svg>
+        <input type="text" id="cmd-palette-input" class="cmd-palette-input"
+          placeholder="Search equipment, navigate pages, run actions..." autocomplete="off">
         <span class="cmd-palette-esc-hint">Esc</span>
       </div>
       <div class="cmd-palette-list" id="cmd-palette-list" role="listbox"></div>
@@ -1116,7 +1579,10 @@
     <div class="modal" style="max-width:400px;">
       <div class="modal-header">
         <div class="modal-title" id="confirm-modal-title">Confirm</div>
-        <button class="modal-close" onclick="closeConfirmModal()" aria-label="Close"><svg class="icon" aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;"><use href="#i-x"/></svg></button>
+        <button class="modal-close" onclick="closeConfirmModal()" aria-label="Close"><svg class="icon"
+            aria-hidden="true" style="width:24px;height:24px;vertical-align:middle;">
+            <use href="#i-x" />
+          </svg></button>
       </div>
       <div class="modal-body">
         <p id="confirm-modal-msg" style="font-size:14px;color:var(--text);"></p>

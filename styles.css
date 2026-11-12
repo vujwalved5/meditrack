@@ -465,16 +465,16 @@
 
     .login-security-notice {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 8px;
-      padding: 10px 12px;
+      padding: 8px 12px;
       border-radius: var(--r-ctl);
-      background: var(--warning-tint);
-      color: var(--warning);
+      background: var(--surface-2);
+      color: var(--text-2);
       font-size: 12px;
       line-height: 1.4;
       margin-bottom: 16px;
-      border: 1px solid color-mix(in srgb, var(--warning) 25%, transparent);
+      border: 1px solid var(--border);
     }
 
     .login-error {
@@ -501,7 +501,7 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: var(--text-3);
+      color: var(--text-2);
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
@@ -1033,28 +1033,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .kpi-arrow-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: var(--r-ctl);
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text-2);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      padding: 0;
-      flex-shrink: 0;
-      transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
-    }
-
-    .kpi-arrow-btn:hover {
-      background: var(--primary-tint);
-      border-color: var(--primary);
-      color: var(--primary);
     }
 
     .kpi-num {
@@ -2109,9 +2087,10 @@
     }
 
     .req-stat-tile {
-      background: rgba(255, 255, 255, 0.14);
-      border-radius: 12px;
-      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: var(--r-ctl);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 14px;
       text-align: left;
     }
 
@@ -2134,7 +2113,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 0;
       padding-right: 2px;
     }
 
@@ -2153,18 +2132,24 @@
     }
 
     .request-item {
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 12px;
+      background: transparent;
+      border-radius: 0;
+      padding: 12px 4px;
       border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       color: #FFFFFF;
       margin-bottom: 0;
       transition: background-color 150ms ease;
     }
 
+    .request-item:last-child {
+      border-bottom: none;
+    }
+
     .request-item.urgent {
-      background: rgba(255, 255, 255, 0.16);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
     }
 
     .request-eq-name {
@@ -2647,7 +2632,7 @@
       border-radius: var(--r-card);
       border: 1px solid var(--border);
       padding: 20px;
-      box-shadow: var(--shadow-card);
+      box-shadow: none;
     }
 
     .create-user-title {

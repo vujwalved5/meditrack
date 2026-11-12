@@ -465,7 +465,7 @@ initTheme();
         toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
         let undoBtn = onUndo ? `<button type="button" class="toast-undo-btn">Undo</button>` : '';
         const msgContent = htmlMessage !== null ? htmlMessage : esc(message);
-        toast.innerHTML = `<span class="toast-msg">${msgContent}</span>${undoBtn}<button type="button" class="toast-close-btn" aria-label="Dismiss notification">&times;</button>`;
+        toast.innerHTML = `<span class="toast-msg">${msgContent}</span>${undoBtn}<button type="button" class="toast-close-btn" aria-label="Dismiss notification"><svg class="icon" aria-hidden="true" width="14" height="14"><use href="#i-x"/></svg></button>`;
         c.appendChild(toast);
         let dismissed = false;
         const dismiss = () => {
@@ -4774,7 +4774,7 @@ initTheme();
         document.querySelectorAll('.user-actions-menu.show').forEach(m => m.classList.remove('show'));
       }
       if (e.key === 'Enter' && e.target.tagName !== 'BUTTON' && document.getElementById('login-screen').style.display !== 'none') {
-        doLogin();
+        // Handled via <form id="login-form"> submission to prevent double invocation
       }
     });
     document.addEventListener('click', e => {
