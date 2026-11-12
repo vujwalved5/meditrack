@@ -1080,9 +1080,26 @@
         justify-content: center;
       }
       .kpi-grid {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 12px;
-        margin-bottom: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .kpi-card {
+        padding: 10px 12px;
+      }
+      .kpi-top {
+        margin-bottom: 4px;
+        gap: 4px;
+      }
+      .kpi-title {
+        font-size: 12px;
+      }
+      .kpi-num {
+        font-size: 24px;
+        margin-bottom: 2px;
+      }
+      .kpi-caption {
+        font-size: 11px;
       }
     }
 
@@ -1201,7 +1218,7 @@
       min-width: 0;
     }
 
-    .eq-filter-row .segmented-control {
+    .segmented-control {
       display: inline-flex;
       align-items: center;
       background: var(--surface-2);
@@ -1212,28 +1229,47 @@
       border: 1px solid var(--border);
     }
 
-    .eq-filter-row .segmented-control .filter-btn {
+    .segmented-control .filter-btn,
+    .segmented-control .segmented-btn,
+    .segmented-btn {
       background: transparent;
       border: none;
       border-radius: var(--r-pill);
       padding: 6px 14px;
+      min-height: 36px;
       font-size: 13px;
       font-weight: 500;
       color: var(--text-2);
       cursor: pointer;
       transition: all var(--t-fast) var(--ease);
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: inherit;
     }
 
-    .eq-filter-row .segmented-control .filter-btn:hover {
+    .segmented-control .filter-btn:hover,
+    .segmented-control .segmented-btn:hover,
+    .segmented-btn:hover {
       color: var(--text);
     }
 
-    .eq-filter-row .segmented-control .filter-btn.active {
+    .segmented-control .filter-btn.active,
+    .segmented-control .segmented-btn.active,
+    .segmented-btn.active {
       background: var(--surface);
       color: var(--text);
       font-weight: 600;
       box-shadow: var(--shadow-card);
+    }
+
+    .segmented-control .filter-btn:focus-visible,
+    .segmented-control .segmented-btn:focus-visible,
+    .segmented-btn:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
     }
 
     .dept-filter-group {
@@ -2513,6 +2549,22 @@
       .modal-close {
         min-width: 44px;
         min-height: 44px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .modal-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 8px;
+        padding: 12px 16px;
+      }
+      .modal-footer .btn,
+      .modal-footer button,
+      .modal-footer .btn-cancel,
+      .modal-footer .btn-action-secondary {
+        width: 100%;
+        justify-content: center;
       }
     }
 

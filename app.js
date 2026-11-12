@@ -4059,8 +4059,8 @@ initTheme();
           const isActive = s === status;
           btn.classList.toggle('active', isActive);
           btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-          btn.style.background = isActive ? 'var(--brand-600)' : 'var(--surface)';
-          btn.style.color = isActive ? '#fff' : 'var(--ink-700)';
+          btn.style.background = '';
+          btn.style.color = '';
         }
       });
       renderUsersTable();
