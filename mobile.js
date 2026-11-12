@@ -1320,9 +1320,10 @@
         <!-- Users List -->
         <div id="m-users-list" style="display:flex; flex-direction:column; gap:8px;">
           ${filtered.length === 0 ? `
-            <div style="padding:32px 16px; text-align:center; color:var(--text-2); background:var(--surface-2); border:1px solid var(--border); border-radius:12px;">
+            <div class="empty-state" style="padding:28px 16px; text-align:center; color:var(--text-2); background:var(--surface-2); border:1px solid var(--border); border-radius:12px;">
               <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px;">No users found</div>
-              <div style="font-size:12px;">No accounts match your search or filter.</div>
+              <div style="font-size:12px; margin-bottom:12px;">No accounts match your search or filter.</div>
+              <button type="button" class="m-reset-filter-btn" id="m-users-empty-reset" style="height:36px; min-height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:12px; font-weight:600; cursor:pointer;">Reset filters</button>
             </div>
           ` : filtered.map(u => {
             const isSelf = u.id === currentUser.id;
@@ -1396,6 +1397,17 @@
           }
         });
       }
+
+      // Reset empty search filters button
+      document.getElementById('m-users-empty-reset')?.addEventListener('click', () => {
+        mUsersSearchQuery = '';
+        mUsersStatusFilter = 'all';
+        const bodyEl = document.getElementById('m-sheet-body-content');
+        if (bodyEl) {
+          bodyEl.innerHTML = renderUsersContent(currentList);
+          attachSheetListeners(currentList);
+        }
+      });
 
       // Create user button
       document.getElementById('m-btn-create-user')?.addEventListener('click', () => {
@@ -1958,9 +1970,11 @@
       </div>
     `;
 
-    // Lock body scroll (iOS-safe)
+    // Lock body scroll (iOS-safe) and set background inert
     previousFocusEl = document.activeElement;
     document.body.style.overflow = 'hidden';
+    const mApp = document.getElementById('m-app');
+    if (mApp) mApp.inert = true;
 
     // Android / browser Back button handling
     try {
@@ -1977,9 +1991,33 @@
       if (e.target === backdrop) mCloseSheet();
     });
 
+    // Trap focus and handle Escape
+    const handleSheetKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        mCloseSheet();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = Array.from(backdrop.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    backdrop.addEventListener('keydown', handleSheetKeyDown);
+    backdrop._sheetKeyHandler = handleSheetKeyDown;
+
     if (onMounted) onMounted();
 
-    // Trap focus inside sheet
+    // Focus inside sheet
     const focusable = backdrop.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
     if (focusable.length > 0) focusable[0].focus();
   }
@@ -1993,12 +2031,18 @@
 
     const backdrop = document.getElementById('m-sheet-backdrop');
     if (backdrop) {
+      if (backdrop._sheetKeyHandler) {
+        backdrop.removeEventListener('keydown', backdrop._sheetKeyHandler);
+        backdrop._sheetKeyHandler = null;
+      }
       backdrop.classList.remove('open');
       backdrop.innerHTML = '';
     }
 
-    // Restore body scroll
+    // Restore body scroll and background inert
     document.body.style.overflow = '';
+    const mApp = document.getElementById('m-app');
+    if (mApp) mApp.inert = false;
     if (previousFocusEl && previousFocusEl.focus) {
       previousFocusEl.focus();
     }
@@ -2023,6 +2067,10 @@
     }
     const backdrop = document.getElementById('m-sheet-backdrop');
     if (backdrop) {
+      if (backdrop._sheetKeyHandler) {
+        backdrop.removeEventListener('keydown', backdrop._sheetKeyHandler);
+        backdrop._sheetKeyHandler = null;
+      }
       backdrop.classList.remove('open');
       backdrop.innerHTML = '';
     }
@@ -2032,6 +2080,8 @@
       confirmBackdrop.innerHTML = '';
     }
     document.body.style.overflow = '';
+    const mApp = document.getElementById('m-app');
+    if (mApp) mApp.inert = false;
   }
 
   // ==========================================
@@ -2073,11 +2123,38 @@
     `;
 
     backdrop.classList.add('open');
+    const mApp = document.getElementById('m-app');
+    if (mApp) mApp.inert = true;
 
     const closeConfirm = () => {
       backdrop.classList.remove('open');
       backdrop.innerHTML = '';
+      if (!activeSheet && mApp) {
+        mApp.inert = false;
+      }
     };
+
+    const handleConfirmKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeConfirm();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = Array.from(backdrop.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    backdrop.addEventListener('keydown', handleConfirmKeyDown);
 
     document.getElementById('m-confirm-close')?.addEventListener('click', closeConfirm);
     document.getElementById('m-confirm-cancel')?.addEventListener('click', closeConfirm);

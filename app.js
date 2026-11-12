@@ -2555,7 +2555,7 @@ initTheme();
         const hint = currentProductFilter !== 'all'
           ? 'No equipment of this type matches your filters. <button type="button" onclick="clearProductFilter()" style="color:var(--primary);background:none;border:none;cursor:pointer;font-size:13px;padding:0;font-family:inherit;font-weight:600;">Clear product filter</button>'
           : 'No equipment matches your filters';
-        container.innerHTML = '<div class="empty-state" style="padding:32px 16px;text-align:center;"><div class="empty-icon" style="margin-bottom:8px;"><svg class="icon" aria-hidden="true" width="28" height="28" style="color:var(--text-3);"><use href="#i-scroll-text"/></svg></div><div class="empty-text" style="color:var(--text-2);font-size:14px;">' + hint + '</div></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" aria-hidden="true" width="28" height="28" style="color:var(--text-3);"><use href="#i-scroll-text"/></svg></div><div class="empty-text">' + hint + '</div></div>';
         if (paginationEl) paginationEl.innerHTML = '';
         renderProductTiles();
         return;
@@ -2568,7 +2568,6 @@ initTheme();
       // Column header row
       const colHead = document.createElement('div');
       colHead.className = 'eq-col-head';
-      colHead.setAttribute('role', 'row');
       colHead.innerHTML = `
         <span class="eq-col-cell" aria-hidden="true"></span>
         <span class="eq-col-cell">Equipment</span>
@@ -3690,7 +3689,7 @@ initTheme();
               <div class="empty-icon" style="font-size: 32px; margin-bottom: 8px;">
                 <svg class="icon" aria-hidden="true" style="width:32px;height:32px;vertical-align:middle;"><use href="#i-scroll-text"/></svg>
               </div>
-              <div class="empty-text" style="font-size: 15px; font-weight: 500; color: var(--ink-700); margin-bottom: 12px;">No audit events match your filters</div>
+              <div class="empty-text" style="font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 12px;">No audit events match your filters</div>
               <button type="button" class="btn btn-secondary btn-sm" onclick="clearAuditFilters()">Clear filters</button>
             </div>
           `;
@@ -3702,16 +3701,15 @@ initTheme();
         // Render table header
         const tableHeader = document.createElement('div');
         tableHeader.className = 'audit-table-header';
-        tableHeader.setAttribute('role', 'row');
         tableHeader.innerHTML = `
           <span style="width:24px;"></span>
-          <button type="button" class="audit-col-btn" onclick="setAuditSort('name')" aria-sort="${auditSortCol === 'name' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
+          <button type="button" class="audit-col-btn" onclick="setAuditSort('name')" aria-pressed="${auditSortCol === 'name'}">
             <span>Equipment</span>${getSortIndicator('name', auditSortCol, auditSortDir)}
           </button>
-          <button type="button" class="audit-col-btn" onclick="setAuditSort('department')" aria-sort="${auditSortCol === 'department' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
+          <button type="button" class="audit-col-btn" onclick="setAuditSort('department')" aria-pressed="${auditSortCol === 'department'}">
             <span>Department</span>${getSortIndicator('department', auditSortCol, auditSortDir)}
           </button>
-          <button type="button" class="audit-col-btn" onclick="setAuditSort('uses')" aria-sort="${auditSortCol === 'uses' ? (auditSortDir === 'asc' ? 'ascending' : 'descending') : 'none'}">
+          <button type="button" class="audit-col-btn" onclick="setAuditSort('uses')" aria-pressed="${auditSortCol === 'uses'}">
             <span>Usage & Activity</span>${getSortIndicator('uses', auditSortCol, auditSortDir)}
           </button>
           <span>Status</span>
@@ -3802,7 +3800,7 @@ initTheme();
         console.error('Error rendering audit page:', err);
         container.innerHTML = `
           <div class="empty-state" style="padding: 40px 20px; text-align: center;">
-            <div class="empty-text" style="font-size: 15px; font-weight: 500; color: var(--color-danger, #e11d48); margin-bottom: 12px;">
+            <div class="empty-text" style="font-size: 15px; font-weight: 500; color: var(--danger); margin-bottom: 12px;">
               Failed to load audit events.
             </div>
             <button type="button" class="btn btn-secondary btn-sm" onclick="renderAuditPage()">Retry</button>
@@ -4089,7 +4087,7 @@ initTheme();
 
       if (error) {
         if (tbody) {
-          tbody.innerHTML = '<tr><td colspan="5" style="color:var(--danger);padding:16px;">Failed to load users.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px 16px;"><div style="color:var(--danger);font-weight:600;margin-bottom:8px;">Failed to load users</div><button type="button" class="btn btn-secondary" onclick="loadUsersTable()" style="height:36px;font-size:12px;display:inline-flex;align-items:center;gap:6px;margin:0 auto;"><svg class="icon" aria-hidden="true" width="14" height="14"><use href="#i-refresh-cw"/></svg> Retry</button></td></tr>';
         }
         return [];
       }
@@ -4098,6 +4096,29 @@ initTheme();
       if (tbody) renderUsersTable();
       document.dispatchEvent(new CustomEvent('meditrack:users-updated', { detail: cachedUsers }));
       return cachedUsers;
+    }
+
+    function resetUserFilters() {
+      const searchInput = document.getElementById('user-search-input');
+      if (searchInput) searchInput.value = '';
+      const hideDemo = document.getElementById('user-hide-demo');
+      if (hideDemo) hideDemo.checked = false;
+      setUserStatusFilter('all');
+    }
+
+    function copyDesktopTempPassword() {
+      const pwBox = document.getElementById('new-temp-pw-box');
+      const text = pwBox ? pwBox.textContent.trim() : '';
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Temporary password copied to clipboard', 'success');
+        }).catch(() => {
+          showToast('Password: ' + text, 'info');
+        });
+      } else {
+        showToast('Password: ' + text, 'info');
+      }
     }
 
     function renderUsersTable() {
@@ -4128,7 +4149,7 @@ initTheme();
 
       tbody.innerHTML = '';
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-3);">No users match your filters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px 16px;"><div class="empty-state" style="padding:0;"><div class="empty-icon"><svg class="icon" aria-hidden="true" width="28" height="28" style="color:var(--text-3);"><use href="#i-users"/></svg></div><div class="empty-text" style="margin-bottom:12px;">No users match your filters.</div><button type="button" class="btn btn-secondary" onclick="resetUserFilters()" style="height:36px;font-size:12px;display:inline-flex;align-items:center;gap:6px;margin:0 auto;">Reset filters</button></div></td></tr>';
         return;
       }
 
@@ -4262,8 +4283,10 @@ initTheme();
       const btn = document.getElementById('create-user-btn');
       const pwBox = document.getElementById('new-temp-pw-box');
       const pwLabel = document.getElementById('new-temp-pw-label');
+      const pwWrap = document.getElementById('new-temp-pw-wrap');
 
       if (pwBox) pwBox.classList.remove('show');
+      if (pwWrap) pwWrap.style.display = 'none';
       if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
 
       try {
@@ -4272,6 +4295,7 @@ initTheme();
           pwBox.textContent = result.tempPw;
           pwBox.classList.add('show');
         }
+        if (pwWrap) pwWrap.style.display = 'block';
         if (pwLabel) {
           pwLabel.textContent = 'Share this password once. It will not be shown again.';
         }

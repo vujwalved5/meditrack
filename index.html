@@ -1087,8 +1087,16 @@
                 <option value="">No department (optional)</option>
               </select>
             </div>
-            <div class="temp-password-box" id="new-temp-pw-box"></div>
-            <div class="temp-password-label" id="new-temp-pw-label"></div>
+            <div id="new-temp-pw-wrap" style="display:none;margin-top:12px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="temp-password-box show" id="new-temp-pw-box" style="flex:1;margin-top:0;"></div>
+                <button type="button" class="btn btn-secondary" id="copy-temp-pw-btn" onclick="copyDesktopTempPassword()" style="min-height:44px;min-width:44px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;" title="Copy password">
+                  <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-clipboard-list"/></svg>
+                  <span>Copy</span>
+                </button>
+              </div>
+              <div class="temp-password-label" id="new-temp-pw-label"></div>
+            </div>
             <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="createUser()"
               id="create-user-btn" disabled>Create User</button>
           </div>
