@@ -1390,7 +1390,7 @@ initTheme();
         attentionHtml = '<div class="brief-callouts-wrap" style="margin-top:8px;">' +
           ai.attention.map(a => {
             const sev = ['warning', 'critical'].includes(a.severity) ? 'warning' : 'info';
-            return `<div class="brief-callout ${sev}" style="padding:8px 12px;margin-bottom:6px;border-left:3px solid var(--st-${sev === 'warning' ? 'attention' : 'info'}-fg);background:var(--st-${sev === 'warning' ? 'attention' : 'info'}-bg);font-size:13px;border-radius:0 4px 4px 0;">${esc(String(a.text || ''))}</div>`;
+            return `<div class="brief-callout ${sev}" style="padding:8px 12px;margin-bottom:6px;border:1px solid var(--border);background:var(--st-${sev === 'warning' ? 'attention' : 'info'}-bg);font-size:13px;border-radius:var(--r-ctl);">${esc(String(a.text || ''))}</div>`;
           }).join('') +
           '</div>';
       }
