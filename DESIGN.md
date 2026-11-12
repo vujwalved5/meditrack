@@ -22,22 +22,22 @@ colors:
   neutral-tint: "#EEF0F3"
 typography:
   display:
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     fontSize: "2rem"
     fontWeight: 700
     lineHeight: 1.2
   title:
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     fontSize: "1.25rem"
     fontWeight: 600
     lineHeight: 1.3
   body:
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.5
   label:
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1.4
@@ -81,7 +81,7 @@ MediTrack's design system is engineered for busy hospital staff operating mobile
 - **Text & Contrast**: High-contrast dark charcoal (`#14161A`) for body text, muted secondary slate (`#5B616B`) for metadata, and tertiary gray (`#8B919B`) for subtle hints.
 
 ## Typography
-- **Typeface**: Single considered typeface family — `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`.
+- **Typeface**: Single considered typeface family — clean system UI stack: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif` (zero CDN latency, zero FOUT layout shift, high legibility on hospital ward devices).
 - **Scale**:
   - Page Titles: `1.5rem` – `1.75rem` (`700` weight)
   - Section Headers / Modal Titles: `1.125rem` – `1.25rem` (`600` weight)

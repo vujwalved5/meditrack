@@ -139,9 +139,8 @@
   }
 
   .m-logo-text {
-    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 16px;
     letter-spacing: -0.02em;
     color: var(--text);
   }
@@ -423,7 +422,6 @@
   .m-kpi-dot.reqs  { background: var(--primary); }
 
   .m-kpi-num {
-    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 20px;
     line-height: 1.1;
@@ -911,7 +909,6 @@
   }
 
   .m-sheet-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 16px;
     font-weight: 700;
     color: var(--text);

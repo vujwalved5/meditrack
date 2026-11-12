@@ -649,7 +649,7 @@
         <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
           <div>
             <span style="font-family:monospace; font-size:11px; padding:2px 6px; border-radius:6px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-2);">${escapeHtml(eq.qr_code_id)}</span>
-            <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:17px; font-weight:700; margin-top:6px; color:var(--text);">${escapeHtml(eq.name)}</h3>
+            <h3 style="font-size:16px; font-weight:700; margin-top:6px; color:var(--text);">${escapeHtml(eq.name)}</h3>
             <p style="font-size:12.5px; color:var(--text-2); margin-top:2px;">${escapeHtml(deptName)} · Condition: <strong>${escapeHtml(cond)}</strong></p>
           </div>
           <span class="m-status-badge ${isAvail ? 'avail' : 'inuse'}">
@@ -864,7 +864,7 @@
     container.innerHTML = `
       <div class="m-audit-header-bar">
         <div>
-          <h2 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:700; margin:0;">Pending Requests</h2>
+          <h2 style="font-size:16px; font-weight:700; margin:0;">Pending Requests</h2>
           <p style="font-size:12px; color:var(--text-2); margin:2px 0 0;">Approve or reject equipment handover requests</p>
         </div>
         <span class="m-nav-badge" style="position:static;">${requests.length}</span>
@@ -976,7 +976,7 @@
     container.innerHTML = `
       <div class="m-audit-header-bar">
         <div>
-          <h2 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:700; margin:0;">Audit Trail</h2>
+          <h2 style="font-size:16px; font-weight:700; margin:0;">Audit Trail</h2>
           <p style="font-size:12px; color:var(--text-2); margin:2px 0 0;">Real-time checkout and room history</p>
         </div>
         <button id="m-audit-export-csv" style="height:36px; padding:0 12px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border); font-size:12px; font-weight:600; color:var(--text); cursor:pointer;">
@@ -1052,7 +1052,7 @@
     const historyHtml = `
       <div style="margin-bottom:12px;">
         <span style="font-family:monospace; font-size:11px; padding:2px 6px; border-radius:6px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-2);">${escapeHtml(eq.qr_code_id)}</span>
-        <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:700; margin-top:4px;">${escapeHtml(eq.name)}</h3>
+        <h3 style="font-size:16px; font-weight:700; margin-top:4px;">${escapeHtml(eq.name)}</h3>
         <p style="font-size:12px; color:var(--text-2); margin-top:2px;">Event History (${entries.length} records)</p>
       </div>
 
@@ -1146,7 +1146,7 @@
         <!-- 2. AI Operations Insights (PL-10) -->
         <div class="m-card">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-            <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; margin:0; color:var(--text);">AI Clinical Insights</h3>
+            <h3 style="font-size:14px; font-weight:700; margin:0; color:var(--text);">AI Clinical Insights</h3>
             <span style="font-size:11px; font-weight:600; color:var(--primary); background:var(--primary-tint); padding:2px 8px; border-radius:10px;">Operations</span>
           </div>
           <p style="font-size:12.5px; color:var(--text-2); line-height:1.45; margin-bottom:12px;">
@@ -1164,14 +1164,14 @@
 
         <!-- 3. Department Availability (PL-11) -->
         <div class="m-card">
-          <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; margin:0 0 12px 0; color:var(--text);">Department Availability</h3>
+          <h3 style="font-size:14px; font-weight:700; margin:0 0 12px 0; color:var(--text);">Department Availability</h3>
           ${deptRowsHtml}
         </div>
 
         <!-- 4. Manager Tools (M-17, PL-09) -->
         ${isManager ? `
           <div class="m-card">
-            <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; margin:0 0 10px 0; color:var(--text);">Manager Controls</h3>
+            <h3 style="font-size:14px; font-weight:700; margin:0 0 10px 0; color:var(--text);">Manager Controls</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
               <button id="m-mgr-add-product" style="padding:12px; border-radius:12px; background:var(--surface-2); border:1px solid var(--border); text-align:left; cursor:pointer;">
                 <div style="font-size:16px; margin-bottom:2px;">➕</div>
@@ -1284,7 +1284,7 @@
         <!-- Top bar with Count + Create button -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div>
-            <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; font-weight:700; margin:0; color:var(--text);">Staff & Users (${allCount})</h3>
+            <h3 style="font-size:16px; font-weight:700; margin:0; color:var(--text);">Staff & Users (${allCount})</h3>
             <div style="font-size:12px; color:var(--text-2); margin-top:2px;">Manage system accounts and access</div>
           </div>
           <button id="m-btn-create-user" style="height:36px; padding:0 12px; border-radius:8px; background:var(--primary); color:#fff; border:none; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
@@ -1603,7 +1603,7 @@
     const bodyHtml = `
       <div style="text-align:center; padding:12px 0;">
         <div style="width:48px; height:48px; border-radius:50%; background:var(--success-tint); color:var(--success); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px;">✓</div>
-        <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:17px; font-weight:700; margin:0 0 6px; color:var(--text);">User Created Successfully</h3>
+        <h3 style="font-size:16px; font-weight:700; margin:0 0 6px; color:var(--text);">User Created Successfully</h3>
         <p style="font-size:13px; color:var(--text-2); margin:0 0 16px;"><strong>${escapeHtml(username)}</strong> has been added to MediTrack.</p>
 
         <div style="background:var(--surface-2); border:1.5px dashed var(--primary); border-radius:12px; padding:16px; margin-bottom:12px;">
