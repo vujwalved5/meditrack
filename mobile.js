@@ -676,9 +676,9 @@
 
       ${!isAvail ? `
         <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:14px; font-size:12.5px;">
-          <div>📍 <strong>Location:</strong> ${escapeHtml(deptName)} — ${escapeHtml((state.latestCheckoutRoom && state.latestCheckoutRoom[eq.id]) || 'Ward')}</div>
-          <div style="margin-top:4px;">👤 <strong>Held by:</strong> ${escapeHtml(eq.held_by || 'Unknown')}</div>
-          ${eq.in_use_since ? `<div style="margin-top:4px; color:var(--text-2);">⏱ <strong>In use since:</strong> ${new Date(eq.in_use_since).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</div>` : ''}
+          <div><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-map-pin"/></svg><strong>Location:</strong> ${escapeHtml(deptName)} — ${escapeHtml((state.latestCheckoutRoom && state.latestCheckoutRoom[eq.id]) || 'Ward')}</div>
+          <div style="margin-top:4px;"><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-user"/></svg><strong>Held by:</strong> ${escapeHtml(eq.held_by || 'Unknown')}</div>
+          ${eq.in_use_since ? `<div style="margin-top:4px; color:var(--text-2);"><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-clock"/></svg><strong>In use since:</strong> ${new Date(eq.in_use_since).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</div>` : ''}
         </div>
       ` : ''}
 
@@ -894,8 +894,8 @@
 
               ${canApprove ? `
                 <div class="m-req-actions">
-                  <button class="m-btn-approve m-req-approve-btn" data-reqid="${r.id}" data-eqid="${r.equipment_id}" data-name="${escapeHtml(eqName)}">✓ Approve</button>
-                  <button class="m-btn-reject m-req-reject-btn" data-reqid="${r.id}" data-eqid="${r.equipment_id}" data-name="${escapeHtml(eqName)}">✕ Reject</button>
+                  <button class="m-btn-approve m-req-approve-btn" data-reqid="${r.id}" data-eqid="${r.equipment_id}" data-name="${escapeHtml(eqName)}"><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-check"/></svg>Approve</button>
+                  <button class="m-btn-reject m-req-reject-btn" data-reqid="${r.id}" data-eqid="${r.equipment_id}" data-name="${escapeHtml(eqName)}"><svg class="icon" aria-hidden="true" width="13" height="13" style="vertical-align:-1px;margin-right:2px;"><use href="#i-x"/></svg>Reject</button>
                 </div>
               ` : `
                 <div style="font-size:11.5px; font-style:italic; color:var(--text-2); margin-top:4px;">Awaiting approval by Senior Doctor or Manager</div>
@@ -1066,7 +1066,7 @@
               <span style="font-size:11px; color:var(--text-2);">${e.timestamp ? new Date(e.timestamp).toLocaleString([], { dateStyle:'short', timeStyle:'short' }) : ''}</span>
             </div>
             <div style="color:var(--text-2); font-size:12px;">
-              By <strong>${escapeHtml(e.performed_by || 'Unknown')}</strong> ${e.room ? `· 📍 Location: <strong>${escapeHtml(e.room)}</strong>` : ''}
+              By <strong>${escapeHtml(e.performed_by || 'Unknown')}</strong> ${e.room ? `· <svg class="icon" aria-hidden="true" width="12" height="12" style="vertical-align:-1px;margin-right:2px;"><use href="#i-map-pin"/></svg>Location: <strong>${escapeHtml(e.room)}</strong>` : ''}
             </div>
           </div>
         `).join('')}
@@ -1135,7 +1135,7 @@
 
             <div class="m-account-actions">
               <button class="m-btn-theme-toggle" id="m-more-theme-btn" aria-label="Toggle dark mode">
-                <span>🌙</span>
+                <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-moon"/></svg>
                 <span>Theme</span>
               </button>
               <button class="m-btn-logout" id="m-more-logout-btn">Log out</button>
@@ -1174,13 +1174,13 @@
             <h3 style="font-size:14px; font-weight:700; margin:0 0 10px 0; color:var(--text);">Manager Controls</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
               <button id="m-mgr-add-product" style="padding:12px; border-radius:12px; background:var(--surface-2); border:1px solid var(--border); text-align:left; cursor:pointer;">
-                <div style="font-size:16px; margin-bottom:2px;">➕</div>
+                <div style="margin-bottom:2px;"><svg class="icon" aria-hidden="true" width="20" height="20"><use href="#i-plus"/></svg></div>
                 <div style="font-size:13px; font-weight:700; color:var(--text);">Add Product</div>
                 <div style="font-size:11px; color:var(--text-2);">Auto QR asset tag</div>
               </button>
 
               <button id="m-mgr-print-stickers" style="padding:12px; border-radius:12px; background:var(--surface-2); border:1px solid var(--border); text-align:left; cursor:pointer;">
-                <div style="font-size:16px; margin-bottom:2px;">🖨️</div>
+                <div style="margin-bottom:2px;"><svg class="icon" aria-hidden="true" width="20" height="20"><use href="#i-printer"/></svg></div>
                 <div style="font-size:13px; font-weight:700; color:var(--text);">Print Stickers</div>
                 <div style="font-size:11px; color:var(--text-2);">${equipment.length} labels</div>
               </button>
@@ -1500,8 +1500,9 @@
           </select>
         </div>
 
-        <div style="background:var(--primary-tint); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12px; color:var(--text-2);">
-          💡 A temporary password will be auto-generated and shown once upon creation.
+        <div style="background:var(--primary-tint); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12px; color:var(--text-2); display:inline-flex; align-items:center; gap:6px;">
+          <svg class="icon" aria-hidden="true" width="14" height="14" style="flex-shrink:0;"><use href="#i-info"/></svg>
+          <span>A temporary password will be auto-generated and shown once upon creation.</span>
         </div>
       </form>
     `;
@@ -1602,7 +1603,7 @@
   function openUserCreatedSuccessSheet(username, tempPw) {
     const bodyHtml = `
       <div style="text-align:center; padding:12px 0;">
-        <div style="width:48px; height:48px; border-radius:50%; background:var(--success-tint); color:var(--success); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px;">✓</div>
+        <div style="width:48px; height:48px; border-radius:50%; background:var(--success-tint); color:var(--success); display:flex; align-items:center; justify-content:center; margin:0 auto 12px;"><svg class="icon" aria-hidden="true" width="24" height="24"><use href="#i-check"/></svg></div>
         <h3 style="font-size:16px; font-weight:700; margin:0 0 6px; color:var(--text);">User Created Successfully</h3>
         <p style="font-size:13px; color:var(--text-2); margin:0 0 16px;"><strong>${escapeHtml(username)}</strong> has been added to MediTrack.</p>
 
@@ -1612,11 +1613,11 @@
         </div>
 
         <button id="m-btn-copy-temp-pw" style="width:100%; height:44px; border-radius:10px; background:var(--primary); color:#fff; border:none; font-size:13.5px; font-weight:700; cursor:pointer; margin-bottom:12px; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
-          <span>📋</span> <span id="m-copy-pw-label">Copy Temporary Password</span>
+          <svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-clipboard-list"/></svg> <span id="m-copy-pw-label">Copy Temporary Password</span>
         </button>
 
-        <p style="font-size:11.5px; color:var(--text-2); margin:0; line-height:1.4;">
-          ⚠️ Share this password once with the user — it will not be shown again.
+        <p style="font-size:11.5px; color:var(--text-2); margin:0; line-height:1.4; display:flex; align-items:center; justify-content:center; gap:4px;">
+          <svg class="icon" aria-hidden="true" width="14" height="14" style="flex-shrink:0;"><use href="#i-alert-triangle"/></svg> Share this password once with the user — it will not be shown again.
         </p>
       </div>
     `;
@@ -1675,8 +1676,9 @@
           <div id="m-reset-pw-error" style="font-size:11.5px; color:var(--danger); margin-top:4px; display:none;"></div>
         </div>
 
-        <button type="button" id="m-btn-generate-pw" style="height:36px; padding:0 12px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border); color:var(--primary); font-size:12.5px; font-weight:600; cursor:pointer; align-self:flex-start;">
-          ⚡ Generate Random Password
+        <button type="button" id="m-btn-generate-pw" style="height:36px; padding:0 12px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border); color:var(--primary); font-size:12.5px; font-weight:600; cursor:pointer; align-self:flex-start; display:inline-flex; align-items:center; gap:6px;">
+          <svg class="icon" aria-hidden="true" width="14" height="14"><use href="#i-sparkles"/></svg>
+          <span>Generate Random Password</span>
         </button>
       </form>
     `;
@@ -1783,7 +1785,7 @@
         </div>
         <div class="m-viewfinder-overlay">
           <span>Rear Camera</span>
-          <button class="m-torch-btn" id="m-torch-btn" style="display:none;">🔦 Torch</button>
+          <button class="m-torch-btn" id="m-torch-btn" style="display:none;"><svg class="icon" aria-hidden="true" width="14" height="14" style="vertical-align:-2px;margin-right:4px;"><use href="#i-sun"/></svg>Torch</button>
         </div>
       </div>
 
@@ -1862,7 +1864,9 @@
               torchBtn.onclick = () => {
                 torchOn = !torchOn;
                 track.applyConstraints({ advanced: [{ torch: torchOn }] });
-                torchBtn.textContent = torchOn ? '🔦 Torch On' : '🔦 Torch Off';
+                torchBtn.innerHTML = torchOn
+                  ? '<svg class="icon" aria-hidden="true" width="14" height="14" style="vertical-align:-2px;margin-right:4px;"><use href="#i-sun"/></svg>Torch On'
+                  : '<svg class="icon" aria-hidden="true" width="14" height="14" style="vertical-align:-2px;margin-right:4px;"><use href="#i-sun"/></svg>Torch Off';
               };
             }
           }
@@ -2196,7 +2200,7 @@
           if (conflictNotice) {
             conflictNotice.style.display = 'block';
             conflictNotice.innerHTML = `
-              <div class="m-conflict-title">⚠️ Status Changed Live</div>
+              <div class="m-conflict-title" style="display:inline-flex; align-items:center; gap:6px;"><svg class="icon" aria-hidden="true" width="16" height="16"><use href="#i-alert-triangle"/></svg>Status Changed Live</div>
               <div>This item was just marked In Use by <strong>${escapeHtml(currentEq.held_by || 'another user')}</strong>.</div>
             `;
           }

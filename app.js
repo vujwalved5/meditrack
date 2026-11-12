@@ -1242,7 +1242,7 @@ initTheme();
       const text = document.getElementById('ai-collapse-text');
       if (body) body.style.display = aiInsightsCollapsed ? 'none' : 'block';
       if (btn)  btn.setAttribute('aria-expanded', aiInsightsCollapsed ? 'false' : 'true');
-      if (icon) icon.textContent = aiInsightsCollapsed ? '\u25bc' : '\u25b2';
+      if (icon) icon.innerHTML = `<svg class="icon" aria-hidden="true" width="12" height="12"><use href="${aiInsightsCollapsed ? '#i-chevron-down' : '#i-chevron-up'}"/></svg>`;
       if (text) text.textContent = aiInsightsCollapsed ? 'Expand' : 'Collapse';
 
       try {
@@ -1461,7 +1461,7 @@ initTheme();
 
       let bodyHtml;
       if (items.length === 0) {
-        bodyHtml = '<div class="ai-all-clear" style="padding:16px 0;font-size:13px;color:var(--st-available-fg);">✓ All equipment is within normal hold times.</div>';
+        bodyHtml = '<div class="ai-all-clear" style="padding:16px 0;font-size:13px;color:var(--st-available-fg);display:inline-flex;align-items:center;gap:6px;"><svg class="icon" aria-hidden="true" width="14" height="14"><use href="#i-check"/></svg>All equipment is within normal hold times.</div>';
       } else {
         bodyHtml = '<div class="ai-forgotten-list" style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">' +
           items.map(item => {
@@ -1557,7 +1557,7 @@ initTheme();
                   Move ${esc(rec.equipment_name || rec.type_display || '')}: ${esc(rec.from_department)} → ${esc(rec.to_department)}
                 </div>
                 ${rationale ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;line-height:1.4;">${esc(rationale)}</div>` : ''}
-                ${caveat ? `<div style="font-size:12px;color:var(--st-attention-fg);margin-bottom:4px;">⚠️ ${esc(caveat)}</div>` : ''}
+                ${caveat ? `<div style="font-size:12px;color:var(--st-attention-fg);margin-bottom:4px;"><svg class="icon" aria-hidden="true" width="14" height="14" style="vertical-align:middle;margin-right:4px;"><use href="#i-alert-triangle"/></svg>${esc(caveat)}</div>` : ''}
                 ${evidenceChips}
               </div>
             `;
@@ -1594,7 +1594,7 @@ initTheme();
       const text = document.getElementById('ai-collapse-text');
       if (body) body.style.display = aiInsightsCollapsed ? 'none' : 'block';
       if (btn) btn.setAttribute('aria-expanded', aiInsightsCollapsed ? 'false' : 'true');
-      if (icon) icon.textContent = aiInsightsCollapsed ? '\u25bc' : '\u25b2';
+      if (icon) icon.innerHTML = `<svg class="icon" aria-hidden="true" width="12" height="12"><use href="${aiInsightsCollapsed ? '#i-chevron-down' : '#i-chevron-up'}"/></svg>`;
       if (text) text.textContent = aiInsightsCollapsed ? 'Expand' : 'Collapse';
     }
 
@@ -2256,17 +2256,22 @@ initTheme();
     // PRODUCT TYPES — v3
     // ==========================================
 
-    const PT_EMOJI = {
-      'ventilator':       '🫁',
-      'wheelchair':       '♿',
-      'infusion pump':    '💉',
-      'defibrillator':    '⚡',
-      'portable monitor': '🖥️',
+    const PT_ICONS = {
+      'ventilator':       '#i-activity',
+      'wheelchair':       '#i-boxes',
+      'infusion pump':    '#i-activity',
+      'defibrillator':    '#i-sparkles',
+      'portable monitor': '#i-monitor',
     };
 
+    function getPtIcon(name) {
+      if (!name) return '#i-boxes';
+      return PT_ICONS[name.toLowerCase()] || '#i-boxes';
+    }
+
     function getPtEmoji(name) {
-      if (!name) return '🏥';
-      return PT_EMOJI[name.toLowerCase()] || '🏥';
+      const iconId = getPtIcon(name);
+      return '<svg class="icon" aria-hidden="true" width="24" height="24"><use href="' + iconId + '"/></svg>';
     }
 
     async function loadProductTypes() {
@@ -2302,7 +2307,7 @@ initTheme();
         grid.classList.toggle('collapsed', tilesCollapsed);
         const iconEl = document.getElementById('tiles-collapse-icon');
         const textEl = document.getElementById('tiles-collapse-text');
-        if (iconEl) iconEl.textContent = tilesCollapsed ? '\u25bc' : '\u25b2';
+        if (iconEl) iconEl.innerHTML = `<svg class="icon" aria-hidden="true" width="12" height="12"><use href="${tilesCollapsed ? '#i-chevron-down' : '#i-chevron-up'}"/></svg>`;
         if (textEl) textEl.textContent = tilesCollapsed ? 'Expand' : 'Collapse';
 
         grid.innerHTML = '';
@@ -2457,11 +2462,11 @@ initTheme();
         if (th && icon) {
           if (currentEqSortCol === col) {
             th.setAttribute('aria-sort', currentEqSortDir === 'asc' ? 'ascending' : 'descending');
-            icon.textContent = currentEqSortDir === 'asc' ? '▲' : '▼';
+            icon.innerHTML = `<svg class="icon" aria-hidden="true" width="12" height="12"><use href="${currentEqSortDir === 'asc' ? '#i-chevron-up' : '#i-chevron-down'}"/></svg>`;
             icon.classList.add('active');
           } else {
             th.setAttribute('aria-sort', 'none');
-            icon.textContent = '↕';
+            icon.innerHTML = '';
             icon.classList.remove('active');
           }
         }
@@ -2753,7 +2758,7 @@ initTheme();
       if (isAvail) {
         toggleSection = '<button class="btn-toggle-status" onclick="manualToggle(' + eq.id + ')">Mark In Use</button>';
       } else {
-        toggleSection = '<button class="btn-release-status" onclick="manualToggle(' + eq.id + ')">✔ Release</button>';
+        toggleSection = '<button class="btn-release-status" onclick="manualToggle(' + eq.id + ')"><svg class="icon" aria-hidden="true" width="14" height="14" style="vertical-align:middle;margin-right:4px;"><use href="#i-check"/></svg>Release</button>';
       }
 
       // Audit log link (non-staff)
@@ -2797,7 +2802,7 @@ initTheme();
         const h = r.querySelector('.eq-row-line, .eq-row-header, .eq-row-summary');
         if (h) h.setAttribute('aria-expanded', 'false');
         const chev = r.querySelector('.eq-chevron');
-        if (chev) chev.textContent = '▶';
+        if (chev) chev.innerHTML = '<svg class="icon" aria-hidden="true" width="14" height="14"><use href="#i-chevron-right"/></svg>';
         const d = r.querySelector('.eq-row-details');
         if (d) d.style.display = 'none';
       });
@@ -2809,7 +2814,7 @@ initTheme();
         const h = row.querySelector('.eq-row-line, .eq-row-header, .eq-row-summary');
         if (h) h.setAttribute('aria-expanded', 'true');
         const chev = row.querySelector('.eq-chevron');
-        if (chev) chev.textContent = '▼';
+        if (chev) chev.innerHTML = '<svg class="icon" aria-hidden="true" width="14" height="14"><use href="#i-chevron-down"/></svg>';
         const d = row.querySelector('.eq-row-details');
         if (d) d.style.display = 'block';
         openEqRowId = eqId;
@@ -3524,8 +3529,10 @@ initTheme();
     } catch (e) {}
 
     function getSortIndicator(col, currentCol, currentDir) {
-      if (col !== currentCol) return '<span style="opacity:0.3;margin-left:4px;">↕</span>';
-      return currentDir === 'asc' ? '<span style="color:var(--brand-600);margin-left:4px;">▲</span>' : '<span style="color:var(--brand-600);margin-left:4px;">▼</span>';
+      if (col !== currentCol) return '<span style="opacity:0.3;margin-left:4px;"></span>';
+      return currentDir === 'asc'
+        ? '<span style="color:var(--brand-600);margin-left:4px;"><svg class="icon" aria-hidden="true" width="12" height="12"><use href="#i-chevron-up"/></svg></span>'
+        : '<span style="color:var(--brand-600);margin-left:4px;"><svg class="icon" aria-hidden="true" width="12" height="12"><use href="#i-chevron-down"/></svg></span>';
     }
 
     function setAuditSort(col) {

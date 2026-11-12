@@ -36,17 +36,17 @@
   --primary-strong: #2548C4;
   --primary-tint: #E9EEFD;
 
-  --success: #16A34A;
+  --success: #166534;
   --success-tint: #E7F6EC;
-  --danger: #DC2626;
+  --danger: #B91C1C;
   --danger-tint: #FDECEC;
-  --warning: #D97706;
+  --warning: #92400E;
   --warning-tint: #FEF3E2;
-  --neutral: #6B7280;
+  --neutral: #4B5563;
   --neutral-tint: #EEF0F3;
 
   /* Both Themes */
-  --grad-highlight: linear-gradient(135deg, #2F5BEA 0%, #4C7BFF 100%);
+  --grad-highlight: var(--surface);
   --r-card: 16px;
   --r-ctl: 10px;
   --r-pill: 999px;
@@ -72,9 +72,9 @@
   --manager-bg: var(--primary-tint);
   --manager-border: var(--primary);
 
-  --srdoctor-color: var(--warning);
-  --srdoctor-bg: var(--warning-tint);
-  --srdoctor-border: var(--warning);
+  --srdoctor-color: #4338CA;
+  --srdoctor-bg: #EEF2FF;
+  --srdoctor-border: #C7D2FE;
 
   --staff-color: var(--neutral);
   --staff-bg: var(--neutral-tint);
@@ -178,7 +178,11 @@
   --neutral: #9CA3AF;
   --neutral-tint: #2A2C31;
 
-  --grad-highlight: linear-gradient(135deg, #2F5BEA 0%, #4C7BFF 100%);
+  --srdoctor-color: #818CF8;
+  --srdoctor-bg: #1E1B4B;
+  --srdoctor-border: #3730A3;
+
+  --grad-highlight: var(--surface);
   --r-card: 16px;
   --r-ctl: 10px;
   --r-pill: 999px;
@@ -210,7 +214,11 @@
     --neutral: #9CA3AF;
     --neutral-tint: #2A2C31;
 
-    --grad-highlight: linear-gradient(135deg, #2F5BEA 0%, #4C7BFF 100%);
+    --srdoctor-color: #818CF8;
+    --srdoctor-bg: #1E1B4B;
+    --srdoctor-border: #3730A3;
+
+    --grad-highlight: var(--surface);
     --r-card: 16px;
     --r-ctl: 10px;
     --r-pill: 999px;
@@ -324,8 +332,9 @@
 
     .login-brand-panel {
       flex: 1;
-      background: var(--grad-highlight);
-      color: #FFFFFF;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      color: var(--text);
       padding: 48px 64px;
       display: flex;
       flex-direction: column;
@@ -337,19 +346,19 @@
       width: 44px;
       height: 44px;
       border-radius: var(--r-ctl);
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: var(--primary-tint);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 24px;
-      color: #FFFFFF;
+      color: var(--primary);
       flex-shrink: 0;
     }
     .login-brand-logo svg {
       width: 24px;
       height: 24px;
-      color: #FFFFFF;
+      color: var(--primary);
     }
 
     .login-brand-name {
@@ -357,14 +366,14 @@
       font-weight: 600;
       letter-spacing: -0.02em;
       margin-bottom: 12px;
-      color: #FFFFFF;
+      color: var(--text);
     }
 
     .login-brand-tagline {
       font-size: 16px;
       font-weight: 400;
       line-height: 1.5;
-      color: rgba(255, 255, 255, 0.85);
+      color: var(--text-2);
       margin-bottom: 32px;
       max-width: 440px;
     }
@@ -381,7 +390,7 @@
     .login-brand-points li {
       font-size: 14px;
       font-weight: 500;
-      color: #FFFFFF;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 12px;
@@ -389,7 +398,7 @@
     .login-brand-points li svg {
       width: 20px;
       height: 20px;
-      color: #FFFFFF;
+      color: var(--primary);
       flex-shrink: 0;
     }
 
@@ -688,11 +697,6 @@
       height: 6px;
       border-radius: 50%;
       background: var(--success);
-      animation: pulse-live 2s infinite ease-in-out;
-    }
-    @keyframes pulse-live {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
     }
 
     .header-icon-btn {
@@ -996,32 +1000,33 @@
     }
 
     .kpi-chip {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
+      width: 20px;
+      height: 20px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      background: transparent;
+      border: none;
     }
 
     .kpi-chip-green {
-      background: var(--success-tint);
+      background: transparent;
       color: var(--success);
     }
 
     .kpi-chip-red {
-      background: var(--danger-tint);
+      background: transparent;
       color: var(--danger);
     }
 
     .kpi-chip-amber {
-      background: var(--warning-tint);
+      background: transparent;
       color: var(--warning);
     }
 
     .kpi-chip-primary {
-      background: var(--primary-tint);
+      background: transparent;
       color: var(--primary);
     }
 
@@ -2037,12 +2042,12 @@
 
     /* 3. Request Queue Card (#requests-panel) */
     .request-queue-card {
-      background: var(--grad-highlight);
-      color: #FFFFFF;
+      background: var(--surface);
+      color: var(--text);
       border-radius: var(--r-card);
       padding: 16px;
-      border: none;
-      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border);
+      box-shadow: none;
     }
 
     .req-queue-header {
@@ -2055,19 +2060,19 @@
     .req-queue-title {
       font-size: 16px;
       font-weight: 600;
-      color: #FFFFFF;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
     .req-queue-title svg {
-      color: #FFFFFF;
+      color: var(--primary);
     }
 
     .req-count-pill {
-      background: rgba(255, 255, 255, 0.20);
-      color: #FFFFFF;
+      background: var(--primary-tint);
+      color: var(--primary);
       font-size: 12px;
       font-weight: 600;
       padding: 2px 8px;
@@ -2083,9 +2088,9 @@
     }
 
     .req-stat-tile {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--surface-2);
       border-radius: var(--r-ctl);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid var(--border);
       padding: 10px 14px;
       text-align: left;
     }
@@ -2093,14 +2098,14 @@
     .req-stat-num {
       font-size: 24px;
       font-weight: 600;
-      color: #FFFFFF;
+      color: var(--text);
       line-height: 1.2;
       font-variant-numeric: tabular-nums;
     }
 
     .req-stat-label {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.80);
+      color: var(--text-2);
       margin-top: 2px;
     }
 
@@ -2118,12 +2123,12 @@
     }
 
     .req-queue-list::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--surface-2);
       border-radius: 2px;
     }
 
     .req-queue-list::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.3);
+      background: var(--border);
       border-radius: 2px;
     }
 
@@ -2132,8 +2137,8 @@
       border-radius: 0;
       padding: 12px 4px;
       border: none;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-      color: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
       margin-bottom: 0;
       transition: background-color 150ms ease;
     }
@@ -2143,15 +2148,15 @@
     }
 
     .request-item.urgent {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--danger-tint);
       border: none;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      border-bottom: 1px solid var(--border);
     }
 
     .request-eq-name {
       font-size: 14px;
       font-weight: 600;
-      color: #FFFFFF;
+      color: var(--text);
       margin-bottom: 4px;
       display: flex;
       align-items: center;
@@ -2161,7 +2166,7 @@
 
     .request-meta {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.80);
+      color: var(--text-2);
     }
 
     .urgent-flag {
@@ -2170,8 +2175,8 @@
       gap: 4px;
       padding: 2px 6px;
       border-radius: var(--r-pill);
-      background: #FFFFFF;
-      color: var(--warning);
+      background: var(--danger-tint);
+      color: var(--danger);
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.04em;
@@ -2187,9 +2192,9 @@
       flex: 1;
       height: 32px;
       border-radius: var(--r-ctl);
-      border: none;
-      background: #FFFFFF;
-      color: var(--primary);
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #FFFFFF;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
@@ -2205,9 +2210,21 @@
       flex: 1;
       height: 32px;
       border-radius: var(--r-ctl);
-      border: 1px solid rgba(255, 255, 255, 0.50);
-      background: transparent;
-      color: #FFFFFF;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+
+    .btn-reject:hover {
+      background: var(--danger-tint);
+      color: var(--danger);
+      border-color: var(--danger);
+    }
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
@@ -2811,7 +2828,7 @@
 
     .role-chip.role-doctor::before,
     .role-chip.seniordoctor::before {
-      background: var(--warning);
+      background: var(--srdoctor-color);
     }
 
     .role-chip.role-staff::before,
@@ -3348,10 +3365,10 @@
       to { opacity: 1; transform: translateX(0); }
     }
 
-    .toast.success { border-left: 3px solid var(--success); }
-    .toast.error { border-left: 3px solid var(--danger); }
-    .toast.info { border-left: 3px solid var(--primary); }
-    .toast.warning { border-left: 3px solid var(--warning); }
+    .toast.success { border-color: var(--border); }
+    .toast.error { border-color: var(--danger); }
+    .toast.info { border-color: var(--border); }
+    .toast.warning { border-color: var(--border); }
 
     @media (max-width: 639px) {
       .toast-container {
@@ -3426,7 +3443,18 @@
       background: var(--primary-tint);
     }
     .product-tile.dimmed {
-      opacity: 0.55;
+      opacity: 1;
+      border: 1.5px dashed var(--border);
+      background: var(--surface-2);
+    }
+    .product-tile.dimmed .pt-name {
+      color: var(--text);
+    }
+    .product-tile.dimmed .pt-summary {
+      color: var(--text-2);
+    }
+    .product-tile.dimmed .pt-img-wrap {
+      opacity: 0.7;
     }
 
     /* ── Product-tile image wrapper: fixed 40×40, never overflows ── */
