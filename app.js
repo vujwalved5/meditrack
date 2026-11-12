@@ -23,6 +23,10 @@ function isDark() {
 }
 
 function toggleTheme() {
+  if (typeof cycleTheme === 'function') {
+    cycleTheme();
+    return;
+  }
   const nextTheme = isDark() ? "light" : "dark";
   try {
     localStorage.setItem("meditrack_theme", nextTheme);
@@ -457,8 +461,8 @@ initTheme();
       show({ message, htmlMessage = null, type = 'info', duration = 4000, onUndo = null }) {
         const c = this.ensureContainer();
         const toast = document.createElement('div');
-        toast.className = `toast-item toast-${type}`;
-        toast.setAttribute('role', 'status');
+        toast.className = `toast ${type || 'info'} toast-item toast-${type || 'info'}`;
+        toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
         let undoBtn = onUndo ? `<button type="button" class="toast-undo-btn">Undo</button>` : '';
         const msgContent = htmlMessage !== null ? htmlMessage : esc(message);
         toast.innerHTML = `<span class="toast-msg">${msgContent}</span>${undoBtn}<button type="button" class="toast-close-btn" aria-label="Dismiss notification">&times;</button>`;
@@ -520,17 +524,6 @@ initTheme();
       const isOpen = menu.classList.contains('show');
       menu.classList.toggle('show', !isOpen);
       if (btn) btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
-    }
-
-    function doLogout() {
-      clearSession();
-      const menu = document.getElementById('avatar-menu');
-      if (menu) menu.classList.remove('show');
-      document.getElementById('app-screen').style.display = 'none';
-      document.getElementById('login-screen').style.display = 'flex';
-      document.getElementById('login-username').value = '';
-      document.getElementById('login-password').value = '';
-      showToast('Logged out successfully.', 'info');
     }
 
     function updateLiveBadge(state = 'connected') {
@@ -811,28 +804,36 @@ initTheme();
         effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
       root.setAttribute('data-theme', effective);
+      root.dataset.theme = effective;
       if (metaColor) metaColor.setAttribute('content', effective === 'dark' ? '#0B1220' : '#F5F7FA');
       // Update all toggle button icons
       const iconId = effective === 'dark' ? '#i-moon' : ((!theme || theme === 'system') ? '#i-monitor' : '#i-sun');
       document.querySelectorAll('.theme-toggle svg').forEach(svg => {
         svg.innerHTML = `<use href="${iconId}"/>`;
       });
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.setAttribute('aria-pressed', String(effective === 'dark'));
+      }
     }
 
     function cycleTheme() {
       let current;
-      try { current = localStorage.getItem('theme'); } catch(e) { current = null; }
-      const next = current === 'light' ? 'dark' : current === 'dark' ? null : 'light';
+      try { current = localStorage.getItem('meditrack_theme'); } catch(e) { current = null; }
+      const next = current === 'light' ? 'dark' : current === 'dark' ? 'system' : 'light';
       try {
-        if (next) { localStorage.setItem('theme', next); }
-        else { localStorage.removeItem('theme'); }
+        localStorage.setItem('meditrack_theme', next);
       } catch(e) {}
       _applyTheme(next);
+      const textEl = document.getElementById('menu-theme-text');
+      if (textEl) {
+        textEl.textContent = next === 'dark' ? 'Switch to Light' : (next === 'light' ? 'Switch to System' : 'Switch to Dark');
+      }
     }
 
     // Apply correct icon on page load (theme already set by inline head script)
     document.addEventListener('DOMContentLoaded', function() {
-      let t; try { t = localStorage.getItem('theme'); } catch(e) { t = null; }
+      let t; try { t = localStorage.getItem('meditrack_theme'); } catch(e) { t = null; }
       _applyTheme(t);
     });
 
@@ -843,6 +844,8 @@ initTheme();
       stopDurationTimers();
       if (typeof stopWeeklyPolling === 'function') stopWeeklyPolling();
       if (window.weeklyCdTicker) { clearInterval(window.weeklyCdTicker); window.weeklyCdTicker = null; }
+      const menu = document.getElementById('avatar-menu');
+      if (menu) menu.classList.remove('show');
       document.getElementById('login-username').value = '';
       document.getElementById('login-password').value = '';
       document.getElementById('login-error').classList.remove('show');
@@ -864,6 +867,7 @@ initTheme();
       allAuditLogs = {};
       openEqRowId = null;
       openAuditRowId = null;
+      showToast('Logged out successfully.', 'info');
     }
 
     // ==========================================
@@ -1025,6 +1029,8 @@ initTheme();
     let currentRequestEquipmentId = null;
     let html5Scanner = null;
     let scannerActive = false;
+    let scannerStarting = false;
+    let scannerShouldRun = false;
     let scanCooldown = false;
     let openEqRowId = null; // Currently open accordion row id
 
@@ -2993,6 +2999,13 @@ initTheme();
         delete latestCheckoutRoom[eq.id];
       }
 
+      // Optimistically update local equipment object and re-render immediately
+      const targetEq = allEquipment.find(e => e.id === eq.id) || eq;
+      Object.assign(targetEq, updateData);
+      renderEquipment();
+      updateStats();
+      renderProductTiles();
+
       return true;
     }
 
@@ -3020,7 +3033,9 @@ initTheme();
       const sel = document.getElementById('room-picker-select');
       const room = sel ? sel.value : null;
       const cb = roomPickerCallback;
-      cancelRoomPicker();
+      document.getElementById('room-picker-modal').style.display = 'none';
+      roomPickerCallback = null;
+      scanCooldown = false;
       if (cb) cb(room);
     }
 
@@ -3029,6 +3044,13 @@ initTheme();
       roomPickerCallback = null;
       // Reset scan cooldown so user can retry immediately after cancelling
       scanCooldown = false;
+      if (html5Scanner && scannerActive) {
+        try {
+          html5Scanner.resume();
+        } catch (e) {
+          console.warn('Resume error on room picker cancel:', e);
+        }
+      }
     }
 
     // ==========================================
@@ -3057,46 +3079,174 @@ initTheme();
     // ==========================================
     // QR SCANNER
     // ==========================================
+    let scannerCloseTimer = null;
+
     function openScanner() {
-      document.getElementById('scanner-modal').style.display = 'flex';
-      document.getElementById('scan-result').innerHTML = '';
+      if (scannerCloseTimer) {
+        clearTimeout(scannerCloseTimer);
+        scannerCloseTimer = null;
+      }
+      scanCooldown = false;
+      const modal = document.getElementById('scanner-modal');
+      if (modal) modal.style.display = 'flex';
+      const scanResult = document.getElementById('scan-result');
+      if (scanResult) scanResult.innerHTML = '';
+      const manualInput = document.getElementById('manual-qr');
+      if (manualInput) manualInput.value = '';
       hideConflict();
       startScanner();
     }
 
     function closeScanner() {
+      if (scannerCloseTimer) {
+        clearTimeout(scannerCloseTimer);
+        scannerCloseTimer = null;
+      }
+      scannerShouldRun = false;
       stopScanner();
-      document.getElementById('scanner-modal').style.display = 'none';
+      const modal = document.getElementById('scanner-modal');
+      if (modal) modal.style.display = 'none';
       hideConflict();
     }
 
-    function startScanner() {
-      if (scannerActive) return;
-      scannerActive = true;
+    async function startScanner() {
+      if (scannerActive || scannerStarting) return;
+
+      const isSecure = (typeof window !== 'undefined' && window.isSecureContext) ?? (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      if (!isSecure) {
+        showScanResult('Camera access requires a secure connection (HTTPS or localhost). Please enter the asset ID manually below.', 'error');
+        const manualInput = document.getElementById('manual-qr');
+        if (manualInput) {
+          setTimeout(() => manualInput.focus(), 60);
+        }
+        return;
+      }
+
+      scannerShouldRun = true;
+      scannerStarting = true;
       const container = document.getElementById('scanner-container');
-      container.innerHTML = '';
+      if (container) container.innerHTML = '';
+
+      const qrConfig = {
+        fps: 10,
+        qrbox: (w, h) => {
+          const s = Math.floor(Math.min(w, h) * 0.7);
+          return { width: s, height: s };
+        }
+      };
+
       html5Scanner = new Html5Qrcode('scanner-container');
+
+      const onStartSuccess = () => {
+        scannerStarting = false;
+        if (!scannerShouldRun) {
+          // Modal was closed while camera start promise was pending
+          if (html5Scanner) {
+            const scanner = html5Scanner;
+            html5Scanner = null;
+            scannerActive = false;
+            try {
+              scanner.stop().then(() => {
+                try { scanner.clear(); } catch(e) {}
+              }).catch(() => {
+                try { scanner.clear(); } catch(e) {}
+              });
+            } catch (e) {
+              try { scanner.clear(); } catch(e2) {}
+            }
+          }
+          return;
+        }
+        scannerActive = true;
+      };
+
+      const handleCameraError = (err) => {
+        scannerStarting = false;
+        scannerActive = false;
+        html5Scanner = null;
+
+        const errStr = (err && (err.message || err.name || String(err))) || '';
+        const errLower = errStr.toLowerCase();
+
+        let userMsg = '';
+        if (errLower.includes('notallowed') || errLower.includes('permission')) {
+          userMsg = 'Camera permission denied. Please allow camera access in your browser settings or enter the asset ID manually.';
+        } else if (errLower.includes('notfound') || errLower.includes('devicesnotfound') || errLower.includes('no camera') || errLower.includes('requested device not found')) {
+          userMsg = 'No camera device found on this device. Please enter the asset ID manually below.';
+        } else {
+          userMsg = 'Camera error: ' + errStr + '. Please enter the asset ID manually below.';
+        }
+
+        showScanResult(userMsg, 'error');
+        const manualInput = document.getElementById('manual-qr');
+        if (manualInput) {
+          setTimeout(() => manualInput.focus(), 60);
+        }
+      };
+
+      // 1. Try environment camera first
       html5Scanner.start(
         { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: (w, h) => {
-            const s = Math.floor(Math.min(w, h) * 0.7);
-            return { width: s, height: s };
-          }
-        },
+        qrConfig,
         (decoded) => onScanSuccess(decoded),
         () => {}
-      ).catch(err => {
-        showScanResult('Camera error: ' + err + '. Please allow camera access.', 'error');
-        scannerActive = false;
+      ).then(() => {
+        onStartSuccess();
+      }).catch(async (envErr) => {
+        console.warn('Environment camera failed, attempting getCameras fallback:', envErr);
+        if (!scannerShouldRun) {
+          scannerStarting = false;
+          html5Scanner = null;
+          return;
+        }
+
+        // 2. Fallback to Html5Qrcode.getCameras()
+        try {
+          const devices = await Html5Qrcode.getCameras();
+          if (!devices || devices.length === 0) {
+            handleCameraError(new Error('No camera device found'));
+            return;
+          }
+          if (!scannerShouldRun) {
+            scannerStarting = false;
+            html5Scanner = null;
+            return;
+          }
+          const backCam = devices.find(d => /back|rear|environment/i.test(d.label || ''));
+          const chosenId = backCam ? backCam.id : devices[0].id;
+
+          await html5Scanner.start(
+            chosenId,
+            qrConfig,
+            (decoded) => onScanSuccess(decoded),
+            () => {}
+          );
+          onStartSuccess();
+        } catch (fallbackErr) {
+          handleCameraError(fallbackErr || envErr);
+        }
       });
     }
 
     function stopScanner() {
-      if (html5Scanner && scannerActive) {
-        html5Scanner.stop().then(() => { html5Scanner.clear(); html5Scanner = null; scannerActive = false; })
-          .catch(() => { html5Scanner = null; scannerActive = false; });
+      scannerShouldRun = false;
+      if (html5Scanner) {
+        const scanner = html5Scanner;
+        html5Scanner = null;
+        scannerActive = false;
+        try {
+          scanner.stop().then(() => {
+            try { scanner.clear(); } catch(e) {}
+          }).catch(err => {
+            console.warn('Error stopping scanner:', err);
+            try { scanner.clear(); } catch(e) {}
+          });
+        } catch (err) {
+          console.warn('Sync error stopping scanner:', err);
+          try { scanner.clear(); } catch(e) {}
+        }
+      } else {
+        scannerActive = false;
       }
     }
 
@@ -3105,10 +3255,12 @@ initTheme();
       scanCooldown = true;
       setTimeout(() => { scanCooldown = false; }, 3000);
 
-      const trimmed = qrCodeId.trim();
-      const eq = allEquipment.find(e => e.qr_code_id === trimmed);
+      const trimmed = (qrCodeId || '').trim();
+      const normalized = trimmed.toLowerCase();
+      const eq = allEquipment.find(e => (e.qr_code_id || '').trim().toLowerCase() === normalized);
       if (!eq) {
-        showScanResult('Unknown QR: "' + esc(trimmed) + '" — not in system.', 'error');
+        showScanResult('Unknown QR code: "' + esc(trimmed) + '" — not found in system.', 'error');
+        showToast('Unknown QR code: "' + esc(trimmed) + '"', 'error');
         return;
       }
 
@@ -3131,7 +3283,10 @@ initTheme();
       hideConflict();
 
       if (eq.status === 'Available') {
-        // v4: Available → In Use — show room picker first, then toggle
+        // v4: Available → In Use — pause scanner while room picker is open
+        if (html5Scanner && scannerActive) {
+          try { html5Scanner.pause(true); } catch(e) { console.warn('Pause error:', e); }
+        }
         showScanResult('Found: ' + esc(eq.name) + ' — select a room to continue.', 'success');
         showRoomPicker(eq, async (room) => {
           showScanResult('Found: ' + esc(eq.name) + ' — updating...', 'success');
@@ -3140,17 +3295,30 @@ initTheme();
             const roomLabel = room ? ' (' + room + ')' : '';
             showScanResult(esc(eq.name) + ' is now In Use' + roomLabel + '. Audit log updated.', 'success');
             showToast(eq.name + ' marked In Use' + roomLabel, 'success');
-            setTimeout(() => closeScanner(), 2000);
+            stopScanner();
+            scannerCloseTimer = setTimeout(() => closeScanner(), 1500);
+          } else {
+            if (html5Scanner && scannerActive) {
+              try { html5Scanner.resume(); } catch(e) {}
+            }
           }
         });
       } else {
-        // In Use → Available (release) — no room prompt
+        // In Use → Available (release) — pause scanner during release processing
+        if (html5Scanner && scannerActive) {
+          try { html5Scanner.pause(true); } catch(e) {}
+        }
         showScanResult('Found: ' + esc(eq.name) + ' — releasing...', 'success');
         const ok = await doToggle(eq, currentUser.username, null);
         if (ok) {
           showScanResult(esc(eq.name) + ' released. Audit log updated.', 'success');
           showToast(eq.name + ' released', 'success');
-          setTimeout(() => closeScanner(), 2000);
+          stopScanner();
+          scannerCloseTimer = setTimeout(() => closeScanner(), 1500);
+        } else {
+          if (html5Scanner && scannerActive) {
+            try { html5Scanner.resume(); } catch(e) {}
+          }
         }
       }
     }
@@ -4590,20 +4758,6 @@ initTheme();
       if (cb) cb();
     }
 
-    function showToast(msg, type) {
-      const c = document.getElementById('toast-container');
-      const t = document.createElement('div');
-      t.className = 'toast ' + (type || 'info');
-      t.textContent = msg;
-      if (type === 'error') t.setAttribute('role', 'alert');
-      c.appendChild(t);
-      setTimeout(() => {
-        t.style.transition = 'opacity 300ms';
-        t.style.opacity = '0';
-        setTimeout(() => t.remove(), 310);
-      }, (type === 'error' || type === 'warning') ? 8000 : 5000);
-    }
-
     // ==========================================
     // KEYBOARD / OVERLAY CLOSE
     // ==========================================
@@ -4660,8 +4814,9 @@ initTheme();
         input.focus();
         return;
       }
-      const match = allEquipment.find(e => (e.qr_code_id || '').toLowerCase() === value.toLowerCase());
+      const match = allEquipment.find(e => (e.qr_code_id || '').trim().toLowerCase() === value.toLowerCase());
       input.value = '';
+      scanCooldown = false;
       onScanSuccess(match ? match.qr_code_id : value);
     }
 

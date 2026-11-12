@@ -105,7 +105,7 @@ DECLARE
 BEGIN
   SELECT * INTO user_row
   FROM users
-  WHERE username = username_param
+  WHERE lower(username) = lower(username_param)
     AND is_active = true;
 
   IF NOT FOUND THEN
@@ -164,6 +164,19 @@ INSERT INTO users (username, password_hash, role, department_id, is_active)
 VALUES (
   'admin',
   '$2a$10$wT/pS3zB59p5gC4j9rYc3u3D/Hk39GIfqI80YlQj1q8n9/gN6/1S2',
+  'Manager',
+  NULL,
+  true
+)
+ON CONFLICT (username) DO NOTHING;
+
+-- Admin1 Account:
+-- Username: Admin1
+-- Role: Manager
+INSERT INTO users (username, password_hash, role, department_id, is_active)
+VALUES (
+  'Admin1',
+  crypt('Admin@123', gen_salt('bf', 10)),
   'Manager',
   NULL,
   true

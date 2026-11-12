@@ -9,9 +9,11 @@ _archive/
 # Android build artifacts
 android-app/build/
 android-app/app/build/
+android-app/app/release/
 android-app/.gradle/
 android-app/.idea/
 android-app/local.properties
+*.apk
 
 # Supabase local
 supabase/.temp/
@@ -82,3 +84,9 @@ docs/mobile/MOBILE_UI_SPEC.md.txt
 docs/mobile/meditrack_mobile_ui_design.html.html
 docs/mobile/reference/
 docs/mobile/screens/
+
+# Reports, templates, and report generation artifacts
+MediTrack_Report/
+TEP_Report_Template/
+pdftotext*.txt
+
