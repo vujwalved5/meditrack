@@ -93,3 +93,12 @@ MediTrack_Report/
 TEP_Report_Template/
 pdftotext*.txt
 
+# MagicPath scratch & download directories
+magicpath-project/
+theame code.txt
+
+# Design, planning & screenshots
+PLAN.md
+.impeccable/
+
+

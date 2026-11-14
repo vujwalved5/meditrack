@@ -8,6 +8,9 @@
   <meta name="description" content="Real-time hospital equipment visibility with role-based access control." />
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#F5F7FA" id="theme-color-meta" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <script>
     if (window.matchMedia('(max-width: 767px)').matches) document.documentElement.classList.add('m-boot');
   </script>
@@ -36,6 +39,7 @@
   <script src="/vendor/html5-qrcode.min.js"></script>
   <!-- bcryptjs for client-side password hashing -->
   <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+  <link rel="stylesheet" href="home.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="mobile.css">
 </head>
@@ -310,6 +314,447 @@
   </svg>
 
   <!-- ============================================================
+       HOMEPAGE SCREEN (MagicPath AI Homepage)
+  ============================================================ -->
+  <div id="home-screen" class="mp-site" role="region" aria-label="MediTrack Homepage">
+    <header class="mp-nav" role="banner">
+      <a class="mp-logo" href="#top" aria-label="MediTrack Home">
+        <span class="mp-mark" aria-hidden="true">m.</span>
+        <span>MediTrack</span>
+      </a>
+      <nav class="mp-nav-links" aria-label="Main sections">
+        <a href="#platform">Platform</a>
+        <a href="#operations">Operational value</a>
+        <a href="#workflow">How it works</a>
+        <a href="#departments">Departments</a>
+      </nav>
+      <div class="mp-nav-actions">
+        <button type="button" class="theme-toggle" id="home-theme-btn" onclick="cycleTheme()" aria-label="Toggle color theme" title="Toggle theme" style="background:transparent;border:1px solid var(--mp-line);border-radius:50%;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--mp-ink);">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+            <use href="#i-sun" />
+          </svg>
+        </button>
+        <button type="button" class="mp-nav-cta" id="landing-login-btn" onclick="showLoginScreen()">
+          Staff Portal <span>↗</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="mp-hero" aria-label="Hero">
+        <div class="mp-hero-copy">
+          <div class="mp-overline"><span class="mp-overline-rule"></span> HOSPITAL EQUIPMENT, UNDER CONTROL</div>
+          <h1>The right equipment.<br /><em>In the right place.</em><br />When it matters.</h1>
+          <p>One clear view of what your hospital owns, where it is, who is using it and what needs attention.</p>
+          <div class="mp-hero-actions">
+            <button type="button" class="mp-btn-primary" id="hero-portal-btn" onclick="showLoginScreen()">
+              Discover the platform <span>↗</span>
+            </button>
+            <a class="mp-link-quiet" href="#workflow">See how it works <span>↓</span></a>
+          </div>
+          <div class="mp-hero-meta"><span>01 / 03</span><i></i> EQUIPMENT VISIBILITY FOR EVERY UNIT</div>
+        </div>
+        <div class="mp-hero-image-wrap">
+          <img class="mp-hero-image" src="https://images.pexels.com/photos/33857830/pexels-photo-33857830.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Healthcare professional preparing medical equipment in a hospital room" loading="eager" />
+          <div class="mp-photo-index">CLINICAL OPERATIONS <span>·</span> EQUIPMENT READINESS</div>
+          <div class="mp-image-note">
+            <span class="mp-note-mark" aria-hidden="true">+</span>
+            <div>
+              <b>Know before the next request.</b>
+              <small>Availability · condition · activity</small>
+            </div>
+            <span class="mp-note-arrow" aria-hidden="true">↗</span>
+          </div>
+        </div>
+        <div class="mp-hero-bottom">
+          <span>BUILT FOR THE FLOW OF CARE</span>
+          <div>
+            <b>ICU</b><i></i> <b>EMERGENCY</b><i></i> <b>OPERATION THEATRE</b><i></i> <b>RADIOLOGY</b><i></i> <b>MATERNITY</b>
+          </div>
+          <span class="mp-bottom-index">MEDTRACK / 2026</span>
+        </div>
+      </section>
+
+      <section class="mp-intro mp-section" id="platform" aria-label="The Platform">
+        <div class="mp-section-kicker mp-reveal"><span>01</span> THE PLATFORM</div>
+        <div class="mp-intro-grid">
+          <div class="mp-reveal">
+            <h2>Equipment shouldn't<br />be a <em>search party.</em></h2>
+          </div>
+          <div class="mp-intro-copy mp-reveal">
+            <p>When equipment records live in different places, even a simple question—“Is it available?”—can turn into calls, handovers and guesswork.</p>
+            <p>MediTrack gives your team a shared operational picture, from asset registration and QR identification to maintenance visibility and audit history.</p>
+            <a href="#workflow" class="mp-inline-link">Follow the equipment journey <span>↗</span></a>
+          </div>
+        </div>
+        <div class="mp-intro-rule"></div>
+        <div class="mp-feature-lines">
+          <div class="mp-feature-line mp-reveal">
+            <span>01</span><b>Inventory with context</b>
+            <p>Equipment records, IDs, departments and condition in one register.</p>
+            <span class="mp-line-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="mp-feature-line mp-reveal">
+            <span>02</span><b>Movement you can trace</b>
+            <p>QR-led check-outs, returns, holders and activity history.</p>
+            <span class="mp-line-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="mp-feature-line mp-reveal">
+            <span>03</span><b>Issues that stay visible</b>
+            <p>Maintenance flags, unavailable items and pending requests.</p>
+            <span class="mp-line-arrow" aria-hidden="true">↗</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="mp-product-section" aria-label="Shared View">
+        <div class="mp-product-image">
+          <img src="https://images.unsplash.com/photo-1766299892683-d50398e31823?auto=format&fit=crop&w=1400&q=85" alt="Close view of medical monitoring equipment and connected devices in a hospital" loading="lazy" />
+          <span class="mp-image-caption">THE EQUIPMENT IS REAL. THE RECORD SHOULD BE, TOO.</span>
+        </div>
+        <div class="mp-product-copy">
+          <div class="mp-section-kicker mp-reveal"><span>02</span> ONE SHARED VIEW</div>
+          <h2 class="mp-reveal">From scattered<br />updates to <em>one source<br />of clarity.</em></h2>
+          <p class="mp-reveal">Give managers and department teams a current picture of equipment readiness—without piecing together separate registers.</p>
+          <div class="mp-product-metrics mp-reveal">
+            <div><b>51</b><span>Available</span></div>
+            <div><b>06</b><span>In use</span></div>
+            <div><b>06</b><span>Needs attention</span></div>
+          </div>
+          <small class="mp-demo-caption">Sample figures from the MediTrack demo dashboard · 63 tracked items</small>
+        </div>
+      </section>
+
+      <section class="mp-dashboard-section" aria-label="Inside MediTrack">
+        <div class="mp-dashboard-head mp-reveal">
+          <div>
+            <div class="mp-section-kicker mp-light-kicker"><span>03</span> INSIDE MEDITRACK</div>
+            <h2>Less tab-hopping.<br /><em>More knowing.</em></h2>
+          </div>
+          <p>Move between equipment, requests, maintenance and audit activity without losing the bigger picture.</p>
+        </div>
+        <div class="mp-dashboard-shell mp-reveal">
+          <div class="mp-window" id="demo-preview-window">
+            <div class="mp-window-top">
+              <div class="mp-window-brand">
+                <span class="mp-mark" aria-hidden="true">m.</span><b>MediTrack</b>
+                <span class="mp-window-divider" aria-hidden="true"></span>
+                <small>Hospital operations</small>
+              </div>
+              <div class="mp-window-actions">
+                <span class="mp-live-dot" aria-hidden="true"></span> Sample workspace
+                <span class="mp-window-avatar" aria-hidden="true">A</span>
+              </div>
+            </div>
+            <div class="mp-window-layout">
+              <aside class="mp-window-side" aria-label="Demo workspace tabs">
+                <span class="mp-side-caption">WORKSPACE</span>
+                <button type="button" class="demo-tab-btn" data-tab="Overview" onclick="switchDemoTab('Overview')"><i>◫</i>Overview</button>
+                <button type="button" class="demo-tab-btn mp-side-active" data-tab="Inventory" onclick="switchDemoTab('Inventory')"><i>▦</i>Inventory</button>
+                <button type="button" class="demo-tab-btn" data-tab="Requests" onclick="switchDemoTab('Requests')"><i>↗</i>Requests</button>
+                <button type="button" class="demo-tab-btn" data-tab="Maintenance" onclick="switchDemoTab('Maintenance')"><i>⌁</i>Maintenance</button>
+                <button type="button" class="demo-tab-btn" data-tab="Audit log" onclick="switchDemoTab('Audit log')"><i>≡</i>Audit log</button>
+                <div class="mp-side-bottom">
+                  <span class="mp-side-caption">CURRENT SNAPSHOT</span>
+                  <b>63 assets</b>
+                  <small>Across 6 departments</small>
+                </div>
+              </aside>
+              <div class="mp-window-main">
+                <div class="mp-screen-heading">
+                  <div>
+                    <small id="demo-tab-sub">MONDAY / EQUIPMENT OVERVIEW</small>
+                    <h3 id="demo-tab-heading">Equipment inventory</h3>
+                  </div>
+                  <span class="mp-sample-label">DEMO DATA</span>
+                </div>
+                <div class="mp-window-stats" id="demo-stats-strip">
+                  <div><small>Available</small><b>51</b><span class="mp-green-text">Ready to allocate</span></div>
+                  <div><small>In use</small><b>06</b><span>Currently checked out</span></div>
+                  <div><small>Needs attention</small><b>06</b><span class="mp-amber-text">Maintenance / out of order</span></div>
+                </div>
+                <div class="mp-table-heading">
+                  <b>Equipment status</b>
+                  <span>All departments <i>⌄</i></span>
+                </div>
+                <div class="mp-equipment-table" id="demo-table-content"></div>
+                <div class="mp-window-footer">
+                  <span><i aria-hidden="true"></i> Last synced just now</span>
+                  <span>515 events in audit history ↗</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mp-dashboard-foot">
+          <span>PRODUCT INTERFACE / SAMPLE WORKSPACE</span>
+          <span>INTERACTIVE PREVIEW — SELECT A SECTION ABOVE ↗</span>
+        </div>
+      </section>
+
+      <section class="mp-operations mp-section" id="operations" aria-label="Operational Value">
+        <div class="mp-operations-heading">
+          <div class="mp-section-kicker mp-reveal"><span>04</span> OPERATIONAL VALUE</div>
+          <h2 class="mp-reveal">Where does the<br />working day <em>go?</em></h2>
+          <p class="mp-reveal">Searching, checking, following up and waiting all consume staff time. Start measuring the friction before claiming the improvement.</p>
+        </div>
+        <div class="mp-calculator mp-reveal">
+          <div class="mp-calc-top">
+            <span>TIME-LOST SCENARIO</span>
+            <span class="mp-calc-tag">EDIT THE ASSUMPTIONS</span>
+          </div>
+          <div class="mp-calc-grid">
+            <div class="mp-calc-controls">
+              <label for="mp-calc-minutes">
+                <span>Minutes to locate one item</span>
+                <b id="mp-calc-minutes-val">5 min</b>
+                <input type="range" id="mp-calc-minutes" min="1" max="20" value="5" aria-label="Minutes to locate one item" oninput="updateTimeLostCalc()" />
+              </label>
+              <label for="mp-calc-searches">
+                <span>Searches per shift</span>
+                <b id="mp-calc-searches-val">8</b>
+                <input type="range" id="mp-calc-searches" min="1" max="30" value="8" aria-label="Searches per shift" oninput="updateTimeLostCalc()" />
+              </label>
+              <label for="mp-calc-shifts">
+                <span>Shifts per week</span>
+                <b id="mp-calc-shifts-val">18</b>
+                <input type="range" id="mp-calc-shifts" min="1" max="35" value="18" aria-label="Shifts per week" oninput="updateTimeLostCalc()" />
+              </label>
+            </div>
+            <div class="mp-calc-result">
+              <small>ESTIMATED TIME SPENT LOCATING EQUIPMENT</small>
+              <strong><span id="mp-calc-hours">12.0</span><i> hrs</i></strong>
+              <span>per week, under this scenario</span>
+              <div class="mp-calc-equation" id="mp-calc-equation">5 min × 8 searches × 18 shifts ÷ 60</div>
+            </div>
+          </div>
+          <p class="mp-calc-disclaimer">Illustrative calculation only—not measured MediTrack savings. Replace these assumptions with a hospital time study. MediTrack can help make equipment activity and turnaround easier to track.</p>
+        </div>
+        <div class="mp-kpi-strip mp-reveal">
+          <div><span>01 / LOCATE</span><b>Search time</b><small>Average time from request to equipment found.</small></div>
+          <div><span>02 / UTILIZE</span><b>Asset utilization</b><small>How often equipment is checked out and in use.</small></div>
+          <div><span>03 / RESTORE</span><b>Maintenance turnaround</b><small>Time between issue flagged and item returned to service.</small></div>
+          <div><span>04 / TRACE</span><b>Audit completeness</b><small>How consistently equipment movements have a recorded owner and time.</small></div>
+        </div>
+      </section>
+
+      <section class="mp-workflow mp-section" id="workflow" aria-label="The Workflow">
+        <div class="mp-workflow-top">
+          <div class="mp-section-kicker mp-reveal"><span>05</span> THE WORKFLOW</div>
+          <h2 class="mp-reveal">A small scan.<br /><em>A clearer handover.</em></h2>
+        </div>
+        <div class="mp-workflow-steps">
+          <article class="mp-step mp-reveal">
+            <div class="mp-step-visual">
+              <span class="mp-step-code" aria-hidden="true">⌗</span>
+              <span class="mp-step-corner">01</span>
+              <div class="mp-qr-mini" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+            </div>
+            <small>IDENTIFY</small>
+            <h3>Scan the asset</h3>
+            <p>Open the right equipment record using its QR code or unique ID.</p>
+          </article>
+          <div class="mp-step-divider" aria-hidden="true">→</div>
+          <article class="mp-step mp-reveal">
+            <div class="mp-step-visual">
+              <span class="mp-step-corner">02</span>
+              <div class="mp-status-card">
+                <i aria-hidden="true"></i> Status updated <b>Assigned to ICU</b>
+                <small>Holder · Admin</small>
+              </div>
+            </div>
+            <small>RECORD</small>
+            <h3>Update its status</h3>
+            <p>Record check-outs, returns, department allocation and condition changes.</p>
+          </article>
+          <div class="mp-step-divider" aria-hidden="true">→</div>
+          <article class="mp-step mp-reveal">
+            <div class="mp-step-visual">
+              <span class="mp-step-corner">03</span>
+              <div class="mp-timeline-mini">
+                <b>Activity history</b>
+                <span><i aria-hidden="true"></i> Checked out <small>09:42</small></span>
+                <span><i aria-hidden="true"></i> Status changed <small>08:15</small></span>
+                <span><i aria-hidden="true"></i> Record created <small>Yesterday</small></span>
+              </div>
+            </div>
+            <small>REVIEW</small>
+            <h3>See the full trail</h3>
+            <p>Review who handled an item, where it went and when the record changed.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="mp-departments mp-section" id="departments" aria-label="Departments">
+        <div class="mp-dept-heading">
+          <div>
+            <div class="mp-section-kicker mp-reveal"><span>06</span> BUILT AROUND THE HOSPITAL</div>
+            <h2 class="mp-reveal">Different units.<br /><em>One equipment picture.</em></h2>
+          </div>
+          <p class="mp-reveal">Equipment has to move with the work. Keep the context of each department visible while the asset record stays connected.</p>
+        </div>
+        <div class="mp-dept-grid">
+          <article class="mp-dept-card mp-reveal">
+            <div class="mp-dept-photo">
+              <img src="https://images.unsplash.com/photo-1766299892683-d50398e31823?auto=format&fit=crop&w=1400&q=85" alt="ICU critical care equipment context" loading="lazy" />
+              <span>01</span>
+            </div>
+            <div class="mp-dept-copy">
+              <small>CRITICAL CARE</small>
+              <h3>ICU</h3>
+              <p>Ventilators, infusion pumps and patient monitors.</p>
+              <span class="mp-dept-count">09 asset records</span>
+            </div>
+          </article>
+          <article class="mp-dept-card mp-reveal">
+            <div class="mp-dept-photo">
+              <img src="https://images.pexels.com/photos/33857830/pexels-photo-33857830.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Emergency department rapid response context" loading="lazy" />
+              <span>02</span>
+            </div>
+            <div class="mp-dept-copy">
+              <small>RAPID RESPONSE</small>
+              <h3>Emergency</h3>
+              <p>Crash carts, defibrillators and portable equipment.</p>
+              <span class="mp-dept-count">13 asset records</span>
+            </div>
+          </article>
+          <article class="mp-dept-card mp-reveal">
+            <div class="mp-dept-photo">
+              <img src="https://images.unsplash.com/photo-1778151270757-f3793f65e2de?auto=format&fit=crop&w=1400&q=85" alt="Operation Theatre surgical monitoring context" loading="lazy" />
+              <span>03</span>
+            </div>
+            <div class="mp-dept-copy">
+              <small>PROCEDURES</small>
+              <h3>Operation Theatre</h3>
+              <p>Anaesthesia machines and surgical monitoring systems.</p>
+              <span class="mp-dept-count">12 asset records</span>
+            </div>
+          </article>
+        </div>
+        <div class="mp-dept-others">
+          <span>ALSO IN VIEW</span>
+          <b>General Ward</b><i></i> <b>Maternity</b><i></i> <b>Radiology</b><i></i> <b>And more</b>
+        </div>
+      </section>
+
+      <section class="mp-audit-section" aria-label="Accountability">
+        <div class="mp-audit-copy mp-reveal">
+          <div class="mp-section-kicker mp-light-kicker"><span>07</span> ACCOUNTABILITY</div>
+          <h2>Every handover<br />leaves a <em>footprint.</em></h2>
+          <p>Audit history turns equipment movement into something teams can review: what changed, who handled it, and when it happened.</p>
+          <ul>
+            <li>Equipment and user search</li>
+            <li>Department and action filters</li>
+            <li>Exportable activity history</li>
+          </ul>
+        </div>
+        <div class="mp-audit-visual mp-reveal">
+          <div class="mp-audit-screen">
+            <div class="mp-audit-header">
+              <b>Audit log</b>
+              <span>515 total events <i>↗</i></span>
+            </div>
+            <div class="mp-audit-numbers">
+              <div><small>Items used today</small><b>0</b></div>
+              <div><small>In use now</small><b>7</b></div>
+            </div>
+            <div class="mp-audit-row">
+              <span aria-hidden="true">⌄</span>
+              <div><b>Ventilator A</b><small>ICU · Checked out by admin</small></div>
+              <i>In use</i>
+            </div>
+            <div class="mp-audit-row">
+              <span aria-hidden="true">⌄</span>
+              <div><b>Wheelchair</b><small>General Ward · Checked out by Admin1</small></div>
+              <i>In use</i>
+            </div>
+            <div class="mp-audit-row">
+              <span aria-hidden="true">⌄</span>
+              <div><b>Electrosurgical Unit A</b><small>Operation Theatre · Status updated</small></div>
+              <i>Available</i>
+            </div>
+            <small class="mp-audit-disclaimer">Illustrative activity preview · Sample records</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="mp-faq mp-section" aria-label="Frequently Asked Questions">
+        <div class="mp-faq-title">
+          <div class="mp-section-kicker mp-reveal"><span>08</span> GOOD TO KNOW</div>
+          <h2 class="mp-reveal">Clear answers.<br /><em>Clearer operations.</em></h2>
+        </div>
+        <div class="mp-faq-list">
+          <article class="mp-faq-item mp-reveal">
+            <button type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span>What does MediTrack manage?</span>
+              <b aria-hidden="true">+</b>
+            </button>
+            <div class="mp-faq-panel" hidden>
+              <p>MediTrack brings equipment records, availability, department allocation, check-out activity, maintenance flags and audit history into one workspace.</p>
+            </div>
+          </article>
+          <article class="mp-faq-item mp-reveal">
+            <button type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span>How does QR tracking work?</span>
+              <b aria-hidden="true">+</b>
+            </button>
+            <div class="mp-faq-panel" hidden>
+              <p>A QR code identifies an equipment record, helping staff quickly review or update an item's status during check-out and return workflows.</p>
+            </div>
+          </article>
+          <article class="mp-faq-item mp-reveal">
+            <button type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span>Can managers review equipment activity?</span>
+              <b aria-hidden="true">+</b>
+            </button>
+            <div class="mp-faq-panel" hidden>
+              <p>The audit log lets managers search equipment or users, filter by department and action, and export activity history.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="mp-contact" id="contact" aria-label="Explore MediTrack">
+        <div class="mp-contact-inner">
+          <div class="mp-section-kicker mp-light-kicker"><span>09</span> MEDTRACK / HOSPITAL OPERATIONS</div>
+          <h2>Know what you have.<br /><em>Know where it is.</em></h2>
+          <p>Make equipment status easier to see, easier to manage and easier to trust.</p>
+          <div class="mp-contact-actions">
+            <button type="button" class="mp-contact-btn" id="footer-portal-btn" onclick="showLoginScreen()">
+              Launch Staff Portal <span>↗</span>
+            </button>
+            <a href="https://github.com/vujwalved5/meditrack" target="_blank" rel="noreferrer">View the project on GitHub ↗</a>
+          </div>
+        </div>
+        <div class="mp-contact-watermark" aria-hidden="true">M.</div>
+      </section>
+    </main>
+
+    <footer class="mp-footer" role="contentinfo">
+      <div class="mp-footer-main">
+        <a class="mp-logo" href="#top" aria-label="MediTrack Homepage Top">
+          <span class="mp-mark" aria-hidden="true">m.</span>
+          <span>MediTrack</span>
+        </a>
+        <p>Hospital equipment visibility &amp; accountability.</p>
+        <nav aria-label="Footer links">
+          <a href="#platform">Platform</a>
+          <a href="#operations">Operational value</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#departments">Departments</a>
+          <a href="https://github.com/vujwalved5/meditrack" target="_blank" rel="noreferrer">GitHub ↗</a>
+        </nav>
+      </div>
+      <div class="mp-footer-bottom">
+        <span>&copy; 2026 MediTrack &middot; Clinical Equipment Tracking System</span>
+        <span>Photography: <a href="https://www.pexels.com/photo/nurse-preparing-equipment-in-hospital-room-33857830/" target="_blank" rel="noreferrer">Fernando Capetillo / Pexels</a> &middot; <a href="https://unsplash.com/photos/medical-equipment-in-a-hospital-room-KVasPlAfs1Y" target="_blank" rel="noreferrer">Brian Wangenheim / Unsplash</a> &middot; <a href="https://unsplash.com/photos/hospital-room-with-three-beds-and-medical-equipment-cTH0dAHdqtQ" target="_blank" rel="noreferrer">Irshad Pathan / Unsplash</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ============================================================
        LOGIN SCREEN
   ============================================================ -->
   <div id="login-screen" role="main">
@@ -350,6 +795,13 @@
 
     <!-- Right form panel -->
     <div class="login-form-panel">
+      <button type="button" class="back-home-btn" onclick="showHomeScreen()" aria-label="Return to Homepage">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Back to Home</span>
+      </button>
       <button class="theme-toggle login-theme-toggle" id="login-theme-btn" onclick="cycleTheme()"
         aria-label="Toggle color theme" title="Toggle theme">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
@@ -494,6 +946,13 @@
                 </svg>
                 <span id="menu-theme-text">Toggle Theme</span>
               </button>
+              <button type="button" class="menu-btn-item" id="menu-home-btn" role="menuitem"
+                onclick="showHomeScreen()">
+                <svg class="icon" aria-hidden="true" width="16" height="16">
+                  <use href="#i-layout-dashboard" />
+                </svg>
+                <span>View Homepage</span>
+              </button>
               <button type="button" class="menu-btn-item danger" id="menu-logout-btn" role="menuitem"
                 onclick="doLogout()">
                 <svg class="icon" aria-hidden="true" width="16" height="16">
@@ -527,9 +986,9 @@
 
         <!-- Title Row -->
         <div class="page-title-row">
-          <h1 class="page-title">Dashboard</h1>
+          <h1 class="page-title">Equipment</h1>
           <div class="page-actions" style="position:relative;">
-            <button type="button" class="btn btn-primary" onclick="openScanner()" aria-label="Scan QR Code">
+            <button type="button" class="btn btn-primary btn-scan-primary" onclick="openScanner()" aria-label="Scan QR Code">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
@@ -540,16 +999,16 @@
               </svg>
               <span>Scan QR</span>
             </button>
-            <button type="button" class="btn btn-secondary" id="add-eq-btn" onclick="openAddEquipmentModal()"
+            <button type="button" class="btn btn-ghost" id="add-eq-btn" onclick="openAddEquipmentModal()"
               style="display:none;" aria-label="Add Equipment">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              <span>Add Product</span>
+              <span>Add</span>
             </button>
-            <button type="button" class="btn btn-secondary" id="print-all-btn" onclick="openPrintAllModal()"
+            <button type="button" class="btn btn-ghost" id="print-all-btn" onclick="openPrintAllModal()"
               aria-label="Print All QR Codes">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -557,9 +1016,9 @@
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                 <rect x="6" y="14" width="12" height="8"></rect>
               </svg>
-              <span>Print All QR</span>
+              <span>Print QR</span>
             </button>
-            <button type="button" class="btn btn-secondary" id="more-actions-btn" aria-haspopup="menu"
+            <button type="button" class="btn btn-ghost" id="more-actions-btn" aria-haspopup="menu"
               aria-expanded="false" aria-label="More actions" onclick="toggleMoreActionsMenu(event)" style="display:none;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -573,97 +1032,40 @@
           </div>
         </div>
 
-        <!-- KPI Grid -->
-        <div class="kpi-grid">
-          <!-- Card 1: Available -->
-          <div class="kpi-card">
-            <div class="kpi-top">
-              <div class="kpi-header-left">
-                <div class="kpi-chip kpi-chip-green">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                  </svg>
-                </div>
-                <span class="kpi-title">Available</span>
-              </div>
-            </div>
-            <div class="kpi-num" id="stat-available">0</div>
-            <div class="kpi-caption">of <span id="stat-total">0</span> items ready to use</div>
-          </div>
-
-          <!-- Card 2: In Use -->
-          <div class="kpi-card">
-            <div class="kpi-top">
-              <div class="kpi-header-left">
-                <div class="kpi-chip kpi-chip-red">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                </div>
-                <span class="kpi-title">In Use</span>
-              </div>
-            </div>
-            <div class="kpi-num" id="stat-inuse">0</div>
-            <div class="kpi-caption">Currently checked out</div>
-          </div>
-
-          <!-- Card 3: Needs Attention -->
-          <div class="kpi-card">
-            <div class="kpi-top">
-              <div class="kpi-header-left">
-                <div class="kpi-chip kpi-chip-amber">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                  </svg>
-                </div>
-                <span class="kpi-title">Needs Attention</span>
-              </div>
-            </div>
-            <div class="kpi-num" id="stat-attention">0</div>
-            <div class="kpi-caption">Maintenance or out of order</div>
-          </div>
-
-          <!-- Card 4: Pending Requests -->
-          <div class="kpi-card">
-            <div class="kpi-top">
-              <div class="kpi-header-left">
-                <div class="kpi-chip kpi-chip-primary">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-                    <path
-                      d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z">
-                    </path>
-                  </svg>
-                </div>
-                <span class="kpi-title">Pending Requests</span>
-              </div>
-            </div>
-            <div class="kpi-num" id="stat-requests">0</div>
-            <div class="kpi-caption">Waiting for approval</div>
-          </div>
+        <!-- Status Strip (replaces KPI grid) -->
+        <div class="status-strip" role="status" aria-label="Equipment status summary">
+          <span class="status-strip-item status-strip-avail">
+            <span class="status-strip-dot status-dot-avail" aria-hidden="true"></span>
+            <span class="status-strip-num" id="stat-available">0</span>
+            <span class="status-strip-label">available</span>
+          </span>
+          <span class="status-strip-sep" aria-hidden="true">·</span>
+          <span class="status-strip-item status-strip-inuse">
+            <span class="status-strip-num" id="stat-inuse">0</span>
+            <span class="status-strip-label">in use</span>
+          </span>
+          <span class="status-strip-sep" aria-hidden="true">·</span>
+          <span class="status-strip-item status-strip-warn">
+            <span class="status-strip-num" id="stat-attention">0</span>
+            <span class="status-strip-label">need attention</span>
+          </span>
+          <span class="status-strip-sep" aria-hidden="true">·</span>
+          <span class="status-strip-item status-strip-pend">
+            <span class="status-strip-num" id="stat-requests">0</span>
+            <span class="status-strip-label">pending</span>
+          </span>
+          <!-- Hidden total for JS compatibility -->
+          <span id="stat-total" style="display:none">0</span>
         </div>
 
-        <!-- AI DAILY INSIGHTS PANEL (Manager + Senior Doctor only; hidden for Staff by JS) -->
-        <section class="ai-insights-section" id="ai-insights-section" aria-label="AI Daily Insights"
+        <!-- SHIFT SUMMARY PANEL (Manager + Senior Doctor only; hidden for Staff by JS) -->
+        <section class="ai-insights-section" id="ai-insights-section" aria-label="Shift Summary"
           style="display:none; margin-bottom:16px;">
           <div class="ai-insights-header" style="cursor:pointer;" onclick="toggleAiInsights()">
             <div class="ai-insights-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <div style="display:flex;align-items:center;gap:6px;">
-                <svg class="icon" aria-hidden="true" style="width:16px;height:16px;color:var(--brand-600);">
-                  <use href="#i-sparkles" />
-                </svg>
-                <span style="font-weight:600;font-size:15px;color:var(--ink-900);">AI Daily Insights</span>
+                <span style="font-weight:600;font-size:15px;color:var(--ink-900);">Shift summary</span>
               </div>
-              <span class="status-badge badge-status-neutral" style="font-size:11px;padding:2px 8px;">Daily
-                Analysis</span>
               <span id="ai-summary-text"
                 style="font-size:13px;color:var(--ink-500);font-weight:400;margin-left:4px;"></span>
             </div>
@@ -735,20 +1137,17 @@
 
         <div class="layout">
           <section aria-label="Equipment Dashboard">
-            <!-- Product Type Tiles -->
-            <div class="product-tiles-section" id="product-tiles-section" style="display:none;">
-              <div class="product-tiles-header">
-                <span class="product-tiles-label"><svg class="icon" aria-hidden="true"
-                    style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    <use href="#i-camera" />
-                  </svg> Filter by Product Type</span>
-                <button type="button" class="product-tiles-toggle" id="tiles-collapse-btn"
-                  onclick="toggleTilesCollapse()" aria-label="Collapse or expand tile grid" title="Collapse / expand">
-                  <span id="tiles-collapse-icon"><svg class="icon" aria-hidden="true" width="12" height="12"><use href="#i-chevron-up"/></svg></span> <span id="tiles-collapse-text">Collapse</span>
-                </button>
-              </div>
-              <div class="product-tiles-grid" id="product-tiles-grid" role="group" aria-label="Filter by product type">
-                <!-- Rendered by JS -->
+            <!-- Product Type Chip Row (collapsed by default) -->
+            <div class="product-tiles-section product-chips-section" id="product-tiles-section" style="display:none;">
+              <button type="button" class="product-chips-toggle" id="tiles-collapse-btn"
+                onclick="toggleTilesCollapse()" aria-expanded="false" aria-controls="product-tiles-grid-wrap">
+                <svg class="icon" aria-hidden="true" width="13" height="13"><use href="#i-chevron-down"/></svg>
+                <span>Filter by type</span>
+              </button>
+              <div class="product-chips-row-wrap" id="product-tiles-grid-wrap" style="display:none;">
+                <div class="product-tiles-grid product-chips-row" id="product-tiles-grid" role="group" aria-label="Filter by product type">
+                  <!-- Rendered by JS -->
+                </div>
               </div>
             </div>
 
@@ -852,19 +1251,19 @@
                 </button>
               </div>
 
-              <!-- 2. DEPARTMENT OVERVIEW card #dept-overview (NEW) -->
-              <div class="panel dept-overview-card" id="dept-overview">
-                <div class="dept-overview-header">
-                  <h3 class="dept-overview-title">Departments</h3>
+              <!-- 2. DEPARTMENT OVERVIEW card #dept-overview (compact list) -->
+              <div class="dept-compact-panel" id="dept-overview">
+                <div class="dept-compact-header">
+                  <h3 class="dept-compact-title">Departments</h3>
                 </div>
-                <div class="dept-overview-body" id="dept-overview-list"></div>
+                <div class="dept-compact-body" id="dept-overview-list"></div>
               </div>
 
-              <!-- 3. REQUEST QUEUE card (the existing Pending Requests panel, restyled) -->
-              <div class="request-queue-card" id="requests-panel" tabindex="-1">
+              <!-- 3. REQUEST QUEUE card — shown only when there are pending requests -->
+              <div class="request-queue-card" id="requests-panel" tabindex="-1" style="display:none;">
                 <div class="req-queue-header">
                   <div class="req-queue-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                       stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -888,19 +1287,6 @@
                   </div>
                 </div>
                 <div class="req-queue-list" id="requests-list" aria-live="polite">
-                  <div class="req-empty-state">
-                    <div class="req-empty-icon">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-                        <path
-                          d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z">
-                        </path>
-                      </svg>
-                    </div>
-                    <div class="req-empty-title">No pending requests</div>
-                    <div class="req-empty-desc">New equipment requests will appear here.</div>
-                  </div>
                 </div>
               </div>
 
@@ -1601,6 +1987,7 @@
   <!-- ============================================================
        APPLICATION SCRIPT
   ============================================================ -->
+  <script src="home.js"></script>
   <script src="app.js"></script>
   <script src="mobile.js"></script>
 

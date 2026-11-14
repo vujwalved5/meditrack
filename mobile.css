@@ -53,6 +53,19 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  #m-app,
+  #m-app button,
+  #m-app input,
+  #m-app select,
+  #m-app textarea,
+  .m-sheet,
+  .m-sheet button,
+  .m-sheet input,
+  .m-sheet select,
+  .m-sheet textarea {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
   #m-app button,
   #m-app a,
   #m-app [role="button"],

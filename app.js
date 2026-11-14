@@ -850,13 +850,16 @@ initTheme();
       document.getElementById('login-password').value = '';
       document.getElementById('login-error').classList.remove('show');
       document.getElementById('app-screen').style.display = 'none';
+      const homeEl = document.getElementById('home-screen');
+      if (homeEl) homeEl.style.display = 'none';
       document.getElementById('login-screen').style.display = 'flex';
+      if (typeof updateHomeUserStatus === 'function') updateHomeUserStatus();
       allEquipment = [];
       departments = [];
       productTypes = [];          // v3
       allRequests = [];           // clear so approve guard doesn't use stale data
       currentProductFilter = 'all'; // v3
-      tilesCollapsed = false;     // v3
+      tilesCollapsed = true;     // v3 — start collapsed (chip row hidden by default)
       aiInsightsCollapsed = false; // v4
       const aiSection = document.getElementById('ai-insights-section');
       if (aiSection) aiSection.style.display = 'none';
@@ -874,8 +877,11 @@ initTheme();
     // SHOW APP SCREEN
     // ==========================================
     function showAppScreen() {
+      const homeEl = document.getElementById('home-screen');
+      if (homeEl) homeEl.style.display = 'none';
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
+      if (typeof updateHomeUserStatus === 'function') updateHomeUserStatus();
 
       document.getElementById('header-username').textContent = currentUser.username;
       const initials = (currentUser.username || 'U').charAt(0).toUpperCase();
@@ -929,6 +935,7 @@ initTheme();
       appInit();
       document.dispatchEvent(new CustomEvent('meditrack:render'));
     }
+    window.showAppScreen = showAppScreen;
 
     function openNavDrawer() {
       const drawer = document.getElementById('nav-drawer');
@@ -1024,7 +1031,7 @@ initTheme();
     let currentFilter = 'all';
     let currentDeptFilter = 'all';
     let currentProductFilter = 'all'; // v3: 'all' or product_type_id (integer)
-    let tilesCollapsed = false;   // v3: tile grid collapse state
+    let tilesCollapsed = true;   // v3: tile grid collapse state — start collapsed (chip row hidden by default)
     let selectedPriority = 'Normal';
     let currentRequestEquipmentId = null;
     let html5Scanner = null;
@@ -2304,7 +2311,20 @@ initTheme();
         }
         if (section) section.style.display = 'block';
 
-        grid.classList.toggle('collapsed', tilesCollapsed);
+        // New chip-row design: toggle controls the wrap div instead of grid collapsed class
+        const toggleBtn = document.getElementById('tiles-collapse-btn');
+        const wrapDiv = document.getElementById('product-tiles-grid-wrap');
+
+        // tilesCollapsed = true means chips row is hidden (collapsed by default)
+        if (wrapDiv) wrapDiv.style.display = tilesCollapsed ? 'none' : 'block';
+        if (toggleBtn) {
+          toggleBtn.setAttribute('aria-expanded', tilesCollapsed ? 'false' : 'true');
+          // Update chevron direction
+          const chevronUse = toggleBtn.querySelector('use');
+          if (chevronUse) chevronUse.setAttribute('href', tilesCollapsed ? '#i-chevron-down' : '#i-chevron-up');
+        }
+
+        // Legacy collapse icon/text elements (may not exist in new layout, safe to skip)
         const iconEl = document.getElementById('tiles-collapse-icon');
         const textEl = document.getElementById('tiles-collapse-text');
         if (iconEl) iconEl.innerHTML = `<svg class="icon" aria-hidden="true" width="12" height="12"><use href="${tilesCollapsed ? '#i-chevron-down' : '#i-chevron-up'}"/></svg>`;
@@ -2312,7 +2332,7 @@ initTheme();
 
         grid.innerHTML = '';
 
-        // All Equipment tile (P0-05, P1-14: 32px brand icon, total count)
+        // All Equipment chip (name + count, no icon)
         const allCount = allEquipment.length;
         const allTile = document.createElement('button');
         allTile.className = 'product-tile' + (currentProductFilter === 'all' ? ' selected' : '');
@@ -2321,66 +2341,26 @@ initTheme();
         allTile.type = 'button';
         allTile.onclick = () => setProductFilter('all');
         allTile.innerHTML =
-          '<div class="pt-img-wrap"><span class="pt-brand-icon" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:var(--brand-100,#e0e7ff);color:var(--brand-600,#4f46e5);margin:0 auto 6px;"><svg class="icon" aria-hidden="true" width="20" height="20"><use href="#i-brand"/></svg></span></div>' +
-          '<div class="pt-name">All Equipment</div>' +
-          '<div class="pt-summary"><span class="pt-count-badge">' + allCount + ' items</span></div>';
+          '<span class="pt-name">All</span>' +
+          '<span class="product-chip-count">' + allCount + '</span>';
         grid.appendChild(allTile);
 
-        // One tile per group
+        // One chip per group — name + count only, no images/icons
         groups.forEach(pt => {
           const totalCount = pt.totalCount;
-          const availCount = pt.availCount;
-          const hasAvail = availCount > 0;
           const isSelected = String(currentProductFilter).toLowerCase() === pt.name.toLowerCase() ||
                              currentProductFilter === pt.id;
 
           const tile = document.createElement('button');
-          tile.className = 'product-tile' +
-            (isSelected ? ' selected' : '') +
-            (!hasAvail && totalCount > 0 ? ' dimmed' : '');
+          tile.className = 'product-tile' + (isSelected ? ' selected' : '');
           tile.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-          tile.setAttribute('aria-label', esc(pt.name) + ': ' + totalCount + ' items, ' + availCount + ' available');
+          tile.setAttribute('aria-label', esc(pt.name) + ': ' + totalCount + ' items');
           tile.type = 'button';
           tile.onclick = () => setProductFilter(pt.name);
 
-          // Availability dot
-          if (totalCount > 0) {
-            const dot = document.createElement('span');
-            dot.className = 'pt-dot ' + (hasAvail ? 'green' : 'red');
-            dot.setAttribute('aria-hidden', 'true');
-            tile.appendChild(dot);
-          }
-
-          // Image wrap with emoji fallback
-          const imgWrap = document.createElement('div');
-          imgWrap.className = 'pt-img-wrap';
-          if (pt.image_url) {
-            const img = document.createElement('img');
-            img.src = pt.image_url;
-            img.alt = pt.name;
-            img.loading = 'lazy';
-            img.width = 40;
-            img.height = 40;
-            img.onerror = function() {
-              this.parentNode.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
-            };
-            imgWrap.appendChild(img);
-          } else {
-            imgWrap.innerHTML = '<span class="pt-emoji-fallback">' + getPtEmoji(pt.name) + '</span>';
-          }
-
-          const namEl = document.createElement('div');
-          namEl.className = 'pt-name';
-          namEl.textContent = pt.name;
-
-          const sumEl = document.createElement('div');
-          sumEl.className = 'pt-summary';
-          const itemWord = totalCount === 1 ? 'item' : 'items';
-          sumEl.textContent = totalCount + ' ' + itemWord + ' · ' + availCount + ' available';
-
-          tile.appendChild(imgWrap);
-          tile.appendChild(namEl);
-          tile.appendChild(sumEl);
+          tile.innerHTML =
+            '<span class="pt-name">' + esc(pt.name) + '</span>' +
+            '<span class="product-chip-count">' + totalCount + '</span>';
           grid.appendChild(tile);
         });
 
@@ -2412,6 +2392,9 @@ initTheme();
       tilesCollapsed = !tilesCollapsed;
       renderProductTiles();
     }
+
+    // Set tilesCollapsed to true by default so chips row starts collapsed
+    // This is overridden at init time below.
 
     function updateBreadcrumb() {
       try {
@@ -2626,6 +2609,8 @@ initTheme();
       const row = document.createElement('div');
       row.className = 'eq-row' + (isOpen ? ' open' : '');
       row.id = 'eq-row-' + eq.id;
+      row.setAttribute('data-status', eq.status || '');
+      row.setAttribute('data-condition', eq.condition || '');
 
       const currentRoom = (!isAvail && latestCheckoutRoom[eq.id]) ? latestCheckoutRoom[eq.id] : null;
       const mobileMetaParts = [esc(deptName)];
@@ -2653,7 +2638,7 @@ initTheme();
         </div>
         <div class="eq-cell eq-cell-name">
           <div class="eq-name-title">${esc(eq.name)}</div>
-          <div class="eq-id-caption">${esc(eq.qr_code_id || 'None')}</div>
+          <div class="eq-id-caption asset-id">${esc(eq.qr_code_id || 'None')}</div>
           <div class="eq-mobile-meta">${mobileMetaText}</div>
         </div>
         <div class="eq-cell eq-cell-dept">
@@ -2901,22 +2886,10 @@ initTheme();
         const deptEq = (allEquipment || []).filter(e => String(e.department_id) === String(d.id) || (e.departments && e.departments.name === d.name));
         const total = deptEq.length;
         const available = deptEq.filter(e => e.status === 'Available').length;
-        const inUse = deptEq.filter(e => e.status === 'In Use').length;
-        const pct = total > 0 ? Math.round((inUse / total) * 100) : 0;
-        const initials = (d.name || '').slice(0, 2).toUpperCase();
 
-        return `<div class="dept-overview-row">
-          <div class="dept-overview-main">
-            <div class="dept-avatar">${esc(initials)}</div>
-            <div class="dept-info">
-              <div class="dept-name">${esc(d.name)}</div>
-              <div class="dept-count">${total} items</div>
-            </div>
-            <div class="dept-avail">${available} available</div>
-          </div>
-          <div class="dept-bar-track">
-            <div class="dept-bar-fill" style="width:${pct}%;"></div>
-          </div>
+        return `<div class="dept-compact-row" onclick="setDeptFilter('${esc(d.id)}', null)">
+          <span class="dept-compact-name">${esc(d.name)}</span>
+          <span class="dept-compact-count" title="${total} items, ${available} available">${available}<span style="color:var(--text-2);font-weight:400"> / ${total}</span></span>
         </div>`;
       }).join('');
     }
@@ -3441,8 +3414,15 @@ initTheme();
       const normalEl = document.getElementById('req-normal-count');
       if (normalEl) normalEl.textContent = normalCount;
       updateRequestsJump(reqs);
+
+      // Show/hide Request Queue panel based on pending count
+      const requestsPanel = document.getElementById('requests-panel');
+      if (requestsPanel) {
+        requestsPanel.style.display = reqs.length > 0 ? '' : 'none';
+      }
+
       if (reqs.length === 0) {
-        el.innerHTML = '<div class="req-empty-state"><div class="req-empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-inbox"/></svg></div><div class="req-empty-title">No pending requests</div><div class="req-empty-desc">New equipment requests will appear here.</div></div>';
+        if (el) el.innerHTML = '<div class="req-empty-state"><div class="req-empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-inbox"/></svg></div><div class="req-empty-title">No pending requests</div><div class="req-empty-desc">New equipment requests will appear here.</div></div>';
         return;
       }
       const canApprove = currentUser && (currentUser.role === 'Manager' || currentUser.role === 'Senior Doctor');
@@ -4987,7 +4967,11 @@ initTheme();
           clearSession();
         }
       }
-      // else login screen is already visible (display:flex in HTML)
+      if (window.location.hash === '#login') {
+        if (typeof window.showLoginScreen === 'function') window.showLoginScreen();
+      } else {
+        if (typeof window.showHomeScreen === 'function') window.showHomeScreen();
+      }
     })();
 
     // ==========================================

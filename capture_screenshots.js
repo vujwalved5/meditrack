@@ -143,6 +143,10 @@ async function capture() {
     });
 
     await page.goto(`http://localhost:${PORT}`);
+    const landingBtn = await page.$('#landing-login-btn');
+    if (landingBtn && await landingBtn.isVisible()) {
+      await landingBtn.click();
+    }
     await page.evaluate((t) => {
       document.documentElement.setAttribute('data-theme', t);
       localStorage.setItem('meditrack_theme', t);

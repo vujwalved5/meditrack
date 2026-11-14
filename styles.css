@@ -243,7 +243,7 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
@@ -255,7 +255,7 @@
     }
 
     h1, h2, h3, h4, h5, h6, .duration-live, .eq-detail-qr-id {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       letter-spacing: -0.01em;
       line-height: 1.25;
     }
@@ -4142,3 +4142,371 @@
        directly on the section if needed, but the :has() path covers all
        modern browsers (Chrome 105+, Firefox 121+, Safari 15.4+).
        The display:none on the grid itself is the primary, always-working fix. */
+
+
+/* ============================================================
+   CLINICAL REDESIGN — MediTrack Ward Tool
+   Added for dashboard layout redesign (all 7 requirements)
+   ============================================================ */
+
+/* ── Typography ── */
+:root {
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'DM Mono', 'Fira Mono', 'Consolas', monospace;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+}
+
+/* Asset IDs in tabular mono */
+.eq-qr-id,
+.asset-id,
+.qr-code-id,
+[data-asset-id],
+.eq-row td:first-child code,
+.eq-row-qr,
+.m-eq-row-qr {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+/* Tabular nums for all numeric displays */
+.stat-num,
+.kpi-num,
+.m-kpi-num,
+.status-strip-num,
+.req-stat-num,
+.eq-count-pill,
+#eq-count,
+#stat-available,
+#stat-inuse,
+#stat-attention,
+#stat-requests,
+#stat-total,
+#req-count,
+#req-urgent-count,
+#req-normal-count {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ── Status Strip (replaces KPI grid) ── */
+.status-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  padding: 8px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.status-strip-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.status-strip-num {
+  font-weight: 700;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-strip-label {
+  color: var(--text-2);
+  font-size: 12.5px;
+}
+
+.status-strip-sep {
+  color: var(--border);
+  font-size: 16px;
+  line-height: 1;
+  user-select: none;
+}
+
+.status-strip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-strip-avail .status-strip-num { color: var(--success); }
+.status-strip-avail .status-dot-avail { background: var(--success); }
+.status-strip-inuse .status-strip-num { color: var(--danger); }
+.status-strip-warn .status-strip-num  { color: var(--warning); }
+.status-strip-pend .status-strip-num  { color: var(--primary); }
+
+/* ── Product-type chip row (collapsed by default) ── */
+.product-chips-section {
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.product-chips-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 0;
+  background: none;
+  border: none;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.product-chips-toggle:hover {
+  color: var(--text);
+}
+
+.product-chips-row-wrap {
+  padding-bottom: 8px;
+}
+
+.product-chips-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.product-chips-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Override the old tile grid style when it's in chip-row mode */
+.product-chips-section .product-tiles-grid {
+  display: flex !important;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.product-chips-section .product-tiles-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/* Force chip style on tiles in the chip row */
+.product-chips-section .product-tile {
+  min-height: 32px !important;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+  box-shadow: none !important;
+}
+
+/* Hide product-tile icons in chip mode */
+.product-chips-section .product-tile-img,
+.product-chips-section .product-tile-icon,
+.product-chips-section .tile-img,
+.product-chips-section img {
+  display: none !important;
+}
+
+.product-chips-section .product-tile[aria-pressed="true"],
+.product-chips-section .product-tile.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.product-chip-count {
+  opacity: 0.75;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Denser, flatter equipment list ── */
+.eq-table-panel,
+.panel.eq-table-panel {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+/* Equipment rows: status left-border colour only */
+.eq-row {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-left: 3px solid transparent !important;
+}
+
+.eq-row[data-status="Available"],
+.eq-row.status-available {
+  border-left-color: var(--success) !important;
+}
+
+.eq-row[data-status="In Use"],
+.eq-row.status-inuse {
+  border-left-color: var(--danger) !important;
+}
+
+.eq-row[data-status="Maintenance"],
+.eq-row[data-status="Out of Order"],
+.eq-row.status-maintenance,
+.eq-row.status-attention {
+  border-left-color: var(--warning) !important;
+}
+
+/* Remove status text badges from eq-rows, keep colour-only on condition/status cells */
+.eq-row .status-badge:not(.condition-badge) {
+  display: none !important;
+}
+
+/* Keep condition badge for the condition column */
+.eq-row .condition-badge {
+  display: inline-flex;
+}
+
+/* ── Scan QR as primary action ── */
+.btn-scan-primary {
+  min-height: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  gap: 7px;
+}
+
+/* ── Shift Summary (was AI Daily Insights) ── */
+.ai-insights-section {
+  border-radius: 0 !important;
+}
+
+.ai-insights-header {
+  padding: 10px 16px !important;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Departments: compact list ── */
+.dept-compact-panel {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.dept-compact-header {
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dept-compact-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin: 0;
+}
+
+.dept-compact-body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dept row in compact list */
+.dept-compact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.dept-compact-row:last-child {
+  border-bottom: none;
+}
+
+.dept-compact-row:hover {
+  background: var(--surface-2);
+}
+
+.dept-compact-name {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.dept-compact-count {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+/* ── Request Queue: hidden when 0 requests ── */
+/* JS will add/remove display:none on #requests-panel based on stat-requests */
+
+/* ── Page title row: clinical, not dashboard ── */
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ── QR code / asset ID monospace everywhere ── */
+.eq-detail-qr-id,
+.eq-row-id,
+code.asset-code {
+  font-family: var(--font-mono) !important;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Ghost button variant (less visual weight than secondary) ── */
+.btn.btn-ghost {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  box-shadow: none;
+}
+.btn.btn-ghost:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* ── Suppress KPI grid if still present in DOM (graceful) ── */
+.kpi-grid {
+  display: none !important;
+}

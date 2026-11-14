@@ -266,8 +266,12 @@ async function runTests() {
   });
 
   try {
-    console.log('[Test 1] Navigating to login page...');
+    console.log('[Test 1] Navigating to page & opening login...');
     await page.goto(`http://localhost:${PORT}`);
+    const landingBtn = await page.$('#landing-login-btn');
+    if (landingBtn && await landingBtn.isVisible()) {
+      await landingBtn.click();
+    }
 
     console.log('[Test 2] Testing Single Login Trigger & Performing user login (Admin1)...');
     // Verify Enter and Button each invoke doLogin exactly once (Amendment 8)
