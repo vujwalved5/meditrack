@@ -317,18 +317,20 @@
        HOMEPAGE SCREEN (MagicPath AI Homepage)
   ============================================================ -->
   <div id="home-screen" class="mp-site" role="region" aria-label="MediTrack Homepage">
+    <div class="mp-scroll-progress" aria-hidden="true"></div>
     <header class="mp-nav" role="banner">
       <a class="mp-logo" href="#top" aria-label="MediTrack Home">
         <span class="mp-mark" aria-hidden="true">m.</span>
         <span>MediTrack</span>
       </a>
-      <nav class="mp-nav-links" aria-label="Main sections">
-        <a href="#platform">Platform</a>
-        <a href="#operations">Operational value</a>
-        <a href="#workflow">How it works</a>
-        <a href="#departments">Departments</a>
+      <button type="button" class="mp-mobile-menu" onclick="toggleMobileNav()" aria-expanded="false" aria-label="Toggle navigation">☰</button>
+      <nav class="mp-nav-links" id="mp-nav-links" aria-label="Main sections">
+        <a href="#platform" onclick="closeMobileNav()">Platform</a>
+        <a href="#operations" onclick="closeMobileNav()">Operational value</a>
+        <a href="#workflow" onclick="closeMobileNav()">How it works</a>
+        <a href="#departments" onclick="closeMobileNav()">Departments</a>
       </nav>
-      <div class="mp-nav-actions">
+      <div class="mp-nav-actions" style="display:flex;align-items:center;gap:12px;">
         <button type="button" class="theme-toggle" id="home-theme-btn" onclick="cycleTheme()" aria-label="Toggle color theme" title="Toggle theme" style="background:transparent;border:1px solid var(--mp-line);border-radius:50%;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--mp-ink);">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
             <use href="#i-sun" />
@@ -344,7 +346,11 @@
       <section class="mp-hero" aria-label="Hero">
         <div class="mp-hero-copy">
           <div class="mp-overline"><span class="mp-overline-rule"></span> HOSPITAL EQUIPMENT, UNDER CONTROL</div>
-          <h1>The right equipment.<br /><em>In the right place.</em><br />When it matters.</h1>
+          <h1 class="mp-hero-title">
+            <span class="mp-title-line">The right equipment.</span>
+            <span class="mp-title-line mp-title-line-em"><em>In the right place.</em></span>
+            <span class="mp-title-line">When it matters.</span>
+          </h1>
           <p>One clear view of what your hospital owns, where it is, who is using it and what needs attention.</p>
           <div class="mp-hero-actions">
             <button type="button" class="mp-btn-primary" id="hero-portal-btn" onclick="showLoginScreen()">
@@ -368,8 +374,11 @@
         </div>
         <div class="mp-hero-bottom">
           <span>BUILT FOR THE FLOW OF CARE</span>
-          <div>
-            <b>ICU</b><i></i> <b>EMERGENCY</b><i></i> <b>OPERATION THEATRE</b><i></i> <b>RADIOLOGY</b><i></i> <b>MATERNITY</b>
+          <div class="mp-marquee">
+            <div class="mp-marquee-track">
+              <span>ICU <i></i> EMERGENCY <i></i> OPERATION THEATRE <i></i> RADIOLOGY <i></i> MATERNITY <i></i> GENERAL WARD <i></i></span>
+              <span aria-hidden="true">ICU <i></i> EMERGENCY <i></i> OPERATION THEATRE <i></i> RADIOLOGY <i></i> MATERNITY <i></i> GENERAL WARD <i></i></span>
+            </div>
           </div>
           <span class="mp-bottom-index">MEDTRACK / 2026</span>
         </div>
@@ -417,9 +426,9 @@
           <h2 class="mp-reveal">From scattered<br />updates to <em>one source<br />of clarity.</em></h2>
           <p class="mp-reveal">Give managers and department teams a current picture of equipment readiness—without piecing together separate registers.</p>
           <div class="mp-product-metrics mp-reveal">
-            <div><b>51</b><span>Available</span></div>
-            <div><b>06</b><span>In use</span></div>
-            <div><b>06</b><span>Needs attention</span></div>
+            <div><b class="mp-countup" data-target="51">51</b><span>Available</span></div>
+            <div><b class="mp-countup" data-target="6">06</b><span>In use</span></div>
+            <div><b class="mp-countup" data-target="6">06</b><span>Needs attention</span></div>
           </div>
           <small class="mp-demo-caption">Sample figures from the MediTrack demo dashboard · 63 tracked items</small>
         </div>
@@ -473,8 +482,17 @@
                   <div><small>In use</small><b>06</b><span>Currently checked out</span></div>
                   <div><small>Needs attention</small><b>06</b><span class="mp-amber-text">Maintenance / out of order</span></div>
                 </div>
+                <div class="mp-activity-strip">
+                  <span class="mp-activity-live"><i aria-hidden="true"></i> ACTIVITY</span>
+                  <div class="mp-activity-track">
+                    <span>Ventilator A checked out <b>09:42</b></span>
+                    <span>Infusion Pump B ready <b>09:38</b></span>
+                    <span>Monitor inspection flagged <b>09:21</b></span>
+                    <span>Ventilator A checked out <b>09:42</b></span>
+                  </div>
+                </div>
                 <div class="mp-table-heading">
-                  <b>Equipment status</b>
+                  <b id="demo-table-title">Equipment status</b>
                   <span>All departments <i>⌄</i></span>
                 </div>
                 <div class="mp-equipment-table" id="demo-table-content"></div>
@@ -551,6 +569,7 @@
               <div class="mp-qr-mini" aria-hidden="true">
                 <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
               </div>
+              <span class="mp-scan-label">QR / IDENTIFY</span>
             </div>
             <small>IDENTIFY</small>
             <h3>Scan the asset</h3>
